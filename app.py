@@ -1,6 +1,8 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
@@ -31,7 +33,7 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         user = User.query.filter_by(username=username).first()
-        if user and user.password == password:  
+        if user and check_password_hash(user.password, password):  
             login_user(user)
             return redirect(url_for('index'))
         else:
@@ -42,13 +44,29 @@ def login():
 def signup():
     if request.method == 'POST':
         username = request.form.get('username')
-        email = request.form.get('email') 
+        email = request.form.get('email')
         password = request.form.get('password')
-        new_user = User(username=username, email=email, password=password)
+
+        user_by_username = User.query.filter_by(username=username).first()
+        user_by_email = User.query.filter_by(email=email).first()
+
+        if user_by_username:
+            flash('Username already exists. Please choose another one.', 'danger')
+            return render_template('signup.html')
+
+        if user_by_email:
+            flash('Email already registered. Please use another email or login.', 'danger')
+            return render_template('signup.html')
+
+        hashed_password = generate_password_hash(password, method='scrypt')
+        new_user = User(username=username, email=email, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
+        flash('Registration successful. Please login.', 'success')  # A message to inform the user that the registration was successful
         return redirect(url_for('login'))
+
     return render_template('signup.html')
+
 
 @app.route('/logout')
 def logout():
