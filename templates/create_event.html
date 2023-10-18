@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Flasky{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Hello, User!</h1>
+    <h1>
+        Please Enter the Event Details you would like to fill out
+    </h1>
+</div>
+{{ wtf.quick_form(form) }}
+{% endblock %}
