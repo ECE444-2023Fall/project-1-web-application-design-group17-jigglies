@@ -42,7 +42,7 @@ class Event(db.Model):
 
     name = db.Column(db.String(150), primary_key=True)
     organization = db.Column(db.String(150), nullable=False) # Organization can have multiple events but not with the same name
-    date = db.Column(db.String(150), unique=True, nullable=False)  # Date, store as a string for now, Change to Datetime
+    date = db.Column(db.String(150), nullable=False)  # Date, store as a string for now, Change to Datetime
 
     def repr(self):
         return '<Event %r>' % self.name
@@ -63,22 +63,18 @@ def create_event():
         organization = form.organization.data
         date = form.date.data
 
-        name_exists = Event.query.filter_by(name = name).first()
+        name_exists = Event.query.filter_by(name =name).first()
         if name_exists:
             flash('Event name already exists. Please choose another one.', 'danger')
-            return render_template('create_event.html')
+            return render_template('create_event.html', form=form)
         
         new_event = Event(name=name, organization=organization, date=date)
         db.session.add(new_event)
         db.session.commit()
         flash('Succesfully Created New Event', 'success')
     
-        return redirect(url_for('create_event'))
-    return render_template('create_event.html', 
-                           form=form,
-                           name=session.get('name'), 
-                           organization=session.get('organization'),
-                           rsvp_limit = session.get('rsvp_limt'))
+        # return redirect(url_for('create_event'))
+    return render_template('create_event.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
