@@ -7,8 +7,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, Email
+from wtforms import StringField, SubmitField, DateField, TimeField, IntegerField
+from wtforms.validators import DataRequired, Email, NumberRange
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
@@ -31,9 +31,13 @@ class User(UserMixin, db.Model):
 
 # Create User Event Form
 class CreateEventForm(FlaskForm):
-    name = StringField('What is the name of the Event?', validators=[DataRequired()])
-    organization = StringField('What is the name of the organization', validators=[DataRequired()])
-    date = StringField('What is the date of the event', validators=[DataRequired()]) # Change this to Date time
+    name = StringField('Name of the Event', validators=[DataRequired()])
+    organization = StringField('Name of the organization', validators=[DataRequired()])
+    description = StringField('Description of the event', validators=[DataRequired()])
+    contact = StringField('Contact information of the organizer', validators=[DataRequired()])
+    date = DateField('Date of the event', format='%Y-%m-%d', validators=[DataRequired()])
+    timing = TimeField('Time of the event', format='%H:%M', validators=[DataRequired()])
+    capacity = IntegerField('What is the capacity of the event', validators=[DataRequired(), NumberRange(min=1)])
     submit = SubmitField('Submit')
 
 # Event Database
@@ -42,7 +46,11 @@ class Event(db.Model):
 
     name = db.Column(db.String(150), primary_key=True)
     organization = db.Column(db.String(150), nullable=False) # Organization can have multiple events but not with the same name
-    date = db.Column(db.String(150), nullable=False)  # Date, store as a string for now, Change to Datetime
+    description = db.Column(db.String(150), nullable=False)
+    contact = db.Column(db.String(150), nullable=False)
+    date = db.Column(db.Date, nullable=False)  # Date, store as a string for now, Change to Datetime
+    timing = db.Column(db.Time, nullable=False)
+    capacity = db.Column(db.Integer, nullable=False)
 
     def repr(self):
         return '<Event %r>' % self.name
@@ -62,13 +70,17 @@ def create_event():
         name = form.name.data
         organization = form.organization.data
         date = form.date.data
+        description = form.description.data
+        timing = form.timing.data
+        contact = form.contact.data
+        capacity = form.capacity.data
 
         name_exists = Event.query.filter_by(name =name).first()
         if name_exists:
             flash('Event name already exists. Please choose another one.', 'danger')
             return render_template('create_event.html', form=form)
         
-        new_event = Event(name=name, organization=organization, date=date)
+        new_event = Event(name=name, organization=organization, date=date, description=description, timing=timing, contact=contact, capacity=capacity)
         db.session.add(new_event)
         db.session.commit()
         flash('Succesfully Created New Event', 'success')
