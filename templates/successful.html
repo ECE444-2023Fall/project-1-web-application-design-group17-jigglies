@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Event Created Successfully{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Success!</h1>
+    <p>Your event was successfully created.</p>
+</div>
+
+<a href="{{ url_for('index') }}" class="btn btn-primary">Return to the main page</a>
+{% endblock %}

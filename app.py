@@ -37,7 +37,7 @@ class CreateEventForm(FlaskForm):
     contact = StringField('Contact information of the organizer', validators=[DataRequired()])
     date = DateField('Date of the event', format='%Y-%m-%d', validators=[DataRequired()])
     timing = TimeField('Time of the event', format='%H:%M', validators=[DataRequired()])
-    capacity = IntegerField('What is the capacity of the event', validators=[DataRequired(), NumberRange(min=1)])
+    capacity = IntegerField('Capacity of the event', validators=[DataRequired(), NumberRange(min=1)])
     submit = SubmitField('Submit')
 
 # Event Database
@@ -63,6 +63,11 @@ def load_user(user_id):
 def index():
     return render_template('index.html')
 
+@app.route('/successful')
+def successful():
+    return render_template('successful.html')
+
+
 @app.route('/create_event', methods=['GET', 'POST'])
 def create_event():
     form = CreateEventForm()
@@ -84,6 +89,7 @@ def create_event():
         db.session.add(new_event)
         db.session.commit()
         flash('Succesfully Created New Event', 'success')
+        return redirect(url_for('successful'))
     
         # return redirect(url_for('create_event'))
     return render_template('create_event.html', form=form)
