@@ -22,19 +22,13 @@ login_manager.init_app(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
+## ----------------------------- Database Schemas ----------------------------- ##
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)  # New email field
     password = db.Column(db.String(150), nullable=False)
-
-
-# Create User Event Form
-class CreateEventForm(FlaskForm):
-    name = StringField('What is the name of the Event?', validators=[DataRequired()])
-    organization = StringField('What is the name of the organization', validators=[DataRequired()])
-    date = StringField('What is the date of the event', validators=[DataRequired()]) # Change this to Date time
-    submit = SubmitField('Submit')
 
 # Event Database
 class Event(db.Model):
@@ -47,6 +41,11 @@ class Event(db.Model):
     def repr(self):
         return '<Event %r>' % self.name
 
+## ---------------------------------------------------------------------------- ##
+
+
+
+## ----------------------------------- Login ---------------------------------- ##
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -55,26 +54,6 @@ def load_user(user_id):
 def index():
     return render_template('index.html')
 
-@app.route('/create_event', methods=['GET', 'POST'])
-def create_event():
-    form = CreateEventForm()
-    if form.validate_on_submit(): 
-        name = form.name.data
-        organization = form.organization.data
-        date = form.date.data
-
-        name_exists = Event.query.filter_by(name =name).first()
-        if name_exists:
-            flash('Event name already exists. Please choose another one.', 'danger')
-            return render_template('create_event.html', form=form)
-        
-        new_event = Event(name=name, organization=organization, date=date)
-        db.session.add(new_event)
-        db.session.commit()
-        flash('Succesfully Created New Event', 'success')
-    
-        # return redirect(url_for('create_event'))
-    return render_template('create_event.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -121,6 +100,42 @@ def signup():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+## ---------------------------------------------------------------------------- ##
+
+
+## ------------------------------- Create Event ------------------------------- ##
+
+class CreateEventForm(FlaskForm):
+    name = StringField('What is the name of the Event?', validators=[DataRequired()])
+    organization = StringField('What is the name of the organization', validators=[DataRequired()])
+    date = StringField('What is the date of the event', validators=[DataRequired()]) # Change this to Date time
+    submit = SubmitField('Submit')
+
+
+@app.route('/create_event', methods=['GET', 'POST'])
+def create_event():
+    form = CreateEventForm()
+    if form.validate_on_submit(): 
+        name = form.name.data
+        organization = form.organization.data
+        date = form.date.data
+
+        name_exists = Event.query.filter_by(name =name).first()
+        if name_exists:
+            flash('Event name already exists. Please choose another one.', 'danger')
+            return render_template('create_event.html', form=form)
+        
+        new_event = Event(name=name, organization=organization, date=date)
+        db.session.add(new_event)
+        db.session.commit()
+        flash('Succesfully Created New Event', 'success')
+    
+        # return redirect(url_for('create_event'))
+    return render_template('create_event.html', form=form)
+
+## ---------------------------------------------------------------------------- ##
+
 
 if __name__ == '__main__':
     app.run(debug=True)
