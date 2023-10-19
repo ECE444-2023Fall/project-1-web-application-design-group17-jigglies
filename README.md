@@ -55,12 +55,6 @@
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-      </ul>
-    </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
@@ -94,18 +88,6 @@ Sound like your thing? Time to find out what's Poppin'
 The majority of this project was built using Flask for python as well as HTML and CSS
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
-### Prerequisites
-
-You must be able to use Python(Flask), HTML and CSS.
 
 
 <!-- USAGE EXAMPLES -->
