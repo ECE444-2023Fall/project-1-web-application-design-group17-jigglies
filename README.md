@@ -28,22 +28,20 @@
 <br />
 <div align="center">
   <a href="https://github.com/ECE444-2023Fall/project-1-web-application-design-group17-jigglies">
-    <img src="images/logo.png" alt="Poppin' logo!" width="80" height="80">
+    <img src="images/logo.png" alt="Poppin' logo!" width="900" height="307">
   </a>
 
-  <h3 align="center">Best-README-Template</h3>
+  <h3 align="center">Poppin: UofT's Community Hub</h3>
 
   <p align="center">
-    An awesome README template to jumpstart your projects!
+    The number one place to learn about and tell people about events happening at UofT
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
+    <a href="#about-the-project"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
+    <a href="https://github.com/ECE444-2023Fall/project-1-web-application-design-group17-jigglies/issues">Report Bug</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
+    <a href="https://github.com/ECE444-2023Fall/project-1-web-application-design-group17-jigglies/issues">Request Feature</a>
   </p>
 </div>
 
