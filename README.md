@@ -23,11 +23,12 @@
 
 # Note that the readme is just copied over for now, I will fill in with relevant info soon
 
+
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+  <a href="https://github.com/ECE444-2023Fall/project-1-web-application-design-group17-jigglies">
+    <img src="images/logo.png" alt="Poppin' logo!" width="80" height="80">
   </a>
 
   <h3 align="center">Best-README-Template</h3>
