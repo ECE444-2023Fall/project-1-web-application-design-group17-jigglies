@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
@@ -30,6 +30,19 @@ events = [
     {"name": "Hackathon", "organizer": "UTRA", "time": "11-19-23 15:00"},
     {"name": "Nasdaq Lunch and Learn", "organizer": "NSBE", "time": "09-28-23 19:00"}
 ]
+
+def add_dummy_events():
+    events = [
+        {"name": "Meet the team", "organizer": "UTFR", "time": "10-19-23 18:00"},
+        {"name": "Hackathon", "organizer": "UTRA", "time": "11-19-23 15:00"},
+        {"name": "Nasdaq Lunch and Learn", "organizer": "NSBE", "time": "09-28-23 19:00"}
+    ]
+
+    for event in events:
+        new_event = Event(name = event['name'], organizer = event['organizer'], time = datetime.strptime(event['time'], "%m-%d-%y %H:%M"))
+        db.session.add(new_event)
+
+    db.session.commit()
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -128,4 +141,9 @@ def event_details(event_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    with app.app_context():
+        db.create_all()
+        add_dummy_events()
+    app.run(debug=False)
+
+    
