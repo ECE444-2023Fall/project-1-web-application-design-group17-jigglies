@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -18,6 +18,18 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)  # New email field
     password = db.Column(db.String(150), nullable=False)
+
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    organizer = db.Column(db.String(100), nullable=False)
+    time = db.Column(db.String(100), nullable=False)
+
+events = [
+    {"name": "Meet the team", "organizer": "UTFR", "time": "10-19-23 18:00"},
+    {"name": "Hackathon", "organizer": "UTRA", "time": "11-19-23 15:00"},
+    {"name": "Nasdaq Lunch and Learn", "organizer": "NSBE", "time": "09-28-23 19:00"}
+]
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -72,6 +84,48 @@ def signup():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+@app.route('/home')
+def home():
+    # Fetch events from the database
+    events = Event.query.all()
+
+    # Convert the list of Event objects into a list of dictionaries
+    events_data = [
+        {
+            'name': event.name,
+            'organizer': event.organizer,
+            'time': event.time
+        }
+        for event in events
+    ]
+
+    # Enumerate the events in Python and pass them to the template
+    enumerated_events = list(enumerate(events_data))
+
+    return render_template('home.html', events=enumerated_events)
+
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query')
+
+    # Query the database to find events that match the query (excluding time)
+    results = Event.query.filter(
+        (Event.name.ilike(f'%{query}%')) |
+        (Event.organizer.ilike(f'%{query}%'))
+    ).all()
+
+    return render_template('search_results.html', results=results, query=query)
+
+
+@app.route('/event/<int:event_id>')
+def event_details(event_id):
+    # Assuming you have a database with events, fetch the event details by event_id
+    # Replace this with your actual database query
+    event = events[event_id]  # Replace events with your database query
+
+    return render_template('event_details.html', event=event)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

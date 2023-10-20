@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Event Details</title>
+</head>
+<body>
+    <h1>Event Details</h1>
+    <div class="event-details">
+        <h2>{{ event.name }}</h2>
+        <p>Organizer: {{ event.organizer }}</p>
+        <p>Time: {{ event.time }}</p>
+    </div>
+    <a href="{{ url_for('home') }}" class="btn btn-primary">Back to Home</a>
+</body>
+</html>

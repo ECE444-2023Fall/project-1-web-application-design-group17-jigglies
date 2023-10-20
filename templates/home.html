@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <h1>Home Page</h1>
+    <form action="{{ url_for('search') }}" method="GET">
+        <div class="autocomplete" style="width:300px;">
+            <input type="text" name="query" id="search" placeholder="Search for events">
+        </div>
+        <input type="submit" value="Search">
+    </form>
+    <div class="autocomplete-results" id="autocomplete-results"></div>
+    <div class="event-cards" id="event-cards">
+        {% for index, event in events %}
+            <div class="event-card">
+                <h2><a href="{{ url_for('event_details', event_id=index) }}">{{ event.name }}</a></h2>
+                <p>Organizer: {{ event.organizer }}</p>
+                <p>Time: {{ event.time }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
+
