@@ -26,5 +26,43 @@
         {% endif %}
     </div>
     <a href="{{ url_for('home') }}" class="btn btn-primary">Back to Home</a>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('#search').on('input', function() {
+            var query = $(this).val();
+            if (query) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/autocomplete',
+                    data: { query: query },
+                    success: function(data) {
+                        var resultsDiv = $('#autocomplete-results');
+                        resultsDiv.empty();
+                        for (var i = 0; i < data.length; i++) {
+                            var suggestion = data[i];
+                            var suggestionDiv = $('<div></div>');
+                            suggestionDiv.addClass('autocomplete-suggestion');
+                            suggestionDiv.text(suggestion.label);
+                            suggestionDiv.click(function() {
+                                $('#search').val(suggestion.label);
+                                resultsDiv.empty();
+                            });
+                            resultsDiv.append(suggestionDiv);
+                        }
+                    }
+                });
+            } else {
+                $('#autocomplete-results').empty();
+            }
+        });
+
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest("#autocomplete-results").length) {
+                $('#autocomplete-results').empty();
+            }
+        });
+    });
+    </script>
 </body>
 </html>

@@ -112,7 +112,7 @@ def logout():
 def home():
     # Fetch events from the database
     events = Event.query.all()
-    
+
     return render_template('home.html', events=events)
 
 @app.route('/search', methods=['GET'])
@@ -137,6 +137,19 @@ def event_details(event_id):
     else:
         flash('Event not found', 'danger')
         return redirect(url_for('home'))
+    
+@app.route('/autocomplete', methods=['GET'])
+def autocomplete():
+    query = request.args.get('query')
+    results = Event.query.filter(
+        (Event.name.ilike(f'%{query}%')) |
+        (Event.organizer.ilike(f'%{query}%'))
+    ).all()
+
+    suggestions = [{"label": event.name, "value": event.name} for event in results]
+
+    return jsonify(suggestions)
+
 
 if __name__ == '__main__':
     with app.app_context():
