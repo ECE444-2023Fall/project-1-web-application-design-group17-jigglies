@@ -6,6 +6,12 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
+
+app.config['SQLALCHEMY_BINDS'] = {
+    'users': 'sqlite:///users.db',
+    'events': 'sqlite:///events.db'
+}
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -14,22 +20,21 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 class User(UserMixin, db.Model):
+    __bind_key__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)  # New email field
     password = db.Column(db.String(150), nullable=False)
 
 class Event(db.Model):
+    __bind_key__ = 'events'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     organizer = db.Column(db.String(100), nullable=False)
     time = db.Column(db.String(100), nullable=False)
 
-events = [
-    {"name": "Meet the team", "organizer": "UTFR", "time": "10-19-23 18:00"},
-    {"name": "Hackathon", "organizer": "UTRA", "time": "11-19-23 15:00"},
-    {"name": "Nasdaq Lunch and Learn", "organizer": "NSBE", "time": "09-28-23 19:00"}
-]
+def event_exists(name, organizer, time):
+    return Event.query.filter_by(name=name, organizer=organizer, time=time).first() is not None
 
 def add_dummy_events():
     events = [
@@ -39,8 +44,13 @@ def add_dummy_events():
     ]
 
     for event in events:
-        new_event = Event(name = event['name'], organizer = event['organizer'], time = datetime.strptime(event['time'], "%m-%d-%y %H:%M"))
-        db.session.add(new_event)
+        name = event['name']
+        organizer = event['organizer']
+        time = event['time']
+        
+        if not event_exists(name, organizer, time):
+            new_event = Event(name = event['name'], organizer = event['organizer'], time = datetime.strptime(event['time'], "%m-%d-%y %H:%M"))
+            db.session.add(new_event)
 
     db.session.commit()
 
@@ -102,21 +112,8 @@ def logout():
 def home():
     # Fetch events from the database
     events = Event.query.all()
-
-    # Convert the list of Event objects into a list of dictionaries
-    events_data = [
-        {
-            'name': event.name,
-            'organizer': event.organizer,
-            'time': event.time
-        }
-        for event in events
-    ]
-
-    # Enumerate the events in Python and pass them to the template
-    enumerated_events = list(enumerate(events_data))
-
-    return render_template('home.html', events=enumerated_events)
+    
+    return render_template('home.html', events=events)
 
 @app.route('/search', methods=['GET'])
 def search():
@@ -133,17 +130,19 @@ def search():
 
 @app.route('/event/<int:event_id>')
 def event_details(event_id):
-    # Assuming you have a database with events, fetch the event details by event_id
+    event = Event.query.get(event_id)
 
-    event = events[event_id]  
-
-    return render_template('event_details.html', event=event)
-
+    if event is not None:
+        return render_template('event_details.html', event = event)
+    else:
+        flash('Event not found', 'danger')
+        return redirect(url_for('home'))
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        add_dummy_events()
+        if not Event.query.first():
+            add_dummy_events()
     app.run(debug=False)
 
     

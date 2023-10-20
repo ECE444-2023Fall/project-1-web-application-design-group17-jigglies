@@ -13,9 +13,9 @@
     </form>
     <div class="autocomplete-results" id="autocomplete-results"></div>
     <div class="event-cards" id="event-cards">
-        {% for index, event in events %}
+        {% for event in events %}
             <div class="event-card">
-                <h2><a href="{{ url_for('event_details', event_id=index) }}">{{ event.name }}</a></h2>
+                <h2><a href="{{ url_for('event_details', event_id=event.id) }}">{{ event.name }}</a></h2>
                 <p>Organizer: {{ event.organizer }}</p>
                 <p>Time: {{ event.time }}</p>
             </div>
@@ -23,4 +23,3 @@
     </div>
 </body>
 </html>
-
