@@ -102,6 +102,8 @@ Screenshots and scenarios will be put here when the application is more develope
 <!-- ROADMAP -->
 ## Roadmap
 
+Our team will be using Jira for project management. You can find our board [here](https://ece444-jigglies-poppin.atlassian.net/jira/software/projects/SCRUM/boards/1).
+
 Sprint 2:
 - [ ] Explore Page
 - [ ] Personal Page
