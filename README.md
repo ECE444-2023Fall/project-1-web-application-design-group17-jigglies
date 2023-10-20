@@ -105,11 +105,11 @@ Screenshots and scenarios will be put here when the application is more develope
 Our team will be using Jira for project management. You can find our board [here](https://ece444-jigglies-poppin.atlassian.net/jira/software/projects/SCRUM/boards/1).
 
 Sprint 2:
-- [ ] Explore Page
-- [ ] Personal Page
+- [ ] Front end mockups
+- [ ] Basic functionality of whole site
 - [ ] Sprint 1 Backlog
 
-See the [open issues](https://github.com/ECE444-2023Fall/project-1-web-application-design-group17-jigglies/issues) for a full list of proposed features (and known issues).
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -118,7 +118,7 @@ See the [open issues](https://github.com/ECE444-2023Fall/project-1-web-applicati
 <!-- CONTRIBUTING -->
 ## Contributing
 
-Please work on your own branch and create a pull request before merging into any branch you don't have sole ownership over. Whenever possible, reference an issue for each pull request. Each pull request must have at least one reviewer so that a team member can independently verify functionality.
+Please work on your own branch and create a pull request before merging into any branch you don't have sole ownership over. Each pull request must have at least one reviewer so that a team member can independently verify functionality.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
