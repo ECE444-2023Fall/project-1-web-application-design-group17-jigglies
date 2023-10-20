@@ -139,6 +139,8 @@ If contact is needed for any reason, please email John at the below email.
 
 John Lee - johnheyjun.lee@mail.utoronto.ca
 
+Jason Wang - jasonhy.wang@mail.utoronto.ca
+
 Project Link: [https://github.com/ECE444-2023Fall/project-1-web-application-design-group17-jigglies](https://github.com/ECE444-2023Fall/project-1-web-application-design-group17-jigglies)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
