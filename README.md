@@ -135,7 +135,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <!-- CONTACT -->
 ## Contact
-If contact is needed for any reason, please email John at the below email.
+If contact is needed for any reason, please email one of the two contacts below.
 
 John Lee - johnheyjun.lee@mail.utoronto.ca
 
