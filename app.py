@@ -121,8 +121,8 @@ def search():
 @app.route('/event/<int:event_id>')
 def event_details(event_id):
     # Assuming you have a database with events, fetch the event details by event_id
-    # Replace this with your actual database query
-    event = events[event_id]  # Replace events with your database query
+
+    event = events[event_id]  
 
     return render_template('event_details.html', event=event)
 
