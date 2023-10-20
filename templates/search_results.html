@@ -5,11 +5,18 @@
 </head>
 <body>
     <h1>Search Results for "{{ query }}"</h1>
+    <form action="{{ url_for('search') }}" method="GET">
+        <div class="autocomplete" style="width: 300px;">
+            <input type="text" name="query" id="search" placeholder="Search for events...">
+        </div>
+        <input type="submit" value="Search">
+    </form>
+    <div class="autocomplete-results" id="autocomplete-results"></div>
     <div class="search-results">
         {% if results %}
             {% for result in results %}
                 <div class="result-card">
-                    <h2>{{ result.name }}</h2>
+                    <h2><a href="{{ url_for('event_details', event_id=result.id) }}">{{ result.name }}</a></h2>
                     <p>Organizer: {{ result.organizer }}</p>
                     <p>Time: {{ result.time }}</p>
                 </div>

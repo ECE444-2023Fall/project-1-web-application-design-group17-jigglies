@@ -5,6 +5,13 @@
 </head>
 <body>
     <h1>Event Details</h1>
+    <form action="{{ url_for('search') }}" method="GET">
+        <div class="autocomplete" style="width: 300px;">
+            <input type="text" name="query" id="search" placeholder="Search for events...">
+        </div>
+        <input type="submit" value="Search">
+    </form>
+    <div class="autocomplete-results" id="autocomplete-results"></div>
     <div class="event-details">
         <h2>{{ event.name }}</h2>
         <p>Organizer: {{ event.organizer }}</p>
