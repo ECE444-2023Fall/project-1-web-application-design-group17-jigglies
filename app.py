@@ -6,9 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, Email
+
+from forms import CreateEventForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
@@ -106,11 +105,7 @@ def logout():
 
 ## ------------------------------- Create Event ------------------------------- ##
 
-class CreateEventForm(FlaskForm):
-    name = StringField('What is the name of the Event?', validators=[DataRequired()])
-    organization = StringField('What is the name of the organization', validators=[DataRequired()])
-    date = StringField('What is the date of the event', validators=[DataRequired()]) # Change this to Date time
-    submit = SubmitField('Submit')
+
 
 
 @app.route('/create_event', methods=['GET', 'POST'])
