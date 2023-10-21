@@ -59,8 +59,7 @@ def signup():
         password = request.form.get('password')
 
         # Add this block to validate the email domain
-        if not email.endswith('.utoronto.ca'):
-            print(email)
+        if not email.endswith('utoronto.ca'):
             flash('Please sign up with a uoft email.', 'danger')
             return render_template('signup.html')
 
