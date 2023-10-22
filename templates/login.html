@@ -1,39 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
+{% extends "base-form.html" %}
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div class="flashes">
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endwith %}
+{% block title %}Login{% endblock %}
 
-<form method="post">
-    <div>
-        <label>Username/Email:</label>
-        <input type="text" name="user_identifier" required>
-    </div>
-    <div>
-        <label>Password:</label>
-        <input type="password" name="password" required>
-    </div>
-    <!-- Grouping Login and Signup buttons -->
-    <div class="button-group">
-        <button type="submit">Login</button>
-        <a href="{{ url_for('signup') }}">Signup</a>
-    </div>
-</form>
+{% block content %}
+<div class="w-80 h-50 bg-white rounded-xl relative p-8">
+    <form action="/login" method="post">
+        <!-- Username/Email -->
+        <label for="user_identifier" class="font-lexend font-semibold text-gray-700 mb-1">Username/Email:</label>
+        <input id="user_identifier" name="user_identifier" type="text" placeholder="Username/Email" class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-3 py-1.5" required>
 
-</body>
-</html>
+        <!-- Password -->
+        <label for="password" class="font-lexend font-semibold text-gray-700 mb-1">Password:</label>
+        <input id="password" name="password" type="password" placeholder="Password" class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-3 py-1.5" required>
+
+        <div class="flex mt-4 space-x-10">
+            <!-- Login Button -->
+            <button type="submit" class="w-24 h-10 flex items-center justify-center bg-blue-600 text-white rounded-md px-4 py-2">Login</button>
+            
+            <!-- Signup Link -->
+            <a href="/signup" class="w-24 h-10 flex items-center justify-center bg-gray-700 text-white rounded-md px-4 py-2">Signup</a>
+        </div>   
+    </form>
+</div>
+{% endblock %}
