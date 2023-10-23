@@ -9,6 +9,7 @@ from flask_moment import Moment
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, DateField, TimeField, IntegerField
 from wtforms.validators import DataRequired, Email, NumberRange
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
@@ -83,6 +84,12 @@ def create_event():
         name_exists = Event.query.filter_by(name =name).first()
         if name_exists:
             flash('Event name already exists. Please choose another one.', 'danger')
+            return render_template('create_event.html', form=form)
+        
+        # Check if the event date is in the past
+        current_date = datetime.now().date()
+        if date <= current_date:
+            flash('Event date is in the past. Please choose a future date.', 'danger')
             return render_template('create_event.html', form=form)
         
         new_event = Event(name=name, organization=organization, date=date, description=description, timing=timing, contact=contact, capacity=capacity)
