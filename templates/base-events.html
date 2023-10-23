@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Default Title{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-200 h-screen w-screen p-12">
+
+    <!-- Header -->
+    <div class="bg-white p-6 rounded-lg shadow-md flex items-center mb-8">
+        <span class="text-3xl font-bold text-gray-700 mr-4">poppin</span>
+        <input type="text" placeholder="what's poppin?" class="border rounded p-2 flex-grow mr-2">
+        <button class="bg-blue-500 text-white rounded p-2">Search</button>
+        <div class="ml-4 flex space-x-4">
+            <!-- Replace these with actual SVGs or icons for the three symbols -->
+            <span class="text-gray-500">📁</span>
+            <span class="text-gray-500">🔔</span>
+            <span class="text-gray-500">👤</span>
+        </div>
+    </div>
+
+    {% block content %} {% endblock %}
+
+</body>
+
+</html>
