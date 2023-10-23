@@ -7,6 +7,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
+from datetime import date, timedelta
+
 from forms import CreateEventForm
 
 app = Flask(__name__)
@@ -127,23 +129,28 @@ def logout():
 @app.route('/create_event', methods=['GET', 'POST'])
 def create_event():
     form = CreateEventForm()
+    # Calculate tomorrow's date
+    tomorrow = date.today() + timedelta(days=1)
+
+    # Format tomorrow's date in YYYY-MM-DD
+    tomorrow_formatted = tomorrow.isoformat()
     if form.validate_on_submit(): 
         name = form.name.data
         organization = form.organization.data
-        date = form.date.data
+        date_event = form.date.data
 
         name_exists = Event.query.filter_by(name =name).first()
         if name_exists:
             flash('Event name already exists. Please choose another one.', 'danger')
             return render_template('create_event.html', form=form)
         
-        new_event = Event(name=name, organization=organization, date=date)
+        new_event = Event(name=name, organization=organization, date=date_event)
         db.session.add(new_event)
         db.session.commit()
         flash('Succesfully Created New Event', 'success')
     
-        # return redirect(url_for('create_event'))
-    return render_template('create_event.html', form=form)
+        return redirect(url_for('create_event'))
+    return render_template('create_event.html', form=form, tomorrow = tomorrow_formatted)
 
 ## ---------------------------------------------------------------------------- ##
 
