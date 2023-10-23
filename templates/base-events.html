@@ -12,15 +12,32 @@
 <body class="bg-gray-200 h-screen w-screen p-12">
 
     <!-- Header -->
-    <div class="bg-white p-6 rounded-lg shadow-md flex items-center mb-8">
-        <span class="text-3xl font-bold text-gray-700 mr-4">poppin</span>
-        <input type="text" placeholder="what's poppin?" class="border rounded p-2 flex-grow mr-2">
-        <button class="bg-blue-500 text-white rounded p-2">Search</button>
-        <div class="ml-4 flex space-x-4">
-            <!-- Replace these with actual SVGs or icons for the three symbols -->
-            <span class="text-gray-500">📁</span>
-            <span class="text-gray-500">🔔</span>
-            <span class="text-gray-500">👤</span>
+    <div class="p-2 rounded-lg flex items-center justify-between mb-8">
+        <div class="flex items-center">
+            <img src="static/images/minimal_logo.png" alt="Logo" style="width: 250px; height: auto;">
+            <input type="text" placeholder="what's poppin?" class="border-4 border-gray-400 rounded-md p-2 mr-2 ml-4 text-gray-400 font-lexend px-4 py-1.5" style="width: 600px; height: 40;">
+            <button class="w-24 h-10 bg-gray-400 border border-gray-400 rounded-lg flex items-center justify-center text-white font-lexend font-medium text-base leading-6 hover:bg-indigo-500 transition duration-300">Search</button>
+        </div>
+        <div class="flex space-x-4">
+            <!-- Heroicons SVGs -->
+            <a href="/calendar" class="text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                </svg>
+            </a>
+            
+            <a href="/bookmarks" class="text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+              </svg>
+            </a>
+              
+            <a href="/profile" class="text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </a>
+              
         </div>
     </div>
 
