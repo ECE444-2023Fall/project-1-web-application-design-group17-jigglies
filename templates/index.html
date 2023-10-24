@@ -1,6 +1,72 @@
 {% if current_user.is_authenticated %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
   <h1>Welcome {{ current_user.username }}!</h1>
-  <a href="{{ url_for('logout') }}">Logout</a>
+    <form autocomplete="off" action="{{ url_for('search') }}" method="GET">
+        <div class="autocomplete" style="width:300px;">
+            <input type="text" name="query" id="search" placeholder="Search for events...">
+        </div>
+        <input type="submit" value="Search">
+    </form>
+    <div class="autocomplete-results" id="autocomplete-results"></div>
+    <div class="event-cards" id="event-cards">
+        {% for event in events %}
+            <div class="event-card">
+                <h2><a href="{{ url_for('event_details', event_id=event.id) }}">{{ event.name }}</a></h2>
+                <p>Organizer: {{ event.organizer }}</p>
+                <p>Time: {{ event.time }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    <a href="{{ url_for('logout') }}">Logout</a>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('#search').on('input', function() {
+            var query = $(this).val();
+            if (query) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/autocomplete',
+                    data: { query: query },
+                    success: function(data) {
+                        var resultsDiv = $('#autocomplete-results');
+                        resultsDiv.empty();
+                        for (var i = 0; i < data.length; i++) {
+                            var suggestion = data[i];
+                            var suggestionDiv = $('<div></div>');
+                            suggestionDiv.addClass('autocomplete-suggestion');
+                            suggestionDiv.text(suggestion.label);
+                            suggestionDiv.click(function() {
+                                $('#search').val(suggestion.label);
+                                resultsDiv.empty();
+                            });
+                            resultsDiv.append(suggestionDiv);
+                        }
+                    }
+                });
+            } else {
+                $('#autocomplete-results').empty();
+            }
+        });
+
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest("#autocomplete-results").length) {
+                $('#autocomplete-results').empty();
+            }
+        });
+    });
+    </script>
+
+</body>
+</html>
+
 {% else %}
   <h1>Welcome Guest!</h1>
   <a href="{{ url_for('login') }}">Login</a>

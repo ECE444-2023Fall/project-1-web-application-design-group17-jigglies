@@ -6,13 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
-
-app.config['SQLALCHEMY_BINDS'] = {
-    'users': 'sqlite:///users.db',
-    'events': 'sqlite:///events.db'
-}
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -20,14 +14,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 class User(UserMixin, db.Model):
-    __bind_key__ = 'users'
+    #__bind_key__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)  # New email field
     password = db.Column(db.String(150), nullable=False)
 
 class Event(db.Model):
-    __bind_key__ = 'events'
+    __tablename__ = 'events'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     organizer = db.Column(db.String(100), nullable=False)
@@ -60,7 +54,8 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    events = Event.query.all()
+    return render_template('index.html', events=events)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -107,13 +102,6 @@ def signup():
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-@app.route('/home')
-def home():
-    # Fetch events from the database
-    events = Event.query.all()
-
-    return render_template('home.html', events=events)
 
 @app.route('/search', methods=['GET'])
 def search():
