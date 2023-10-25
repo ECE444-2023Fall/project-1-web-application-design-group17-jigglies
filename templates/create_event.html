@@ -3,34 +3,34 @@
 {% block title %}Post an Event{% endblock %}
 
 {% block content %}
-  <h2 class="font-lexend font-semibold text-3xl text-black mb-8"> Post an Event!</h2>
-  <form action="/signup" method="post" class="flex">
+  <h2 class="font-lexend font-semibold text-4xl text-black mb-8 p-4 pl-8"> Post an Event!</h2>
+  <form action="/create_event" method="post" class="flex pl-8">
     <div class="flex flex-col max-w-2xl mr-8">
       <!-- Event Name -->
-      <div class="flex flex-col p-8">
+      <div class="flex flex-col pl-8 pr-8">
         <label for="event_name" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Event Name:</label>
         <input id="event_name" name="event_name" type="text" placeholder="Event Name"
-          class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5" required>
+          class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 focus:border-indigo-500" required>
       </div>
 
       <!-- Date, Start Time, End Time -->
-      <div class="flex flex-row space-x-4">
+      <div class="flex flex-row space-x-20 pl-8 pr-8">
         <!-- Date -->
-        <div class="flex flex-col p-8">
+        <div class="flex flex-col">
           <label for="email" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Date:</label>
           <input type="date"
             class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5" id="start"
             name="trip-start" value="{{ tomorrow }}" min="{{ tomorrow }}" />
         </div>
         <!-- Start Time -->
-        <div class="flex flex-col p-8">
+        <div class="flex flex-col">
           <label for="start-time" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Start Time:</label>
           <input type="time"
             class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5" id="appt"
             name="appt" required />
         </div>
         <!-- End Time -->
-        <div class="flex flex-col p-8">
+        <div class="flex flex-col">
           <label for="end-time" class="font-lexend font-semibold text-gray-700 text-xl pb-4">End Time:</label>
           <input type="time"
             class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5" id="appt"
@@ -39,7 +39,7 @@
       </div>
 
       <!-- Address and Room -->
-      <div class="grid grid-cols-3 gap-4 p-8">
+      <div class="grid grid-cols-3 gap-4 pl-8 pr-8">
         <!-- Address -->
         <div class="flex flex-col col-span-2">
           <label for="location" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Address:</label>
@@ -53,7 +53,7 @@
             class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5" required>
         </div>
       </div>
-      <div class="flex flex-row align-top">
+      <div class="flex flex-row align-top justify-between">
         <div class="flex flex-col p-8">
           <fieldset>
             <legend class="font-lexend font-semibold text-gray-700 text-xl">Allow Comments:</legend>
@@ -61,12 +61,12 @@
               <div class="flex items-center gap-x-3">
                 <input id="push-yes" name="allow-comments" type="radio"
                   class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
-                <label for="push-yes" class="block text-sm font-large leading-6 text-gray-900">Yes</label>
+                <label for="push-yes" class="block text-sm font-large leading-6 text-gray-900 font-semibold">Yes</label>
               </div>
               <div class="flex items-center gap-x-3">
                 <input id="push-no" name="allow-comments" type="radio"
                   class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
-                <label for="push-no" class="block text-sm font-xl leading-6 text-gray-900">No</label>
+                <label for="push-no" class="block text-sm font-xl leading-6 text-gray-900 font-semibold">No</label>
               </div>
             </div>
           </fieldset>
@@ -79,39 +79,39 @@
         </div>
         
       </div>
-      <div class="flex flex-col p-8">
-      <button type="submit" class="w-24 h-10 flex items-center justify-center bg-blue-600 text-white rounded-md px-4 py-2">Login</button>
+      <div class="flex flex-col w-full p-8"> 
+        <div class="flex flex-col">
+                <label for="cover-photo" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Cover photo</label>
+                <div class="mt-2 flex justify-center rounded-lg border border-dashed border-black px-6 py-10">
+                  <div class="text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd"
+                        d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
+                        clip-rule="evenodd" />
+                    </svg>
+                    <div class="mt-4 flex text-sm leading-6 text-gray-600 items-center">
+                      <label for="file-upload"
+                        class="relative cursor-pointer rounded-md bg-gray-400 font-semibold text-white focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:bg-indigo-500 p-2">
+                        <span class="font-lexend">Upload a file</span>
+                        <input id="file-upload" name="file-upload" type="file" class="sr-only">
+                      </label>
+                      <p class="pl-1 font-lexend">or drag and drop</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
       </div>
     </div>
 
     <div class="flex flex-col w-full">
-    <div class="flex flex-col w-full p-8"> 
-      <label for="large-text" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Additional Information:</label>
-      <textarea id="large-text" name="large_text" placeholder="Enter more information here..."
-        class="w-full h-96 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 resize-none" required></textarea>
-    </div>
-    <div class="flex flex-col w-full p-8"> 
-      <div class="flex flex-col">
-              <label for="cover-photo" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Cover photo</label>
-              <div class="mt-2 flex justify-center rounded-lg border border-dashed border-black px-6 py-10">
-                <div class="text-center">
-                  <svg class="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd"
-                      d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
-                      clip-rule="evenodd" />
-                  </svg>
-                  <div class="mt-4 flex text-sm leading-6 text-gray-600">
-                    <label for="file-upload"
-                      class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
-                      <span class="font-lexend">Upload a file</span>
-                      <input id="file-upload" name="file-upload" type="file" class="sr-only">
-                    </label>
-                    <p class="pl-1 font-lexend">or drag and drop</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-    </div>
+        <div class="flex flex-col w-full pl-8 pr-8"> 
+        <label for="large-text" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Event Information:</label>
+        <textarea id="large-text" name="large_text" placeholder="Enter event information here..."
+            class="w-full h-96 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 resize-none" required></textarea>
+        </div>
+        <div class="flex flex-col justify-end items-end h-full pb-8 pr-8">
+            <button class="w-64 h-auto text-3xl bg-gray-400 border border-gray-400 rounded-lg flex items-center justify-center text-white font-lexend font-xl font-medium text-base leading-6 hover:bg-indigo-500 transition duration-300 px-4 py-4">Pop Event!</button>
+        </div>
   </div>
   </form>
   {% endblock %}
