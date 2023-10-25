@@ -1,8 +1,9 @@
 
-from flask import Flask, render_template, redirect, url_for, request, flash, session
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user,login_required 
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
@@ -25,21 +26,42 @@ moment = Moment(app)
 ## ----------------------------- Database Schemas ----------------------------- ##
 
 class User(UserMixin, db.Model):
+    #__bind_key__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)  # New email field
     password = db.Column(db.String(150), nullable=False)
 
-# Event Database
 class Event(db.Model):
     __tablename__ = 'events'
-
-    name = db.Column(db.String(150), primary_key=True)
-    organization = db.Column(db.String(150), nullable=False) # Organization can have multiple events but not with the same name
-    date = db.Column(db.String(150), nullable=False)  # Date, store as a string for now, Change to Datetime
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    organizer = db.Column(db.String(150), nullable=False)
+    time = db.Column(db.String(150), nullable=False)
 
     def repr(self):
         return '<Event %r>' % self.name
+
+def event_exists(name, organizer, time):
+    return Event.query.filter_by(name=name, organizer=organizer, time=time).first() is not None
+
+def add_dummy_events():
+    events = [
+        {"name": "Meet the team", "organizer": "UTFR", "time": "10-19-23 18:00"},
+        {"name": "Hackathon", "organizer": "UTRA", "time": "11-19-23 15:00"},
+        {"name": "Nasdaq Lunch and Learn", "organizer": "NSBE", "time": "09-28-23 19:00"}
+    ]
+
+    for event in events:
+        name = event['name']
+        organizer = event['organizer']
+        time = event['time']
+        
+        if not event_exists(name, organizer, time):
+            new_event = Event(name = event['name'], organizer = event['organizer'], time = datetime.strptime(event['time'], "%m-%d-%y %H:%M"))
+            db.session.add(new_event)
+
+    db.session.commit()
 
 ## ---------------------------------------------------------------------------- ##
 
@@ -54,7 +76,8 @@ def load_user(user_id):
 @app.route('/')
 @login_required
 def index():
-    return render_template('index.html')
+    events = Event.query.all()
+    return render_template('index.html', events=events)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -116,6 +139,40 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query')
+
+    # Query the database to find events that match the query (excluding time)
+    results = Event.query.filter(
+        (Event.name.ilike(f'%{query}%')) |
+        (Event.organizer.ilike(f'%{query}%'))
+    ).all()
+
+    return render_template('search_results.html', results=results, query=query)
+
+
+@app.route('/event/<int:event_id>')
+def event_details(event_id):
+    event = Event.query.get(event_id)
+
+    if event is not None:
+        return render_template('event_details.html', event = event)
+    else:
+        flash('Event not found', 'danger')
+        return redirect(url_for('home'))
+    
+@app.route('/autocomplete', methods=['GET'])
+def autocomplete():
+    query = request.args.get('query')
+    results = Event.query.filter(
+        (Event.name.ilike(f'%{query}%')) |
+        (Event.organizer.ilike(f'%{query}%'))
+    ).all()
+
+    suggestions = [{"label": event.name, "value": event.name} for event in results]
+
+    return jsonify(suggestions)
 ## ---------------------------------------------------------------------------- ##
 
 
@@ -129,15 +186,15 @@ def create_event():
     form = CreateEventForm()
     if form.validate_on_submit(): 
         name = form.name.data
-        organization = form.organization.data
-        date = form.date.data
+        organizer = form.organization.data
+        time = form.date.data
 
         name_exists = Event.query.filter_by(name =name).first()
         if name_exists:
             flash('Event name already exists. Please choose another one.', 'danger')
             return render_template('create_event.html', form=form)
         
-        new_event = Event(name=name, organization=organization, date=date)
+        new_event = Event(name=name, organizer=organizer, time=time)
         db.session.add(new_event)
         db.session.commit()
         flash('Succesfully Created New Event', 'success')
@@ -149,4 +206,10 @@ def create_event():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    with app.app_context():
+        db.create_all()
+        if not Event.query.first():
+            add_dummy_events()
+    app.run(debug=False)
+
+    
