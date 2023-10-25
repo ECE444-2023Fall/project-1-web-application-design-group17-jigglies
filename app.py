@@ -1,8 +1,14 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
+
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
+from flask_login import LoginManager, UserMixin, login_user, logout_user,login_required 
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+
+from flask_bootstrap import Bootstrap
+from flask_moment import Moment
+
+from forms import CreateEventForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
@@ -12,6 +18,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = 'signup'
+
+bootstrap = Bootstrap(app)
+moment = Moment(app)
+
+## ----------------------------- Database Schemas ----------------------------- ##
 
 class User(UserMixin, db.Model):
     #__bind_key__ = 'users'
@@ -23,9 +35,12 @@ class User(UserMixin, db.Model):
 class Event(db.Model):
     __tablename__ = 'events'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    organizer = db.Column(db.String(100), nullable=False)
-    time = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(150), nullable=False)
+    organizer = db.Column(db.String(150), nullable=False)
+    time = db.Column(db.String(150), nullable=False)
+
+    def repr(self):
+        return '<Event %r>' % self.name
 
 def event_exists(name, organizer, time):
     return Event.query.filter_by(name=name, organizer=organizer, time=time).first() is not None
@@ -48,26 +63,42 @@ def add_dummy_events():
 
     db.session.commit()
 
+## ---------------------------------------------------------------------------- ##
+
+
+
+## ----------------------------------- Login ---------------------------------- ##
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
+
 
 @app.route('/')
+@login_required
 def index():
     events = Event.query.all()
     return render_template('index.html', events=events)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
+        user_identifier = request.form.get('user_identifier')
         password = request.form.get('password')
-        user = User.query.filter_by(username=username).first()
+        
+        # First, try to get the user by username
+        user = User.query.filter_by(username=user_identifier).first()
+        
+        # If not found by username, try email
+        if not user:
+            user = User.query.filter_by(email=user_identifier).first()
+
         if user and check_password_hash(user.password, password):  
             login_user(user)
             return redirect(url_for('index'))
         else:
-            flash('Login Unsuccessful. Check username and password', 'danger')
+            flash('Login Unsuccessful. Check your details and try again.', 'danger')
+
     return render_template('login.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -76,6 +107,11 @@ def signup():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+
+        # Add this block to validate the email domain
+        if not email.endswith('utoronto.ca'):
+            flash('Please sign up with a uoft email.', 'danger')
+            return render_template('signup.html')
 
         user_by_username = User.query.filter_by(username=username).first()
         user_by_email = User.query.filter_by(email=email).first()
@@ -92,7 +128,7 @@ def signup():
         new_user = User(username=username, email=email, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        flash('Registration successful. Please login.', 'success')  # A message to inform the user that the registration was successful
+        flash('Registration successful. Please login.', 'success')
         return redirect(url_for('login'))
 
     return render_template('signup.html')
@@ -137,6 +173,36 @@ def autocomplete():
     suggestions = [{"label": event.name, "value": event.name} for event in results]
 
     return jsonify(suggestions)
+## ---------------------------------------------------------------------------- ##
+
+
+## ------------------------------- Create Event ------------------------------- ##
+
+
+
+
+@app.route('/create_event', methods=['GET', 'POST'])
+def create_event():
+    form = CreateEventForm()
+    if form.validate_on_submit(): 
+        name = form.name.data
+        organizer = form.organization.data
+        time = form.date.data
+
+        name_exists = Event.query.filter_by(name =name).first()
+        if name_exists:
+            flash('Event name already exists. Please choose another one.', 'danger')
+            return render_template('create_event.html', form=form)
+        
+        new_event = Event(name=name, organizer=organizer, time=time)
+        db.session.add(new_event)
+        db.session.commit()
+        flash('Succesfully Created New Event', 'success')
+    
+        # return redirect(url_for('create_event'))
+    return render_template('create_event.html', form=form)
+
+## ---------------------------------------------------------------------------- ##
 
 
 if __name__ == '__main__':
