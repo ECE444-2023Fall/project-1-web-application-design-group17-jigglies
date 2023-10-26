@@ -1,3 +1,5 @@
+##Test cases written by Yousef Al Rawwash
+
 def test_valid_login(client):
     """Test valid login"""
     user = User(username="testuser", email="test@utoronto.ca", password=generate_password_hash("password"))
