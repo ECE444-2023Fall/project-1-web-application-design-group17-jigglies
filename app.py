@@ -3,11 +3,12 @@ from flask import Flask, render_template, redirect, url_for, request, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user,login_required 
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
-from datetime import date, timedelta
+import os
+from datetime import date, timedelta, datetime
 
 from forms import CreateEventForm
 
@@ -15,6 +16,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = '/imgs'
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -33,15 +35,18 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
 
 # Event Database
-class Event(db.Model):
-    __tablename__ = 'events'
-
-    name = db.Column(db.String(150), primary_key=True)
-    organization = db.Column(db.String(150), nullable=False) # Organization can have multiple events but not with the same name
-    date = db.Column(db.String(150), nullable=False)  # Date, store as a string for now, Change to Datetime
-
-    def repr(self):
-        return '<Event %r>' % self.name
+class EventDB(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    event_name = db.Column(db.String(80), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+    location = db.Column(db.String(120), nullable=False)
+    room = db.Column(db.String(50), nullable=False)
+    allow_comments = db.Column(db.Boolean, nullable=False)
+    capacity = db.Column(db.Integer, nullable=False)
+    event_information = db.Column(db.Text, nullable=False)
+    cover_photo = db.Column(db.LargeBinary, nullable=True)
 
 ## ---------------------------------------------------------------------------- ##
 
@@ -112,7 +117,6 @@ def signup():
 
     return render_template('signup.html')
 
-
 @app.route('/logout')
 def logout():
     logout_user()
@@ -122,35 +126,56 @@ def logout():
 
 
 ## ------------------------------- Create Event ------------------------------- ##
-
-
-
+@app.route('/event_success')
+def event_success():
+    return render_template('event_success.html')
 
 @app.route('/create_event', methods=['GET', 'POST'])
 def create_event():
-    form = CreateEventForm()
-    # Calculate tomorrow's date
-    tomorrow = date.today() + timedelta(days=1)
+    if request.method == 'GET':
+        return render_template('create_event.html')
+    
+    if request.method == 'POST':
+        # Extract data from the form
+        event_name = request.form['event_name']
 
-    # Format tomorrow's date in YYYY-MM-DD
-    tomorrow_formatted = tomorrow.isoformat()
-    if form.validate_on_submit(): 
-        name = form.name.data
-        organization = form.organization.data
-        date_event = form.date.data
+        date_str = request.form['date']
+        event_date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
-        name_exists = Event.query.filter_by(name =name).first()
-        if name_exists:
-            flash('Event name already exists. Please choose another one.', 'danger')
-            return render_template('create_event.html', form=form)
+        start_time_str = request.form.get('start_time')
+        start_time_obj = datetime.strptime(start_time_str, '%H:%M').time()
+
+        end_time_str = request.form.get('end_time')
+        end_time_obj = datetime.strptime(end_time_str, '%H:%M').time()
+
+        location = request.form['location']
+        room = request.form['room']
+        allow_comments = True if request.form['allow-comments'] == 'yes' else False
+        capacity = int(request.form['capacity'])
+        event_information = request.form['event-information']
+
+        image_file = request.files['file-upload']
+        if image_file:
+            image_data = image_file.read()
         
-        new_event = Event(name=name, organization=organization, date=date_event)
+        new_event = EventDB(
+            event_name=event_name,
+            date=event_date,
+            start_time=start_time_obj,
+            end_time=end_time_obj,
+            location=location,
+            room=room,
+            allow_comments=allow_comments,
+            capacity=capacity,
+            event_information=event_information,
+            cover_photo=image_data  # storing the filename in the database
+        )
         db.session.add(new_event)
         db.session.commit()
-        flash('Succesfully Created New Event', 'success')
-    
-        return redirect(url_for('create_event'))
-    return render_template('create_event.html', form=form, tomorrow = tomorrow_formatted)
+        return redirect(url_for('event_success'))
+
+    return render_template(url_for('create_event')) 
+
 
 ## ---------------------------------------------------------------------------- ##
 
