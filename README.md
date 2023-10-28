@@ -1,4 +1,4 @@
-The test cases written in lines 3 - 29  in app_test.py under test folder were written by Yousef.
+The unit test: test_signup_with_existing_username was written by Yousef.
 
 
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
