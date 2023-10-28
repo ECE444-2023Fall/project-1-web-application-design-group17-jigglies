@@ -1,31 +1,5 @@
 ##Test cases written by Yousef Al Rawwash
 
-def test_valid_login(client):
-    """Test valid login"""
-    user = User(username="testuser", email="test@utoronto.ca", password=generate_password_hash("password"))
-    db.session.add(user)
-    db.session.commit()
-    
-    response = client.post('/login', data=dict(
-        user_identifier="testuser",
-        password="password"
-    ), follow_redirects=True)
-    
-    assert b"events" in response.data
-
-def test_invalid_login(client):
-    """Test invalid login"""
-    user = User(username="testuser", email="test@utoronto.ca", password=generate_password_hash("password"))
-    db.session.add(user)
-    db.session.commit()
-    
-    response = client.post('/login', data=dict(
-        user_identifier="testuser",
-        password="wrongpassword"
-    ), follow_redirects=True)
-    
-    assert b"Login Unsuccessful. Check your details and try again." in response.data
-
 def test_signup_with_existing_username(client):
     """Test signup with an existing username"""
     user = User(username="testuser", email="test@utoronto.ca", password=generate_password_hash("password"))

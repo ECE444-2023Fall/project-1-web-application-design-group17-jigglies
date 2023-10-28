@@ -1,4 +1,4 @@
-The test cases written in lines 3 - 55  in app_test.py under test folder were written by Yousef.
+The test cases written in lines 3 - 29  in app_test.py under test folder were written by Yousef.
 
 
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
