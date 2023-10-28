@@ -65,6 +65,9 @@
 </details>
 
 
+<!-- Lab 5 -->
+## Lab 5 Unit Tests Contribution
+Unit Tests by Jason - test_unsuccessful_signup_with_non_uoft_email, test_successful_signup:
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project

@@ -8,7 +8,7 @@ from datetime import datetime
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
-from forms import CreateEventForm
+from .forms import CreateEventForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
