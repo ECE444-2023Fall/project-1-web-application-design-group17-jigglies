@@ -1,6 +1,8 @@
 from pathlib import Path
 import pytest
-from project.app import app, db
+from project.app import app, db, Event
+from your_flask_app.forms import CreateEventForm
+from datetime import datetime
 
 TEST_DB = "test.db"
 
@@ -45,3 +47,37 @@ def test_incorrect_login(client):
 # TODO 
 def test_correct_login(client):
     pass 
+
+## ----------------------------- Alexander Hwang - Tests ----------------------------- ##
+
+def test_create_event(client):
+    # Test creating a new event
+    form_data = {
+        'name': 'Test Event',
+        'organization': 'Test Org',
+        'date': datetime(2023, 10, 28, 18, 0)
+    }
+    form = CreateEventForm(data=form_data)
+    assert form.validate()
+    response = client.post('/create_event', data=form_data, follow_redirects=True)
+    assert response.status_code == 200
+    event = Event.query.filter_by(name='Test Event').first()
+    assert event is not None
+    assert event.organizer == 'Test Org'
+
+def test_create_event_existing_name(client):
+    # Test creating an event with an existing name
+    event = Event(name='Existing Event', organizer='Existing Org', time=datetime.now())
+    db.session.add(event)
+    db.session.commit()
+
+    form_data = {
+        'name': 'Existing Event',
+        'organization': 'New Org',
+        'date': datetime(2023, 10, 28, 18, 0)
+    }
+    form = CreateEventForm(data=form_data)
+    assert form.validate()
+    response = client.post('/create_event', data=form_data, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Event name already exists. Please choose another one.' in response.data
