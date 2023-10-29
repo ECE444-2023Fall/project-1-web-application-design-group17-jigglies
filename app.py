@@ -126,9 +126,11 @@ def logout():
 
 
 ## ------------------------------- Create Event ------------------------------- ##
-@app.route('/event_success')
-def event_success():
+
+@app.route('/event_success', methods=['GET', 'POST'])
+def event():
     return render_template('event_success.html')
+
 
 @app.route('/create_event', methods=['GET', 'POST'])
 def create_event():
