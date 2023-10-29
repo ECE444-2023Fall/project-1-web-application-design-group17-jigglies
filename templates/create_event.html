@@ -7,35 +7,70 @@
   <form action="/create_event" method="post" enctype="multipart/form-data" class="flex pl-8">
     <div class="flex flex-col max-w-3xl flex-1 mr-8">
       <!-- Event Name -->
-      <div class="flex flex-col pl-8 pr-8">
-        <label for="event_name" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Event Name:</label>
-        <input id="event_name" name="event_name" type="text" placeholder="Event Name"
-          class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 focus:border-indigo-500" required>
+      <div class="grid grid-col grid-cols-2 pl-8 pr-8">
+        <div class="flex flex-col span-1 pr-2">
+          <label for="event_name" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Event Name:</label>
+          <input id="event_name" name="event_name" type="text" placeholder="Event Name"
+            class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 focus:border-indigo-500" required>
+        </div>
+        <div class="flex flex-col span-1 pl-2">
+          <label for="organization" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Event Host:</label>
+          <input id="organization" name="organization" type="text" placeholder="Host/Organization "
+            class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 focus:border-indigo-500" required>
+        </div>
       </div>
 
       <!-- Date, Start Time, End Time -->
       <div class="flex flex-row space-x-20 pl-8 pr-8 justify-between">
         <!-- Date -->
         <div class="flex flex-col">
-          <label for="email" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Date:</label>
+          <label for="date" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Date:</label>
           <input type="date"
             class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5" id="date"
             name="date" value="{{ tomorrow }}" min="{{ tomorrow }}" />
         </div>
         <!-- Start Time -->
-        <div class="flex flex-col">
-          <label for="start_time" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Start Time:</label>
-          <input type="time"
-            class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5" id="start_time"
-            name="start_time" required />
-        </div>
+        <div class="flex flex-col relative">
+          <label for="start-time" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Start Time:</label>
+          <div class="flex space-x-2 w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5">
+              <select name="start-time" id="start-time" class="peer block min-h-[auto] w-24 rounded border-0 bg-transparent outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 peer-focus:text-primary data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:peer-focus:text-primary [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0">
+                  <option value="09">9 AM</option>
+                  <option value="10">10 AM</option>
+                  <option value="11">11 AM</option>
+                  <option value="12">12 PM</option>
+                  <option value="13">1 PM</option>
+                  <option value="14">2 PM</option>
+                  <option value="15">3 PM</option>
+                  <option value="16">4 PM</option>
+                  <option value="16">5 PM</option>
+                  <option value="16">6 PM</option>
+                  <option value="16">7 PM</option>
+                  <option value="16">8 PM</option>
+                  <option value="16">9 PM</option>
+              </select>
+          </div>
+       </div>
+      
         <!-- End Time -->
-        <div class="flex flex-col">
-          <label for="end_time" class="font-lexend font-semibold text-gray-700 text-xl pb-4">End Time:</label>
-          <input type="time"
-            class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5" id="end_time"
-            name="end_time" required />
-        </div>
+        <div class="flex flex-col relative">
+          <label for="end-time" class="font-lexend font-semibold text-gray-700 text-xl pb-4">End Time:</label>
+          <div class="flex space-x-2 w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5">
+              <select name="end-time" id="end-time" class="peer block min-h-[auto] w-24 rounded border-0 bg-transparent outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 peer-focus:text-primary data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:peer-focus:text-primary [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0">
+                  <option value="10">10 AM</option>
+                  <option value="11">11 AM</option>
+                  <option value="12">12 PM</option>
+                  <option value="13">1 PM</option>
+                  <option value="14">2 PM</option>
+                  <option value="15">3 PM</option>
+                  <option value="16">4 PM</option>
+                  <option value="16">5 PM</option>
+                  <option value="16">6 PM</option>
+                  <option value="16">7 PM</option>
+                  <option value="16">8 PM</option>
+                  <option value="16">9 PM</option>
+              </select>
+          </div>
+       </div>
       </div>
 
       <!-- Address and Room -->

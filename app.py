@@ -37,7 +37,8 @@ class User(UserMixin, db.Model):
 # Event Database
 class EventDB(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    event_name = db.Column(db.String(80), nullable=False)
+    event_name = db.Column(db.String(80), unique=True, nullable=False)
+    event_organization = db.Column(db.String(80), nullable=False)
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
@@ -128,7 +129,7 @@ def logout():
 ## ------------------------------- Create Event ------------------------------- ##
 
 @app.route('/event_success', methods=['GET', 'POST'])
-def event():
+def event_success():
     return render_template('event_success.html')
 
 
@@ -138,17 +139,31 @@ def create_event():
         return render_template('create_event.html')
     
     if request.method == 'POST':
-        # Extract data from the form
+        # Extract event name
         event_name = request.form['event_name']
+
+        # Check if event name already exists
+        if EventDB.query.filter_by(event_name=event_name).first():
+            flash('An event with the name already exists, please choose another name', 'danger')
+            return render_template('create_event.html')
+        
+        # Extract event organization name
+        event_organization = request.form['organization']
 
         date_str = request.form['date']
         event_date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
-        start_time_str = request.form.get('start_time')
-        start_time_obj = datetime.strptime(start_time_str, '%H:%M').time()
+        # Retrieve dropdown values for start and end time
+        start_hour = request.form['start-time']
+        start_time_obj = datetime.strptime(start_hour, '%H').time()
 
-        end_time_str = request.form.get('end_time')
-        end_time_obj = datetime.strptime(end_time_str, '%H:%M').time()
+        end_hour = request.form['end-time'] 
+        end_time_obj = datetime.strptime(end_hour, '%H').time()
+
+        # If end time is before start time, return error as it is an invalid input
+        if end_time_obj <= start_time_obj:
+            flash('Invalid Time inputs, please check and resubmit', 'danger')
+            return render_template('create_event.html')
 
         location = request.form['location']
         room = request.form['room']
@@ -157,11 +172,13 @@ def create_event():
         event_information = request.form['event-information']
 
         image_file = request.files['file-upload']
+        image_data = None
         if image_file:
             image_data = image_file.read()
         
         new_event = EventDB(
             event_name=event_name,
+            event_organization=event_organization,
             date=event_date,
             start_time=start_time_obj,
             end_time=end_time_obj,
@@ -170,7 +187,7 @@ def create_event():
             allow_comments=allow_comments,
             capacity=capacity,
             event_information=event_information,
-            cover_photo=image_data  # storing the filename in the database
+            cover_photo=image_data 
         )
         db.session.add(new_event)
         db.session.commit()
