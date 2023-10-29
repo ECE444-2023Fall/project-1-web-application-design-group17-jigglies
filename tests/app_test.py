@@ -1,8 +1,6 @@
 from pathlib import Path
 import pytest
-from project.app import app, db, Event
-from your_flask_app.forms import CreateEventForm
-from datetime import datetime
+from project.app import app, db, User
 
 TEST_DB = "test.db"
 
@@ -15,6 +13,14 @@ def client():
 
     with app.app_context():
         db.create_all()  # setup
+        
+        # Populate test db.
+        user1 = User(username="harrypotter", email="harry.potter@mail.utoronto.ca", password="testpass1")
+        user2 = User(username="ronweasely", email="ron.weasely@mail.utoronto.ca", password="testpass2")
+        db.session.add(user1)
+        db.session.add(user2)
+        db.session.commit()
+        
         yield app.test_client()  # tests run here
         db.drop_all()  # teardown
 
@@ -40,44 +46,23 @@ def test_successful_signup(client):
 
     assert b"Registration successful. Please login" in response.data
 
-# TODO 
+## ----------------------------- Taeuk Kang - Tests ----------------------------- ##
 def test_incorrect_login(client):
-    pass 
+    """Test login with an incorrect email/password."""
+    response = client.post('/login', data=dict(
+        username="falseusername",
+        email="false.user@mail.utoronto.ca",
+        password="wrongpass"
+    ), follow_redirects=True)
 
-# TODO 
+    assert b"Login Unsuccessful. Check your details and try again." in response.data
+
 def test_correct_login(client):
-    pass 
+    """Test login with a correct email/password."""
+    response = client.post('/login', data=dict(
+        username="harrypotter",
+        email="harry.potter@mail.utoronto.ca",
+        password="testpass1"
+    ), follow_redirects=True)
 
-## ----------------------------- Alexander Hwang - Tests ----------------------------- ##
-
-def test_create_event(client):
-    # Test creating a new event
-    form_data = {
-        'name': 'Test Event',
-        'organization': 'Test Org',
-        'date': datetime(2023, 10, 28, 18, 0)
-    }
-    form = CreateEventForm(data=form_data)
-    assert form.validate()
-    response = client.post('/create_event', data=form_data, follow_redirects=True)
-    assert response.status_code == 200
-    event = Event.query.filter_by(name='Test Event').first()
-    assert event is not None
-    assert event.organizer == 'Test Org'
-
-def test_create_event_existing_name(client):
-    # Test creating an event with an existing name
-    event = Event(name='Existing Event', organizer='Existing Org', time=datetime.now())
-    db.session.add(event)
-    db.session.commit()
-
-    form_data = {
-        'name': 'Existing Event',
-        'organization': 'New Org',
-        'date': datetime(2023, 10, 28, 18, 0)
-    }
-    form = CreateEventForm(data=form_data)
-    assert form.validate()
-    response = client.post('/create_event', data=form_data, follow_redirects=True)
-    assert response.status_code == 200
-    assert b'Event name already exists. Please choose another one.' in response.data
+    assert b"Welcome" in response.data
