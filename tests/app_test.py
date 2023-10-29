@@ -1,6 +1,6 @@
 from pathlib import Path
 import pytest
-from project.app import app, db
+from project.app import app, db, User
 
 TEST_DB = "test.db"
 
@@ -13,6 +13,14 @@ def client():
 
     with app.app_context():
         db.create_all()  # setup
+        
+        # Populate test db.
+        user1 = User(username="harrypotter", email="harry.potter@mail.utoronto.ca", password="testpass1")
+        user2 = User(username="ronweasely", email="ron.weasely@mail.utoronto.ca", password="testpass2")
+        db.session.add(user1)
+        db.session.add(user2)
+        db.session.commit()
+        
         yield app.test_client()  # tests run here
         db.drop_all()  # teardown
 
@@ -38,10 +46,23 @@ def test_successful_signup(client):
 
     assert b"Registration successful. Please login" in response.data
 
-# TODO 
+## ----------------------------- Taeuk Kang - Tests ----------------------------- ##
 def test_incorrect_login(client):
-    pass 
+    """Test login with an incorrect email/password."""
+    response = client.post('/login', data=dict(
+        username="falseusername",
+        email="false.user@mail.utoronto.ca",
+        password="wrongpass"
+    ), follow_redirects=True)
 
-# TODO 
+    assert b"Login Unsuccessful. Check your details and try again." in response.data
+
 def test_correct_login(client):
-    pass 
+    """Test login with a correct email/password."""
+    response = client.post('/login', data=dict(
+        username="harrypotter",
+        email="harry.potter@mail.utoronto.ca",
+        password="testpass1"
+    ), follow_redirects=True)
+
+    assert b"Welcome" in response.data
