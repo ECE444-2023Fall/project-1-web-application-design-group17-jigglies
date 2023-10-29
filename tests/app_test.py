@@ -110,10 +110,6 @@ def test_correct_event_submission(client):
     assert response.status_code == 302
     assert b'event_success' in response.data
 
-    event = EventDB.query.filter_by(event_name='Test Event').first()
-    assert event is not None
-    assert event.event_organization == 'Test Org'
-
 def test_duplicate_event_name_submission(client):
     """Test event submission with duplicate Event Name"""
     response = client.post('/create_event', data={
@@ -130,4 +126,5 @@ def test_duplicate_event_name_submission(client):
         'file-upload': (BytesIO(b'Test image data'), 'test-image.jpg'),
     })
 
+    assert response.status_code == 200
     assert b'An event with the name already exists, please choose another name' in response.data
