@@ -1,6 +1,8 @@
 from pathlib import Path
 import pytest
-from project.app import app, db, User
+from project.app import app, db, User, EventDB
+from io import BytesIO
+from datetime import datetime, date, time
 
 TEST_DB = "test.db"
 
@@ -14,11 +16,30 @@ def client():
     with app.app_context():
         db.create_all()  # setup
         
-        # Populate test db.
+        # Add User Entries
         user1 = User(username="harrypotter", email="harry.potter@mail.utoronto.ca", password="testpass1")
         user2 = User(username="ronweasely", email="ron.weasely@mail.utoronto.ca", password="testpass2")
         db.session.add(user1)
         db.session.add(user2)
+        
+
+        # Add Event Entry
+        event_entry = EventDB(
+            event_name='Duplicate Event Name',
+            event_organization='UofT',
+            date= datetime.strptime('2024-11-11', '%Y-%m-%d').date(),
+            start_time=datetime.strptime('9', '%H').time(),
+            end_time=datetime.strptime('10', '%H').time(),
+            location='123 Happy Street',
+            room="A540",
+            allow_comments=True,
+            capacity=123,
+            event_information="This is a test event to avoid duplicate Event Name entries",
+            cover_photo=BytesIO(b'Test image data').read()
+        )
+        db.session.add(event_entry)
+
+        # Commit all changes to DB
         db.session.commit()
         
         yield app.test_client()  # tests run here
@@ -66,3 +87,47 @@ def test_correct_login(client):
     ), follow_redirects=True)
 
     assert b"Welcome" in response.data
+
+
+## ----------------------------- Bilal Ikram - Tests ----------------------------- ##
+
+def test_correct_event_submission(client):
+    """Test event submission with all valid event information."""
+    response = client.post('/create_event', data={
+        'event_name': 'Test Event',
+        'organization': 'Test Org',
+        'date': '2023-11-01',
+        'start-time': '12',
+        'end-time': '13',
+        'location': 'Test Location',
+        'room': 'A101',
+        'allow-comments': 'yes',
+        'capacity': '50',
+        'event-information': 'Test Information',
+        'file-upload': (BytesIO(b'Test image data'), 'test-image.jpg'),
+    })
+
+    assert response.status_code == 302
+    assert b'event_success' in response.data
+
+    event = EventDB.query.filter_by(event_name='Test Event').first()
+    assert event is not None
+    assert event.event_organization == 'Test Org'
+
+def test_duplicate_event_name_submission(client):
+    """Test event submission with duplicate Event Name"""
+    response = client.post('/create_event', data={
+        'event_name': 'Duplicate Event Name',
+        'organization': 'Test Org',
+        'date': '2023-11-01',
+        'start-time': '12',
+        'end-time': '13',
+        'location': 'Test Location',
+        'room': 'A101',
+        'allow-comments': 'yes',
+        'capacity': '50',
+        'event-information': 'Test Information',
+        'file-upload': (BytesIO(b'Test image data'), 'test-image.jpg'),
+    })
+
+    assert b'An event with the name already exists, please choose another name' in response.data

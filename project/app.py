@@ -258,7 +258,7 @@ def create_event():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        if not Event.query.first():
+        if not EventDB.query.first():
             add_dummy_events()
     app.run(debug=False)
 
