@@ -1,8 +1,0 @@
-{% if current_user.is_authenticated %}
-  <h1>Welcome {{ current_user.username }}!</h1>
-  <a href="{{ url_for('logout') }}">Logout</a>
-{% else %}
-  <h1>Welcome Guest!</h1>
-  <a href="{{ url_for('login') }}">Login</a>
-  <a href="{{ url_for('signup') }}">Signup</a>
-{% endif %}
