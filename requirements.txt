@@ -1,7 +1,7 @@
 blinker==1.6.3
 click==8.1.7
+Flask==2.3.0
 dominate==2.8.0
-Flask==3.0.0
 Flask-Bootstrap==3.3.7.1
 Flask-Login==0.6.2
 Flask-Moment==1.0.5
