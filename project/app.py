@@ -160,7 +160,7 @@ def event_details(event_id):
         return render_template('event_details.html', event = event)
     else:
         flash('Event not found', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('index'))
     
 @app.route('/autocomplete', methods=['GET'])
 def autocomplete():

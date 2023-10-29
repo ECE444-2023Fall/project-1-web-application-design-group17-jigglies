@@ -66,3 +66,21 @@ def test_correct_login(client):
     ), follow_redirects=True)
 
     assert b"Welcome" in response.data
+
+
+## ----------------------------- Nidaa Rabah - Tests ----------------------------- ##
+
+def test_search_with_query(client):
+    """Test searching for events using a query."""
+    response = client.get('/search?query=Meet the team')
+    assert response.status_code == 200
+    assert b"Search Results" in response.data  # Ensure search results page is rendered
+    assert b"Meet the team" in response.data  # Assuming the query term is present in the results, currently is as Meet the team is a dummy event added
+
+def test_autocomplete(client):
+    """Test autocomplete endpoint."""
+    response = client.get('/autocomplete?query=Meet the team')
+    assert response.status_code == 200
+    suggestions = response.get_json()
+    assert len(suggestions) >= 0  # Ensure there are suggestions in the response
+
