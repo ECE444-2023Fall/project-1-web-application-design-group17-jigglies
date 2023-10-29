@@ -1,6 +1,12 @@
 from pathlib import Path
 import pytest
+<<<<<<< HEAD
 from project.app import app, db, User
+=======
+from project.app import app, db, Event
+from your_flask_app.forms import CreateEventForm
+from datetime import datetime
+>>>>>>> 02dfdfad59b05dce826043ac55d5addfcf99e599
 
 TEST_DB = "test.db"
 
