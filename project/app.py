@@ -35,7 +35,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
 
 # Event Database
-class EventDB(db.Model):
+class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_name = db.Column(db.String(80), unique=True, nullable=False)
     event_organization = db.Column(db.String(80), nullable=False)
@@ -178,7 +178,7 @@ def create_event():
         event_name = request.form['event_name']
 
         # Check if event name already exists
-        if EventDB.query.filter_by(event_name=event_name).first():
+        if Event.query.filter_by(event_name=event_name).first():
             flash('An event with the name already exists, please choose another name', 'danger')
             return render_template('create_event.html')
         
@@ -211,7 +211,7 @@ def create_event():
         if image_file:
             image_data = image_file.read()
         
-        new_event = EventDB(
+        new_event = Event(
             event_name=event_name,
             event_organization=event_organization,
             date=event_date,
@@ -237,8 +237,8 @@ def create_event():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        if not EventDB.query.first():
-            add_dummy_events()
+        # if not Event.query.first():
+        #    add_dummy_events()
     app.run(debug=False)
 
     

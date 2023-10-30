@@ -1,6 +1,6 @@
 from pathlib import Path
 import pytest
-from project.app import app, db, User, EventDB
+from project.app import app, db, User, Event
 from io import BytesIO
 from datetime import datetime, date, time
 
@@ -24,7 +24,7 @@ def client():
         
 
         # Add Event Entry
-        event_entry = EventDB(
+        event_entry = Event(
             event_name='Duplicate Event Name',
             event_organization='UofT',
             date= datetime.strptime('2024-11-11', '%Y-%m-%d').date(),
