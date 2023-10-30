@@ -49,27 +49,6 @@ class EventDB(db.Model):
     event_information = db.Column(db.Text, nullable=False)
     cover_photo = db.Column(db.LargeBinary, nullable=True)
 
-def event_exists(name, organizer, time):
-    return Event.query.filter_by(name=name, organizer=organizer, time=time).first() is not None
-
-def add_dummy_events():
-    events = [
-        {"name": "Meet the team", "organizer": "UTFR", "time": "10-19-23 18:00"},
-        {"name": "Hackathon", "organizer": "UTRA", "time": "11-19-23 15:00"},
-        {"name": "Nasdaq Lunch and Learn", "organizer": "NSBE", "time": "09-28-23 19:00"}
-    ]
-
-    for event in events:
-        name = event['name']
-        organizer = event['organizer']
-        time = event['time']
-        
-        if not event_exists(name, organizer, time):
-            new_event = Event(name = event['name'], organizer = event['organizer'], time = datetime.strptime(event['time'], "%m-%d-%y %H:%M"))
-            db.session.add(new_event)
-
-    db.session.commit()
-
 ## ---------------------------------------------------------------------------- ##
 
 
@@ -83,8 +62,8 @@ def load_user(user_id):
 @app.route('/')
 @login_required
 def index():
-    events = Event.query.all()
-    return render_template('index.html', events=events)
+    # events = Event.query.all()
+    return render_template('index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
