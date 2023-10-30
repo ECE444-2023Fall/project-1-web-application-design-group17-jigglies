@@ -3,17 +3,19 @@ from flask import Flask, render_template, redirect, url_for, request, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user,login_required 
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-
+from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
 from .forms import CreateEventForm
+from datetime import datetime
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = '/imgs'
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -32,36 +34,20 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)  # New email field
     password = db.Column(db.String(150), nullable=False)
 
+# Event Database
 class Event(db.Model):
-    __tablename__ = 'events'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(150), nullable=False)
-    organizer = db.Column(db.String(150), nullable=False)
-    time = db.Column(db.String(150), nullable=False)
-
-    def repr(self):
-        return '<Event %r>' % self.name
-
-def event_exists(name, organizer, time):
-    return Event.query.filter_by(name=name, organizer=organizer, time=time).first() is not None
-
-def add_dummy_events():
-    events = [
-        {"name": "Meet the team", "organizer": "UTFR", "time": "10-19-23 18:00"},
-        {"name": "Hackathon", "organizer": "UTRA", "time": "11-19-23 15:00"},
-        {"name": "Nasdaq Lunch and Learn", "organizer": "NSBE", "time": "09-28-23 19:00"}
-    ]
-
-    for event in events:
-        name = event['name']
-        organizer = event['organizer']
-        time = event['time']
-        
-        if not event_exists(name, organizer, time):
-            new_event = Event(name = event['name'], organizer = event['organizer'], time = datetime.strptime(event['time'], "%m-%d-%y %H:%M"))
-            db.session.add(new_event)
-
-    db.session.commit()
+    event_name = db.Column(db.String(80), unique=True, nullable=False)
+    event_organization = db.Column(db.String(80), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+    location = db.Column(db.String(120), nullable=False)
+    room = db.Column(db.String(50), nullable=False)
+    allow_comments = db.Column(db.Boolean, nullable=False)
+    capacity = db.Column(db.Integer, nullable=False)
+    event_information = db.Column(db.Text, nullable=False)
+    cover_photo = db.Column(db.LargeBinary, nullable=True)
 
 ## ---------------------------------------------------------------------------- ##
 
@@ -76,8 +62,8 @@ def load_user(user_id):
 @app.route('/')
 @login_required
 def index():
-    events = Event.query.all()
-    return render_template('index.html', events=events)
+    # events = Event.query.all()
+    return render_template('index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -133,7 +119,6 @@ def signup():
 
     return render_template('signup.html')
 
-
 @app.route('/logout')
 def logout():
     logout_user()
@@ -178,29 +163,73 @@ def autocomplete():
 
 ## ------------------------------- Create Event ------------------------------- ##
 
-
+@app.route('/event_success', methods=['GET', 'POST'])
+def event_success():
+    return render_template('event_success.html')
 
 
 @app.route('/create_event', methods=['GET', 'POST'])
 def create_event():
-    form = CreateEventForm()
-    if form.validate_on_submit(): 
-        name = form.name.data
-        organizer = form.organization.data
-        time = form.date.data
+    if request.method == 'GET':
+        return render_template('create_event.html')
+    
+    if request.method == 'POST':
+        # Extract event name
+        event_name = request.form['event_name']
 
-        name_exists = Event.query.filter_by(name =name).first()
-        if name_exists:
-            flash('Event name already exists. Please choose another one.', 'danger')
-            return render_template('create_event.html', form=form)
+        # Check if event name already exists
+        if Event.query.filter_by(event_name=event_name).first():
+            flash('An event with the name already exists, please choose another name', 'danger')
+            return render_template('create_event.html')
         
-        new_event = Event(name=name, organizer=organizer, time=time)
+        # Extract event organization name
+        event_organization = request.form['organization']
+
+        date_str = request.form['date']
+        event_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+        # Retrieve dropdown values for start and end time
+        start_hour = request.form['start-time']
+        start_time_obj = datetime.strptime(start_hour, '%H').time()
+
+        end_hour = request.form['end-time'] 
+        end_time_obj = datetime.strptime(end_hour, '%H').time()
+
+        # If end time is before start time, return error as it is an invalid input
+        if end_time_obj <= start_time_obj:
+            flash('Invalid Time inputs, please check and resubmit', 'danger')
+            return render_template('create_event.html')
+
+        location = request.form['location']
+        room = request.form['room']
+        allow_comments = True if request.form['allow-comments'] == 'yes' else False
+        capacity = int(request.form['capacity'])
+        event_information = request.form['event-information']
+
+        image_file = request.files['file-upload']
+        image_data = None
+        if image_file:
+            image_data = image_file.read()
+        
+        new_event = Event(
+            event_name=event_name,
+            event_organization=event_organization,
+            date=event_date,
+            start_time=start_time_obj,
+            end_time=end_time_obj,
+            location=location,
+            room=room,
+            allow_comments=allow_comments,
+            capacity=capacity,
+            event_information=event_information,
+            cover_photo=image_data 
+        )
         db.session.add(new_event)
         db.session.commit()
-        flash('Succesfully Created New Event', 'success')
-    
-        # return redirect(url_for('create_event'))
-    return render_template('create_event.html', form=form)
+        return redirect(url_for('event_success'))
+
+    return render_template(url_for('create_event')) 
+
 
 ## ---------------------------------------------------------------------------- ##
 
@@ -208,8 +237,8 @@ def create_event():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        if not Event.query.first():
-            add_dummy_events()
+        # if not Event.query.first():
+        #    add_dummy_events()
     app.run(debug=False)
 
     
