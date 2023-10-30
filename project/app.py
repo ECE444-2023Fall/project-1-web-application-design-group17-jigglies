@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
-from .forms import CreateEventForm
+from forms import CreateEventForm
 from datetime import datetime
 
 
@@ -130,8 +130,8 @@ def search():
 
     # Query the database to find events that match the query (excluding time)
     results = Event.query.filter(
-        (Event.name.ilike(f'%{query}%')) |
-        (Event.organizer.ilike(f'%{query}%'))
+        (Event.event_name.ilike(f'%{query}%')) |
+        (Event.event_organization.ilike(f'%{query}%'))
     ).all()
 
     return render_template('search_results.html', results=results, query=query)
@@ -151,11 +151,11 @@ def event_details(event_id):
 def autocomplete():
     query = request.args.get('query')
     results = Event.query.filter(
-        (Event.name.ilike(f'%{query}%')) |
-        (Event.organizer.ilike(f'%{query}%'))
+        (Event.event_name.ilike(f'%{query}%')) |
+        (Event.event_organization.ilike(f'%{query}%'))
     ).all()
 
-    suggestions = [{"label": event.name, "value": event.name} for event in results]
+    suggestions = [{"label": event.event_name, "value": event.event_name} for event in results]
 
     return jsonify(suggestions)
 ## ---------------------------------------------------------------------------- ##
