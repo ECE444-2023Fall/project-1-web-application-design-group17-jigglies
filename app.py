@@ -7,11 +7,10 @@ from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
-from forms import CreateEventForm
+from project.forms import CreateEventForm
 from datetime import datetime
 
-
-app = Flask(__name__)
+app = Flask(__name__, template_folder='project/templates', static_folder='project/static')
 app.config['SECRET_KEY'] = 'mysecret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -233,7 +232,6 @@ def create_event():
 
 ## ---------------------------------------------------------------------------- ##
 
-
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
@@ -241,4 +239,3 @@ if __name__ == '__main__':
         #    add_dummy_events()
     app.run(debug=False)
 
-    

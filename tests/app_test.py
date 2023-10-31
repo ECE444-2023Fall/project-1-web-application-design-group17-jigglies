@@ -1,6 +1,6 @@
 from pathlib import Path
 import pytest
-from project.app import app, db, User, Event
+from app import app, db, User, Event
 from io import BytesIO
 from datetime import datetime, date, time
 
