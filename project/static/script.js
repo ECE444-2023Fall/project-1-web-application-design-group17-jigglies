@@ -43,4 +43,51 @@ document.addEventListener("DOMContentLoaded", function() {
         };
         reader.readAsDataURL(file);
     }
+function showErrorTooltip(inputElement, message) {
+        // Create a tippy instance
+        const tip = tippy(inputElement, {
+            content: message,
+            trigger: 'manual',  
+            placement: 'top' 
+        });
+    
+        // Show the tooltip
+        tip.show();
+    
+        // Hide the tooltip after a delay (e.g., 5 seconds)
+        setTimeout(() => {
+            tip.hide();
+            tip.destroy(); // Properly clean up the tippy instance
+        }, 5000);
+    }
+    
+function initialize() {
+    var input = document.getElementById('location');
+    if (input) {
+        var options = {
+            componentRestrictions: { country: 'CA' }  // Restrict results to Canada
+        };
+
+        var autocomplete = new google.maps.places.Autocomplete(input, options);
+
+        // Bias results towards Toronto 
+        var torontoBounds = new google.maps.LatLngBounds(
+            new google.maps.LatLng(43.5800, -79.6393), // Southwest corner of Toronto
+            new google.maps.LatLng(43.8555, -79.1169)  // Northeast corner of Toronto
+        );
+        autocomplete.setBounds(torontoBounds);
+
+        // Add an event listener for place_changed
+        google.maps.event.addListener(autocomplete, 'place_changed', function() {
+            var place = autocomplete.getPlace();
+            if (!place.place_id) {
+                showErrorTooltip(input, "Please select a valid location from the dropdown.");
+                input.value = "";  // Clear the input
+            }
+        });
+    }
+}
+
+// Call the initialize function when the window loads.
+google.maps.event.addDomListener(window, 'load', initialize);
 });
