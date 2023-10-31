@@ -3,7 +3,7 @@ version: '3'
 services:
   web-app:
     build: .
-    command: flask run --reload --host=0.0.0.0
+    command: flask run --debug --host=0.0.0.0
     volumes:
       - .:/project-1-web-application-design-group17-jigglies
     ports:
