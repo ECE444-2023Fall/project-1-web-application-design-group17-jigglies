@@ -140,7 +140,7 @@ def search():
         (Event.event_organization.ilike(f'%{query}%'))
     ).all()
 
-    return render_template('search_results.html', results=results, query=query)
+    return render_template('search_results.html', events=results, query=query)
 
 @app.route('/autocomplete', methods=['GET'])
 def autocomplete():
