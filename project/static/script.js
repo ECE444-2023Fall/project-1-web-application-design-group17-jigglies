@@ -68,7 +68,6 @@ function performSearch() {
 }
 
 
-// Autocomplete Integration
 const searchInput = document.getElementById('search_query');
 const suggestionsBox = document.getElementById('suggestions');
 
@@ -76,28 +75,47 @@ searchInput.addEventListener("input", function(event) {
     const value = event.target.value;
     suggestionsBox.innerHTML = "";
 
-    if (value === "") return;  // Don't show suggestions if the input is empty
+    if (value === "") {
+        suggestionsBox.classList.add('hidden'); // hide dropdown if input is empty
+        return;
+    }
 
     // Fetching data from the server
     fetch(`/autocomplete?search_query=${value}`)
     .then(response => response.json())
     .then(data => {
+        if(data.length) { // check if there are suggestions
+            suggestionsBox.classList.remove('hidden'); // show dropdown if there are suggestions
+        } else {
+            suggestionsBox.classList.add('hidden'); // hide dropdown if there are no suggestions
+        }
+
+        // Create a <ul> element
+        const ulElement = document.createElement("ul");
+        ulElement.classList.add("text-sm", "text-gray-700", "dark:text-gray-200", "border-2", "border-blue-500", "rounded-lg", "shadow-2xl");
+
         for (let item of data) {
-            const suggestionItem = document.createElement("div");
-            suggestionItem.textContent = item.name; 
-            suggestionItem.classList.add("p-2", "hover:bg-gray-200", "cursor-pointer", "border", "border-gray-300", "rounded");
-            suggestionItem.addEventListener("click", function() {
+            const liElement = document.createElement("li");
+            liElement.textContent = item.name;
+            liElement.classList.add( "hover:bg-gray-200", "cursor-pointer", "px-4" , 'py-2','hover:bg-gray-100', 'dark:hover:bg-gray-600', 'dark:hover:text-white',"rounded-lg");
+
+            liElement.addEventListener("click", function() {
                 searchInput.value = item.name;
                 suggestionsBox.innerHTML = "";
+                suggestionsBox.classList.add('hidden'); // hide dropdown after selection
                 performSearch();
             });
-            suggestionsBox.appendChild(suggestionItem);
+
+            ulElement.appendChild(liElement);
         }
+
+        suggestionsBox.appendChild(ulElement);
     })
     .catch(error => {
         console.error("Error fetching search results:", error);
     });
 });
+
 
 function initialize() {
     var input = document.getElementById('location');
