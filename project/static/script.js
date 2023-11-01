@@ -43,6 +43,22 @@ document.addEventListener("DOMContentLoaded", function() {
         };
         reader.readAsDataURL(file);
     }
+    var input = document.querySelector("#tags");
+
+    // Initialize Tagify with maxTags setting
+    var tagify = new Tagify(input, {
+        delimiters: ", ",
+        maxTags: 5
+    });
+    
+    // Add an event listener to notify the user when they've reached the max number of tags
+    tagify.on('input', function(e){
+        if(tagify.value.length >= tagify.settings.maxTags){
+            showErrorTooltip(input,'You have reached the maximum number of allowed tags!');
+        }
+    });
+    
+    
 function showErrorTooltip(inputElement, message) {
         // Create a tippy instance
         const tip = tippy(inputElement, {

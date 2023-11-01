@@ -18,3 +18,10 @@
 .button-group a:hover {
     background-color: #0056b3;
 }
+
+.tagify {
+    --tag-bg:  rgb(99 102 241) !important;
+    --tag-hover: rgb(26, 35, 126) !important;
+    --tag-text-color:#FFF !important;
+    --tag-remove-btn-color: #FFF !important;
+}
