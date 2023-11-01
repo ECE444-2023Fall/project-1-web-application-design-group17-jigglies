@@ -13,6 +13,8 @@
   <script src="https://kit.fontawesome.com/64f03eab00.js" crossorigin="anonymous"></script>
   {# Google Maps #}
   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  {# Tagify CSS#}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
   {% endblock head %}
 </head>
 <body>
@@ -124,6 +126,7 @@
   <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=[API_KEY]&libraries=places"></script>
   <script src="https://unpkg.com/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
   <script src="https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
