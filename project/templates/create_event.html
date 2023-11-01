@@ -3,11 +3,12 @@
 {% block title %}Post an Event{% endblock %}
 
 {% block content %}
-<div class="max-w-screen-xl flex flex-wrap justify-between mx-auto">
-  <h2 class="font-lexend font-semibold text-4xl text-black mb-8 p-4 pl-16"> Post an Event!</h2>
-</div>
-  <form action="/create_event" method="post" enctype="multipart/form-data" class="max-w-screen-xl flex flex-wrap justify-between mx-auto">
+  <form action="/create_event" method="post" enctype="multipart/form-data" class="max-w-screen-xl flex flex-wrap justify-center mx-auto pt-8">
+    
     <div class="flex flex-col max-w-3xl flex-1 mr-8">
+      <div class="flex flex-row space-x-4 pl-8 pr-8 justify-between items-left">
+        <h2 class="font-lexend font-semibold text-4xl text-black mb-8"> Post an Event!</h2>
+      </div>
       <!-- Event Name -->
       <div class="grid grid-col grid-cols-2 pl-8 pr-8">
         <div class="flex flex-col span-1 pr-2">
@@ -112,6 +113,13 @@
         </div>
         
       </div>
+      <div class="flex flex-col flex-1 w-full">
+        <div class="flex flex-col w-full pl-8 pr-16 sm:pr-8"> 
+          <label for="event-information" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Event Information:</label>
+          <textarea id="event-information" name="event-information" placeholder="Enter event information here..."
+              class="w-full h-96 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 resize-none p-8" required></textarea>
+        </div>
+      </div>
       <div class="flex flex-col w-full p-8">
         <div class="flex flex-col">
           <label for="cover-photo" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Cover photo</label>
@@ -124,7 +132,7 @@
             <img id="image-preview" class="mt-4 mx-auto h-24 w-auto object-cover hidden" src="#" alt="Uploaded Image Preview">
 
               <div class="mt-4 flex text-sm leading-6 text-gray-600 items-center justify-center">
-                <label for="file-upload" class="relative cursor-pointer rounded-md bg-gray-400 font-semibold text-white focus-within:outline-none hover:bg-indigo-500 transition duration-300 p-2">
+                <label for="file-upload" class="relative cursor-pointer rounded-md bg-indigo-500 font-semibold text-white focus-within:outline-none hover:bg-indigo-900 transition duration-300 p-2">
                   <span id="upload-text" class="font-lexend">Upload a file</span>
                   <input id="file-upload" name="file-upload" type="file" accept="image/png, image/jpeg" class="sr-only">
                 </label>
@@ -134,19 +142,14 @@
           </div>
         </div>
       </div>
+      <div class="flex flex-col justify-end items-left pl-8"  >
+        <button class="self-start text-3xl bg-indigo-500 border border-gray-400 rounded-lg flex items-center justify-center text-white font-lexend font-xl font-medium text-base leading-6 hover:bg-indigo-900 transition duration-300 px-4 py-3">Pop Event!</button>
+    </div>
+      
       
     </div>    
     </div>
 
-    <div class="flex flex-col flex-1 w-full">
-        <div class="flex flex-col w-full pl-8 pr-16 sm:pr-8"> 
-        <label for="event-information" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Event Information:</label>
-        <textarea id="event-information" name="event-information" placeholder="Enter event information here..."
-            class="w-full h-96 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 resize-none p-8" required></textarea>
-        </div>
-        <div class="flex flex-col justify-end items-center h-full p-8">
-            <button class="w-64 h-auto text-3xl bg-gray-400 border border-gray-400 rounded-lg flex items-center justify-center text-white font-lexend font-xl font-medium text-base leading-6 hover:bg-indigo-500 transition duration-300 px-4 py-4">Pop Event!</button>
-        </div>
-  </div>
+    
   </form>
   {% endblock %}
