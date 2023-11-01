@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  web-app:
+    build: .
+    command: flask run --debug --host=0.0.0.0
+    volumes:
+      - .:/project-1-web-application-design-group17-jigglies
+    ports:
+      - "5001:5000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+
+  test:
+    build: .
+    command: pytest tests/
+    volumes:
+      - .:/project-1-web-application-design-group17-jigglies

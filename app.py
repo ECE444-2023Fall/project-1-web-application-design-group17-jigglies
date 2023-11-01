@@ -6,11 +6,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+import base64
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
-
-app = Flask(__name__)
+app = Flask(__name__, template_folder='project/templates', static_folder='project/static')
 app.config['SECRET_KEY'] = 'mysecret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -58,11 +58,16 @@ def load_user(user_id):
     return db.session.get(User, int(user_id))
 
 
+@app.template_filter('b64encode')
+def b64encode_filter(data):
+    return base64.b64encode(data).decode() if data else None
+
+
 @app.route('/')
 @login_required
 def index():
-    # events = Event.query.all()
-    return render_template('index.html')
+    events = Event.query.all()
+    return render_template('index.html', events = events)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -300,7 +305,6 @@ def populate_database():
 
     db.session.commit()
 
-
 if __name__ == '__main__':
     with app.app_context():
         db.drop_all()
@@ -309,4 +313,3 @@ if __name__ == '__main__':
             populate_database()
     app.run(debug=True)
 
-    
