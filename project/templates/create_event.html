@@ -1,11 +1,14 @@
-{% extends "base-events.html" %}
+{% extends "base-white.html" %}
 
 {% block title %}Post an Event{% endblock %}
 
 {% block content %}
-  <h2 class="font-lexend font-semibold text-4xl text-black mb-8 p-4 pl-16"> Post an Event!</h2>
-  <form action="/create_event" method="post" enctype="multipart/form-data" class="flex pl-8">
+  <form action="/create_event" method="post" enctype="multipart/form-data" class="max-w-screen-xl flex flex-wrap justify-center mx-auto pt-8">
+    
     <div class="flex flex-col max-w-3xl flex-1 mr-8">
+      <div class="flex flex-row space-x-4 pl-8 pr-8 justify-between items-left">
+        <h2 class="font-lexend font-semibold text-4xl text-black mb-8"> Post an Event!</h2>
+      </div>
       <!-- Event Name -->
       <div class="grid grid-col grid-cols-2 pl-8 pr-8">
         <div class="flex flex-col span-1 pr-2">
@@ -21,7 +24,7 @@
       </div>
 
       <!-- Date, Start Time, End Time -->
-      <div class="flex flex-row space-x-20 pl-8 pr-8 justify-between">
+      <div class="flex flex-row space-x-4 pl-8 pr-8 justify-between items-left">
         <!-- Date -->
         <div class="flex flex-col">
           <label for="date" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Date:</label>
@@ -30,11 +33,10 @@
             name="date" value="{{ tomorrow }}" min="{{ tomorrow }}" />
         </div>
         <!-- Start Time -->
-        <div class="flex flex-col relative">
-          <label for="start-time" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Start Time:</label>
-          <div class="flex space-x-2 w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5">
-              <select name="start-time" id="start-time" class="peer block min-h-[auto] w-24 rounded border-0 bg-transparent outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 peer-focus:text-primary data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:peer-focus:text-primary [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0">
-                  <option value="09">9 AM</option>
+        <div class="flex flex-wrap relative">
+          <label for="start-time" class="text-gray-900 dark:text-white font-lexend font-semibold text-gray-700 text-xl pb-4 flex-shrink-0 mr-1">Start Time:</label>
+              <select name="start-time" id="start-time" class="flex space-x-2 w-full h-10 mb-4 rounded-md text-gray-400 px-4 py-1.5 bg-gray-50 border border-gray-400 rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 pr-4 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                <option value="09">9 AM</option>
                   <option value="10">10 AM</option>
                   <option value="11">11 AM</option>
                   <option value="12">12 PM</option>
@@ -43,19 +45,17 @@
                   <option value="15">3 PM</option>
                   <option value="16">4 PM</option>
                   <option value="16">5 PM</option>
-                  <option value="16">6 PM</option>
-                  <option value="16">7 PM</option>
-                  <option value="16">8 PM</option>
-                  <option value="16">9 PM</option>
+                  <option value="17">6 PM</option>
+                  <option value="18">7 PM</option>
+                  <option value="19">8 PM</option>
+                  <option value="20">9 PM</option>
               </select>
-          </div>
-       </div>
+      </div>
       
         <!-- End Time -->
-        <div class="flex flex-col relative">
-          <label for="end-time" class="font-lexend font-semibold text-gray-700 text-xl pb-4">End Time:</label>
-          <div class="flex space-x-2 w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5">
-              <select name="end-time" id="end-time" class="peer block min-h-[auto] w-24 rounded border-0 bg-transparent outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 peer-focus:text-primary data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:peer-focus:text-primary [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0">
+        <div class="flex flex-wrap relative">
+          <label for="end-time" class="text-gray-900 dark:text-white font-lexend font-semibold text-gray-700 text-xl pb-4 flex-shrink-0 mr-1">End Time:</label>
+              <select name="end-time" id="end-time" class="flex space-x-2 w-full h-10 mb-4 rounded-md text-gray-400 px-4 py-1.5 bg-gray-50 border border-gray-400 rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 pr-4 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                   <option value="10">10 AM</option>
                   <option value="11">11 AM</option>
                   <option value="12">12 PM</option>
@@ -63,14 +63,13 @@
                   <option value="14">2 PM</option>
                   <option value="15">3 PM</option>
                   <option value="16">4 PM</option>
-                  <option value="16">5 PM</option>
-                  <option value="16">6 PM</option>
-                  <option value="16">7 PM</option>
-                  <option value="16">8 PM</option>
-                  <option value="16">9 PM</option>
+                  <option value="17">5 PM</option>
+                  <option value="18">6 PM</option>
+                  <option value="19">7 PM</option>
+                  <option value="20">8 PM</option>
+                  <option value="21">9 PM</option>
               </select>
-          </div>
-       </div>
+      </div>
       </div>
 
       <!-- Address and Room -->
@@ -94,12 +93,12 @@
             <legend class="font-lexend font-semibold text-gray-700 text-xl">Allow Comments:</legend>
             <div class="mt-6 space-y-3">
               <div class="flex items-center gap-x-3">
-                <input id="push-yes" name="allow-comments" type="radio"
+                <input id="push-yes" name="allow-comments" type="radio" required
                   class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
                 <label for="push-yes" class="block text-sm font-large leading-6 text-gray-900 font-semibold">Yes</label>
               </div>
               <div class="flex items-center gap-x-3">
-                <input id="push-no" name="allow-comments" type="radio"
+                <input id="push-no" name="allow-comments" type="radio" required
                   class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
                 <label for="push-no" class="block text-sm font-xl leading-6 text-gray-900 font-semibold">No</label>
               </div>
@@ -114,6 +113,13 @@
         </div>
         
       </div>
+      <div class="flex flex-col flex-1 w-full">
+        <div class="flex flex-col w-full pl-8 pr-16 sm:pr-8"> 
+          <label for="event-information" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Event Information:</label>
+          <textarea id="event-information" name="event-information" placeholder="Enter event information here..."
+              class="w-full h-96 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 resize-none p-8" required></textarea>
+        </div>
+      </div>
       <div class="flex flex-col w-full p-8">
         <div class="flex flex-col">
           <label for="cover-photo" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Cover photo</label>
@@ -126,7 +132,7 @@
             <img id="image-preview" class="mt-4 mx-auto h-24 w-auto object-cover hidden" src="#" alt="Uploaded Image Preview">
 
               <div class="mt-4 flex text-sm leading-6 text-gray-600 items-center justify-center">
-                <label for="file-upload" class="relative cursor-pointer rounded-md bg-gray-400 font-semibold text-white focus-within:outline-none hover:bg-indigo-500 transition duration-300 p-2">
+                <label for="file-upload" class="relative cursor-pointer rounded-md bg-indigo-500 font-semibold text-white focus-within:outline-none hover:bg-indigo-900 transition duration-300 p-2">
                   <span id="upload-text" class="font-lexend">Upload a file</span>
                   <input id="file-upload" name="file-upload" type="file" accept="image/png, image/jpeg" class="sr-only">
                 </label>
@@ -136,19 +142,14 @@
           </div>
         </div>
       </div>
+      <div class="flex flex-col justify-end items-left pl-8"  >
+        <button class="self-start text-3xl bg-indigo-500 border border-gray-400 rounded-lg flex items-center justify-center text-white font-lexend font-xl font-medium text-base leading-6 hover:bg-indigo-900 transition duration-300 px-4 py-3">Pop Event!</button>
+    </div>
+      
       
     </div>    
     </div>
 
-    <div class="flex flex-col flex-1 w-full">
-        <div class="flex flex-col w-full pl-8 pr-8"> 
-        <label for="event-information" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Event Information:</label>
-        <textarea id="event-information" name="event-information" placeholder="Enter event information here..."
-            class="w-full h-96 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 resize-none" required></textarea>
-        </div>
-        <div class="flex flex-col justify-end items-center h-full pb-8 pr-8">
-            <button class="w-64 h-auto text-3xl bg-gray-400 border border-gray-400 rounded-lg flex items-center justify-center text-white font-lexend font-xl font-medium text-base leading-6 hover:bg-indigo-500 transition duration-300 px-4 py-4">Pop Event!</button>
-        </div>
-  </div>
+    
   </form>
   {% endblock %}

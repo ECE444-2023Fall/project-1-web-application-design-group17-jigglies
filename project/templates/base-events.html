@@ -13,11 +13,14 @@
 
     <!-- Header -->
     <div class="rounded-lg flex items-center justify-between mb-8 pl-8 pr-8 pt-4">
-        <div class="flex items-center">
+        <form action="/search" method="get" class="flex items-center">
             <img src="static/images/minimal_logo.png" alt="Logo" style="width: 250px; height: auto;">
-            <input type="text" placeholder="what's poppin?" class="border-4 border-gray-400 rounded-md p-2 mr-2 ml-4 text-gray-400 font-lexend px-4 py-1.5" style="width: 600px; height: 40;">
-            <button class="w-24 h-10 bg-gray-400 border border-gray-400 rounded-lg flex items-center justify-center text-white font-lexend font-medium text-base leading-6 hover:bg-indigo-500 transition duration-300">Search</button>
-        </div>
+            <div class="flex flex-col relative">
+                <input type="text" name="search_query" autocomplete="off" placeholder="what's poppin?" class="border-4 border-gray-400 rounded-md p-2 mr-2 ml-4 text-gray-400 font-lexend px-4 py-1.5" style="width: 600px; height: 40;">
+                <div style="width: 600px; height: 40;" class="absolute left-0 mt-12 w-full bg-white rounded-md shadow-lg z-10 overflow-hidden max-h-40 overflow-y-auto mr-2 ml-4 text-gray-400 font-lexend"></div>
+            </div>
+            <button type="submit" class="w-24 h-10 bg-gray-400 border border-gray-400 rounded-lg flex items-center justify-center text-white font-lexend font-medium text-base leading-6 hover:bg-indigo-500 transition duration-300">Search</button>
+        </form>
         <div class="flex space-x-4 pl-8">
             <!-- Heroicons SVGs -->
             <a href="/calendar" class="text-gray-500">
@@ -50,6 +53,9 @@
     {% endif %}
     {% endwith %}
     {% block content %} {% endblock %}
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={API_KEY}&libraries=places"></script>
+    <script src="https://unpkg.com/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 
