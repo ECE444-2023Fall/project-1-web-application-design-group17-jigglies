@@ -1,13 +1,16 @@
 
 from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user,login_required 
+from sqlalchemy import func
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 import base64
-
+import urllib
+from project import helpers
 from project.forms import CreateEventForm
 from datetime import datetime
 
@@ -24,6 +27,7 @@ login_manager.login_view = 'signup'
 
 bootstrap = Bootstrap(app)
 moment = Moment(app)
+migrate = Migrate(app, db)
 
 ## ----------------------------- Database Schemas ----------------------------- ##
 
@@ -33,6 +37,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)  # New email field
     password = db.Column(db.String(150), nullable=False)
+    comments = db.relationship("Comment", backref="user", passive_deletes=True)
 
 # Event Database
 class Event(db.Model):
@@ -48,7 +53,14 @@ class Event(db.Model):
     capacity = db.Column(db.Integer, nullable=False)
     event_information = db.Column(db.Text, nullable=False)
     cover_photo = db.Column(db.LargeBinary, nullable=True)
-
+    comments = db.relationship("Comment", backref="event", passive_deletes=True)
+    
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text, nullable=False)
+    datetime_created = db.Column(db.DateTime(timezone=True), default=func.now())
+    author = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id", ondelete="CASCADE"), nullable=False)
 ## ---------------------------------------------------------------------------- ##
 
 
@@ -125,6 +137,7 @@ def signup():
     return render_template('signup.html')
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
@@ -143,14 +156,32 @@ def search():
 
 
 @app.route('/event/<int:event_id>')
+@login_required
 def event_details(event_id):
     event = Event.query.get(event_id)
 
     if event is not None:
-        return render_template('event_details.html', event = event)
+        comments = event.comments
+        google_maps_url = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCKlG89lcVnFJezUAfEtzokCuHoCO16Unk&q=" + urllib.parse.quote_plus(event.location)
+        parsedDateTime = helpers.parseDateTime(event.date, event.start_time, event.end_time)
+        return render_template('event_details.html', event = event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments)
     else:
         flash('Event not found', 'danger')
         return redirect(url_for('home'))
+    
+@app.route('/create_comment/<int:event_id>', methods=["POST"])
+@login_required
+def create_comment(event_id):
+    text = request.form["comment"]
+    event = Event.query.filter_by(id=event_id).first()
+    if event:
+        comment = Comment(text=text, author=current_user.id, event_id=event_id)
+        db.session.add(comment)
+        db.session.commit()
+        return redirect(url_for("event_details", event_id=event_id))
+    else:
+        flash("Event does not exist!", "error")
+        return redirect(url_for("home"))
     
 @app.route('/autocomplete', methods=['GET'])
 def autocomplete():
@@ -174,6 +205,7 @@ def event_success():
 
 
 @app.route('/create_event', methods=['GET', 'POST'])
+@login_required
 def create_event():
     if request.method == 'GET':
         return render_template('create_event.html')
@@ -243,5 +275,5 @@ if __name__ == '__main__':
         db.create_all()
         # if not Event.query.first():
         #    add_dummy_events()
-    app.run(debug=False)
+    app.run(debug=True)
 
