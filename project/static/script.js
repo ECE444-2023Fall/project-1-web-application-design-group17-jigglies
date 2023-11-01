@@ -60,7 +60,45 @@ function showErrorTooltip(inputElement, message) {
             tip.destroy(); // Properly clean up the tippy instance
         }, 5000);
     }
-    
+
+// Search integration
+function performSearch() {
+    let query = document.getElementById('search_query').value;
+    window.location.href = '/search?search_query=' + encodeURIComponent(query);
+}
+
+
+// Autocomplete Integration
+const searchInput = document.getElementById('search_query');
+const suggestionsBox = document.getElementById('suggestions');
+
+searchInput.addEventListener("input", function(event) {
+    const value = event.target.value;
+    suggestionsBox.innerHTML = "";
+
+    if (value === "") return;  // Don't show suggestions if the input is empty
+
+    // Fetching data from the server
+    fetch(`/autocomplete?search_query=${value}`)
+    .then(response => response.json())
+    .then(data => {
+        for (let item of data) {
+            const suggestionItem = document.createElement("div");
+            suggestionItem.textContent = item.name; 
+            suggestionItem.classList.add("p-2", "hover:bg-gray-200", "cursor-pointer", "border", "border-gray-300", "rounded");
+            suggestionItem.addEventListener("click", function() {
+                searchInput.value = item.name;
+                suggestionsBox.innerHTML = "";
+                performSearch();
+            });
+            suggestionsBox.appendChild(suggestionItem);
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching search results:", error);
+    });
+});
+
 function initialize() {
     var input = document.getElementById('location');
     if (input) {
