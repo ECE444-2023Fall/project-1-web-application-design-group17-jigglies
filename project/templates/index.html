@@ -18,14 +18,14 @@
 </style>
 
 <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-    <div id="content">
+    <div class="w-full">
         {% if current_user.is_authenticated %}
             <div class="autocomplete-results" id="autocomplete-results"></div>
             
             <!-- Grid layout for event cards -->
             <div class="grid grid-col-3" id="event-cards">
                 {% for event in events %}
-                <div class="max-w-sm bg-white border border-gray-200 rounded-lg shadow bg-gray-800 dark:border-gray-700 shadow-xl" style="display: flex; flex-direction: column; height: 100%;">
+                <div class="bg-white border border-gray-200 rounded-lg shadow bg-gray-800 dark:border-gray-700 shadow-xl" style="display: flex; flex-direction: column; height: 100%;">
                     {% if event.cover_photo %}
                         <img class="rounded-t-lg" src="data:image/jpeg;base64,{{ event.cover_photo | b64encode | safe }}" alt="Event Image {{ event.id }}" style="width: 300px; height: 300px; object-fit: cover;" />
                     {% else %}
