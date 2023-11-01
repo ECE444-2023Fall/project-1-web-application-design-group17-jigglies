@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+import base64
 
 from project.forms import CreateEventForm
 from datetime import datetime
@@ -58,11 +59,16 @@ def load_user(user_id):
     return db.session.get(User, int(user_id))
 
 
+@app.template_filter('b64encode')
+def b64encode_filter(data):
+    return base64.b64encode(data).decode() if data else None
+
+
 @app.route('/')
 @login_required
 def index():
-    # events = Event.query.all()
-    return render_template('index.html')
+    events = Event.query.all()
+    return render_template('index.html', events = events)
 
 
 @app.route('/login', methods=['GET', 'POST'])
