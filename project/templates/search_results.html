@@ -1,68 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Search Results</title>
-</head>
-<body>
-    <h1>Search Results for "{{ query }}"</h1>
-    <form action="{{ url_for('search') }}" method="GET">
-        <div class="autocomplete" style="width: 300px;">
-            <input type="text" name="query" id="search" placeholder="Search for events...">
-        </div>
-        <input type="submit" value="Search">
-    </form>
-    <div class="autocomplete-results" id="autocomplete-results"></div>
-    <div class="search-results">
-        {% if results %}
-            {% for result in results %}
-                <div class="result-card">
-                    <h2><a href="{{ url_for('event_details', event_id=result.id) }}">{{ result.name }}</a></h2>
-                    <p>Organizer: {{ result.organizer }}</p>
-                    <p>Time: {{ result.time }}</p>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No results found.</p>
-        {% endif %}
-    </div>
-    <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-    $(document).ready(function() {
-        $('#search').on('input', function() {
-            var query = $(this).val();
-            if (query) {
-                $.ajax({
-                    type: 'GET',
-                    url: '/autocomplete',
-                    data: { query: query },
-                    success: function(data) {
-                        var resultsDiv = $('#autocomplete-results');
-                        resultsDiv.empty();
-                        for (var i = 0; i < data.length; i++) {
-                            var suggestion = data[i];
-                            var suggestionDiv = $('<div></div>');
-                            suggestionDiv.addClass('autocomplete-suggestion');
-                            suggestionDiv.text(suggestion.label);
-                            suggestionDiv.click(function() {
-                                $('#search').val(suggestion.label);
-                                resultsDiv.empty();
-                            });
-                            resultsDiv.append(suggestionDiv);
-                        }
-                    }
-                });
-            } else {
-                $('#autocomplete-results').empty();
-            }
-        });
+{% extends 'base-events.html' %}
 
-        $(document).on('click', function(e) {
-            if (!$(e.target).closest("#autocomplete-results").length) {
-                $('#autocomplete-results').empty();
-            }
-        });
-    });
-    </script>
-</body>
-</html>
+{% block content %}
+    <h1>Search Results for: {{query}}</h1>
+    <ul>
+    {% for event in results %}
+        <li>{{ event.event_name }}</li>
+    {% endfor %}
+    </ul>
+{% endblock %}
