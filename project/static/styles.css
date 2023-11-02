@@ -62,4 +62,9 @@
     --tag-hover: rgb(26, 35, 126) !important;
     --tag-text-color:#FFF !important;
     --tag-remove-btn-color: #FFF !important;
+    border: 1px solid #6b7280 !important;
+}
+
+.tagify--focus {
+    border:1.5px solid rgb(56,103,234)!important;
 }
