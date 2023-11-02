@@ -3,7 +3,6 @@
 <head>
   {% block head %}
   <title>{% block title %}Default Title{% endblock %}</title>
-  {# <link href="../static/tailwind/tailwind-styles.css" rel="stylesheet"> #}
   <link rel="stylesheet" href="../static/styles.css">
   {# TailwindCSS CDN #}
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -53,8 +52,8 @@
         <!-- Dropdown menu -->
         <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
           <div class="px-4 py-3">
-            <span class="block text-sm text-gray-900 dark:text-white">Test User</span>
-            <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">first.last@mail.utoronto.com</span>
+            <span class="block text-sm text-gray-900 dark:text-white">{{current_user.username}}</span>
+            <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">{{current_user.email}}</span>
           </div>
           <ul class="py-2" aria-labelledby="user-menu-button">
             <li>
@@ -122,6 +121,8 @@
 
   {# Flowbite JS CDN: #}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.0.0/flowbite.min.js"></script>
+  {# Moment Library #}
+  {{ moment.include_moment() }}
   {% endblock body %}
   <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=[API_KEY]&libraries=places"></script>
   <script src="https://unpkg.com/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
