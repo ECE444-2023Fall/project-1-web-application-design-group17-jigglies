@@ -11,7 +11,7 @@ services:
     environment:
       - FLASK_ENV=development
       - FLASK_APP=app.py
-      - GOOGLE_MAPS_API_KEY
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_TOKEN}
 
   test:
     build: .
