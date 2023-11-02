@@ -13,6 +13,7 @@ import urllib
 from project import helpers
 from project.forms import CreateEventForm
 from datetime import datetime
+import os
 
 app = Flask(__name__, template_folder='project/templates', static_folder='project/static')
 app.config['SECRET_KEY'] = 'mysecret'
@@ -28,6 +29,8 @@ login_manager.login_view = 'signup'
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 migrate = Migrate(app, db)
+
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 
 ## ----------------------------- Database Schemas ----------------------------- ##
 
@@ -162,9 +165,9 @@ def event_details(event_id):
 
     if event is not None:
         comments = event.comments
-        google_maps_url = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCKlG89lcVnFJezUAfEtzokCuHoCO16Unk&q=" + urllib.parse.quote_plus(event.location)
+        google_maps_url = "https://www.google.com/maps/embed/v1/place?key=" + GOOGLE_MAPS_API_KEY + "&q=" + urllib.parse.quote_plus(event.location)
         parsedDateTime = helpers.parseDateTime(event.date, event.start_time, event.end_time)
-        return render_template('event_details.html', event = event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments)
+        return render_template('event_details.html', event = event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY)
     else:
         flash('Event not found', 'danger')
         return redirect(url_for('home'))
