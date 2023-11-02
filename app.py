@@ -1,4 +1,4 @@
-
+import json
 from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -11,7 +11,7 @@ from flask_moment import Moment
 import base64
 import urllib
 from project import helpers
-from project.forms import CreateEventForm
+
 from datetime import datetime
 import os
 
@@ -55,6 +55,7 @@ class Event(db.Model):
     allow_comments = db.Column(db.Boolean, nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
     event_information = db.Column(db.Text, nullable=False)
+    tags = db.Column(db.String, nullable=True) # Retrive by using json.loads(tags) to put it back into list form
     cover_photo = db.Column(db.LargeBinary, nullable=True)
     comments = db.relationship("Comment", backref="event", passive_deletes=True)
     
@@ -208,7 +209,7 @@ def event_success():
 
 
 @app.route('/create_event', methods=['GET', 'POST'])
-@login_required
+@login_required 
 def create_event():
     if request.method == 'GET':
         return render_template('create_event.html')
@@ -240,11 +241,15 @@ def create_event():
             flash('Invalid Time inputs, please check and resubmit', 'danger')
             return render_template('create_event.html')
 
+        tag_info = request.form['tags']
+        tags = [tag['value'] for tag in json.loads(tag_info)]
+        tag_db = json.dumps(tags)
         location = request.form['location']
         room = request.form['room']
-        allow_comments = True if request.form['allow-comments'] == 'yes' else False
+        allow_comments = True if request.form['allow_comments'] == 'Yes' else False
         capacity = int(request.form['capacity'])
         event_information = request.form['event-information']
+        
 
         image_file = request.files['file-upload']
         image_data = None
@@ -262,6 +267,7 @@ def create_event():
             allow_comments=allow_comments,
             capacity=capacity,
             event_information=event_information,
+            tags=tag_db,
             cover_photo=image_data 
         )
         db.session.add(new_event)
