@@ -124,7 +124,7 @@
   {# Moment Library #}
   {{ moment.include_moment() }}
   {% endblock body %}
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=[API_KEY]&libraries=places"></script>
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{key}}&libraries=places"></script>
   <script src="https://unpkg.com/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
   <script src="https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
