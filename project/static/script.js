@@ -43,6 +43,22 @@ document.addEventListener("DOMContentLoaded", function() {
         };
         reader.readAsDataURL(file);
     }
+    var input = document.querySelector("#tags");
+
+    // Initialize Tagify with maxTags setting
+    var tagify = new Tagify(input, {
+        delimiters: ", ",
+        maxTags: 5
+    });
+    
+    // Add an event listener to notify the user when they've reached the max number of tags
+    tagify.on('input', function(e){
+        if(tagify.value.length >= tagify.settings.maxTags){
+            showErrorTooltip(input,'You have reached the maximum number of allowed tags!');
+        }
+    });
+    
+    
 function showErrorTooltip(inputElement, message) {
         // Create a tippy instance
         const tip = tippy(inputElement, {
@@ -87,6 +103,25 @@ function initialize() {
         });
     }
 }
+    // Get the start and end time select elements
+    const startTimeSelect = document.getElementById('start-time');
+    const endTimeSelect = document.getElementById('end-time');
+
+    // Function to check and validate times
+    function validateTimes() {
+        const startTimeValue = parseInt(startTimeSelect.value, 10);
+        const endTimeValue = parseInt(endTimeSelect.value, 10);
+
+        if (endTimeValue <= startTimeValue) {
+            showErrorTooltip(endTimeSelect, 'End time should be after start time'); 
+            endTimeSelect.value = ''; // Clear the end time selection
+        }
+    }
+
+    // Add event listeners to check the times whenever they change
+    startTimeSelect.addEventListener('change', validateTimes);
+    endTimeSelect.addEventListener('change', validateTimes);
+
 
 // Call the initialize function when the window loads.
 google.maps.event.addDomListener(window, 'load', initialize);

@@ -3,3 +3,4 @@ myenv/
 venv/
 .DS_Store
 .env
+instance/database.db

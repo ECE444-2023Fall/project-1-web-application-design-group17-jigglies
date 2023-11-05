@@ -1,4 +1,4 @@
-
+import json
 from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -11,7 +11,7 @@ from flask_moment import Moment
 import base64
 import urllib
 from project import helpers
-from project.forms import CreateEventForm
+
 from datetime import datetime
 import os
 
@@ -31,6 +31,7 @@ moment = Moment(app)
 migrate = Migrate(app, db)
 
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
+GOOGLE_PLACES_API_KEY = os.getenv('GOOGLE_PLACES_API_KEY')
 
 ## ----------------------------- Database Schemas ----------------------------- ##
 
@@ -55,6 +56,7 @@ class Event(db.Model):
     allow_comments = db.Column(db.Boolean, nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
     event_information = db.Column(db.Text, nullable=False)
+    tags = db.Column(db.String, nullable=True) # Retrive by using json.loads(tags) to put it back into list form
     cover_photo = db.Column(db.LargeBinary, nullable=True)
     comments = db.relationship("Comment", backref="event", passive_deletes=True)
     
@@ -208,10 +210,10 @@ def event_success():
 
 
 @app.route('/create_event', methods=['GET', 'POST'])
-@login_required
+# @login_required 
 def create_event():
     if request.method == 'GET':
-        return render_template('create_event.html')
+        return render_template('create_event.html', key=GOOGLE_PLACES_API_KEY)
     
     if request.method == 'POST':
         # Extract event name
@@ -220,7 +222,7 @@ def create_event():
         # Check if event name already exists
         if Event.query.filter_by(event_name=event_name).first():
             flash('An event with the name already exists, please choose another name', 'danger')
-            return render_template('create_event.html')
+            return render_template('create_event.html', key=GOOGLE_PLACES_API_KEY)
         
         # Extract event organization name
         event_organization = request.form['organization']
@@ -238,13 +240,17 @@ def create_event():
         # If end time is before start time, return error as it is an invalid input
         if end_time_obj <= start_time_obj:
             flash('Invalid Time inputs, please check and resubmit', 'danger')
-            return render_template('create_event.html')
+            return render_template('create_event.html', key=GOOGLE_PLACES_API_KEY)
 
+        tag_info = request.form['tags']
+        tags = [tag['value'] for tag in json.loads(tag_info)]
+        tag_db = json.dumps(tags)
         location = request.form['location']
         room = request.form['room']
-        allow_comments = True if request.form['allow-comments'] == 'yes' else False
+        allow_comments = True if request.form['allow_comments'] == 'Yes' else False
         capacity = int(request.form['capacity'])
         event_information = request.form['event-information']
+        
 
         image_file = request.files['file-upload']
         image_data = None
@@ -262,13 +268,14 @@ def create_event():
             allow_comments=allow_comments,
             capacity=capacity,
             event_information=event_information,
+            tags=tag_db,
             cover_photo=image_data 
         )
         db.session.add(new_event)
         db.session.commit()
         return redirect(url_for('event_success'))
 
-    return render_template(url_for('create_event')) 
+    return render_template(url_for('create_event'), key=GOOGLE_PLACES_API_KEY) 
 
 
 ## ---------------------------------------------------------------------------- ##
