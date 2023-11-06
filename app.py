@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
+from flask_login import LoginManager, UserMixin, login_user, logout_user,login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
@@ -12,6 +13,7 @@ import base64
 import urllib
 from project import helpers
 
+from .forms import CreateEventForm, ProfileForm
 from datetime import datetime
 import os
 
@@ -42,6 +44,20 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)  # New email field
     password = db.Column(db.String(150), nullable=False)
     comments = db.relationship("Comment", backref="user", passive_deletes=True)
+    name = db.Column(db.String(150), nullable=True)
+
+    def update_username(self, new_username):
+        self.username = new_username
+        db.session.commit()
+
+    def update_password(self, new_password):
+        hashed_password = generate_password_hash(new_password, method='scrypt')
+        self.password = hashed_password
+        db.session.commit()
+
+    def update_name(self, new_name):
+        self.name = new_name
+        db.session.commit()
 
 # Event Database
 class Event(db.Model):
@@ -279,6 +295,27 @@ def create_event():
 
 
 ## ---------------------------------------------------------------------------- ##
+
+## ------------------------------- Profile ------------------------------- ##
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    form = ProfileForm()
+    if form.validate_on_submit():
+        current_user.update_username(form.username.data)
+        current_user.update_password(form.password.data)
+        current_user.update_name(form.name.data)
+        flash('Your profile has been updated!', 'success')
+        return redirect(url_for('profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.name.data = current_user.name
+    return render_template('profile.html', form=form)
+
+## ---------------------------------------------------------------------------- ##
+
+
 
 if __name__ == '__main__':
     with app.app_context():
