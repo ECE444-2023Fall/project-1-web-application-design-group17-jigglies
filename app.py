@@ -13,7 +13,7 @@ import base64
 import urllib
 from project import helpers
 
-from .forms import CreateEventForm, ProfileForm
+from project.forms import CreateEventForm, ProfileForm
 from datetime import datetime
 import os
 
