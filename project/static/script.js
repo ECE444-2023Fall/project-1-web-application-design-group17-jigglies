@@ -122,14 +122,13 @@ document.addEventListener("DOMContentLoaded", function () {
     startTimeSelect.addEventListener('change', validateTimes);
     endTimeSelect.addEventListener('change', validateTimes);
 
-
     // Call the initialize function when the window loads.
     google.maps.event.addDomListener(window, 'load', initialize);
 });
 
 function like(event_id) {
-    const likeCount = document.getElementById("like-count")
-    const likeButton = document.getElementById("like-button")
+    const likeCount = document.getElementById("like-count");
+    const likeButton = document.getElementById("like-button");
     const heartIcon = document.getElementById("heart-icon");
 
     fetch(`/like_event/${event_id}`, { method: "POST" }).then((res) => res.json()).then((data) => {
@@ -142,5 +141,24 @@ function like(event_id) {
             heartIcon.classList.remove("fa-solid");
             heartIcon.classList.add("fa-regular");
         }
+    });
+}
+
+function rsvp(event_id) {
+    const rsvpButton = document.getElementById("rsvp-button");
+
+    fetch(`/rsvp_event/${event_id}`, { method: "POST" }).then((res) => res.json()).then((data) => {
+        if (data["user_has_rsvp"] === true) {
+            rsvpButton.classList.remove("text-purple-700");
+            rsvpButton.classList.add("text-white", "bg-purple-700");
+            rsvpButton.innerHTML = "RSVP'd";
+        }
+        else {
+            rsvpButton.classList.remove("text-white", "bg-purple-700");
+            rsvpButton.classList.add("text-purple-700");
+            rsvpButton.innerHTML = "RSVP";
+        }
+        console.log("Hello")
+        console.log(data["rsvp_count"])
     });
 }
