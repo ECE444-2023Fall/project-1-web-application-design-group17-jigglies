@@ -42,6 +42,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)  # New email field
     password = db.Column(db.String(150), nullable=False)
     comments = db.relationship("Comment", backref="user", passive_deletes=True)
+    likes = db.relationship("Like", backref="user", passive_deletes=True)
 
 # Event Database
 class Event(db.Model):
@@ -59,11 +60,17 @@ class Event(db.Model):
     tags = db.Column(db.String, nullable=True) # Retrive by using json.loads(tags) to put it back into list form
     cover_photo = db.Column(db.LargeBinary, nullable=True)
     comments = db.relationship("Comment", backref="event", passive_deletes=True)
+    likes = db.relationship("Like", backref="event", passive_deletes=True)
     
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text, nullable=False)
     datetime_created = db.Column(db.DateTime(timezone=True), default=func.now())
+    author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id", ondelete="CASCADE"), nullable=False)
+    
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
     author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey("event.id", ondelete="CASCADE"), nullable=False)
 ## ---------------------------------------------------------------------------- ##
@@ -188,6 +195,24 @@ def create_comment(event_id):
         flash("Event does not exist!", "error")
         return redirect(url_for("home"))
     
+@app.route('/like_event/<int:event_id>', methods=["POST"])
+@login_required
+def like_event(event_id):
+    event = Event.query.filter_by(id=event_id).first()
+    like = Like.query.filter_by(author=current_user.id, event_id=event_id).first()
+    
+    if not event:
+        return jsonify({"error": "Event does not exist."}, 400)
+    elif like: # If user has already liked the event, remove the like from db.
+        db.session.delete(like)
+        db.session.commit()
+    else:
+        like = Like(author=current_user.id, event_id=event_id)
+        db.session.add(like)
+        db.session.commit()
+    return jsonify({"like_count": len(event.likes), "user_has_liked": current_user.id in map(lambda like: like.author, event.likes )})
+    
+            
 @app.route('/autocomplete', methods=['GET'])
 def autocomplete():
     query = request.args.get('query')
