@@ -49,6 +49,7 @@ class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_name = db.Column(db.String(80), unique=True, nullable=False)
     event_organization = db.Column(db.String(80), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
@@ -285,6 +286,7 @@ def create_event():
         new_event = Event(
             event_name=event_name,
             event_organization=event_organization,
+            created_by=current_user.id,
             date=event_date,
             start_time=start_time_obj,
             end_time=end_time_obj,
