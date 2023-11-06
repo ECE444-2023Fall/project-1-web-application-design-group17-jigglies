@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
-from .forms import CreateEventForm, ProfileForm
+from project.forms import CreateEventForm, ProfileForm
 from datetime import datetime
 
 
@@ -254,15 +254,23 @@ def create_event():
 def profile():
     form = ProfileForm()
     if form.validate_on_submit():
-        current_user.update_username(form.username.data)
-        current_user.update_password(form.password.data)
-        current_user.update_name(form.name.data)
-        flash('Your profile has been updated!', 'success')
-        return redirect(url_for('profile'))
+        if form.old_password.data and current_user.verify_password(form.old_password.data):
+            # Assuming the methods `update_username`, `update_password`, and `update_name` exist
+            # and handle the updating logic including saving to the database.
+            if form.username.data:
+                current_user.update_username(form.username.data)
+            if form.password.data:
+                current_user.update_password(form.password.data)
+            if form.name.data:
+                current_user.update_name(form.name.data)
+            flash('Your profile has been updated!', 'success')
+            return redirect(url_for('profile'))
+        else:
+            flash('Old password is incorrect.', 'danger')
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.name.data = current_user.name
-    return render_template('profile.html', form=form)
+    return render_template('profile.html', title='Update Profile', form=form)
 
 ## ---------------------------------------------------------------------------- ##
 
@@ -273,6 +281,6 @@ if __name__ == '__main__':
         db.create_all()
         # if not Event.query.first():
         #    add_dummy_events()
-    app.run(debug=False)
+    app.run(debug=True)
 
     

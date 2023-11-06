@@ -1,0 +1,66 @@
+{% extends "base-profile.html" %}
+
+{% block title %}Update Profile{% endblock %}
+
+{% block content %}
+<div style="margin-top: 180px;"></div>
+<div class="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto">
+    <h2 class="text-center mb-4 text-xl font-medium">Update Your Profile</h2>
+    
+    <form action="{{ url_for('profile') }}" method="post" class="space-y-4">
+        {{ form.hidden_tag() }}
+
+        <div>
+            <label for="old_password" class="block text-sm font-medium text-gray-600">Old Password:</label>
+            {{ form.old_password(id="old_password", class="mt-1 p-2 w-full border rounded-md") }}
+            {% if form.old_password.errors %}
+                <ul class="text-red-500 text-sm mt-1">
+                    {% for error in form.old_password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="username" class="block text-sm font-medium text-gray-600">Username:</label>
+            {{ form.username(id="username", class="mt-1 p-2 w-full border rounded-md") }}
+            {% if form.username.errors %}
+                <ul class="text-red-500 text-sm mt-1">
+                    {% for error in form.username.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-600">New Password:</label>
+            {{ form.password(id="password", class="mt-1 p-2 w-full border rounded-md") }}
+            {% if form.password.errors %}
+                <ul class="text-red-500 text-sm mt-1">
+                    {% for error in form.password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="name" class="block text-sm font-medium text-gray-600">Name:</label>
+            {{ form.name(id="name", class="mt-1 p-2 w-full border rounded-md") }}
+            {% if form.name.errors %}
+                <ul class="text-red-500 text-sm mt-1">
+                    {% for error in form.name.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            <input type="submit" value="Update Profile" class="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+        </div>
+    </form>
+</div>
+{% endblock %}
