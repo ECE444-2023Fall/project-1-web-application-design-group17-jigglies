@@ -252,18 +252,7 @@ def like_event(event_id):
         db.session.commit()
     return jsonify({"like_count": len(event.likes), "user_has_liked": current_user.id in map(lambda like: like.author, event.likes )})
     
-            
-@app.route('/autocomplete', methods=['GET'])
-def autocomplete():
-    query = request.args.get('query')
-    results = Event.query.filter(
-        (Event.event_name.ilike(f'%{query}%')) |
-        (Event.event_organization.ilike(f'%{query}%'))
-    ).all()
 
-    suggestions = [{"label": event.event_name, "value": event.event_name} for event in results]
-
-    return jsonify(suggestions)
 ## ---------------------------------------------------------------------------- ##
 
 
