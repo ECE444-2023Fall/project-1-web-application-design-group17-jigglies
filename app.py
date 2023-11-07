@@ -61,7 +61,6 @@ class User(UserMixin, db.Model):
         self.name = new_name
         db.session.commit()
     
-
 # Event Database
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
