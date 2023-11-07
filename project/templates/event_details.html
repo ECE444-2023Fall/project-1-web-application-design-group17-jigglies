@@ -29,9 +29,9 @@
           </button>
           {# Like, Save icons #}
           {% if current_user.id in event.rsvps|map(attribute="author")|list %}
-            <button type="button" id="rsvp-button" onclick="rsvp({{event.id}})" class="interact-button text-white bg-purple-700 border border-purple-700 font-medium rounded-lg text-sm text-center flex items-center mr-2 p-2.5">RSVP'd</button>
+            <button type="button" id="rsvp-button" onclick="rsvp({{event.id}})" class="interact-button text-white bg-purple-700 border border-purple-700 font-medium rounded-lg text-sm text-center flex items-center mr-2 p-2.5 {% if current_user.id == event.created_by %}cursor-not-allowed{% endif %}" {% if current_user.id == event.created_by %}disabled{% endif %}>RSVP'd</button>
           {% else %}
-            <button type="button" id="rsvp-button" onclick="rsvp({{event.id}})" class="interact-button text-purple-700 border border-purple-700 font-medium rounded-lg text-sm text-center flex items-center mr-2 p-2.5">RSVP</button>
+            <button type="button" id="rsvp-button" onclick="rsvp({{event.id}})" class="interact-button text-purple-700 border border-purple-700 font-medium rounded-lg text-sm text-center flex items-center mr-2 p-2.5 {% if current_user.id == event.created_by %}cursor-not-allowed{% endif %}" {% if current_user.id == event.created_by %}disabled{% endif %}>RSVP</button>
           {% endif %}
           </button>
         </div>
