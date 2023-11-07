@@ -41,15 +41,6 @@
             </svg>
             <span class="sr-only">Search icon</span>
           </div>
-          <script>
-            function performSearch(event) {
-                if (event && event.key === "Enter") {
-                    event.preventDefault();  // prevent the default behavior of Enter key
-                    let query = document.getElementById('search_query').value;
-                    window.location.href = '/search?search_query=' + encodeURIComponent(query);
-                }
-            }
-        </script>
         <div class="search-container">
           <input type="text" id="search_query" onkeydown="return performSearch(event)" autocomplete="off"
             class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
