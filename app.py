@@ -142,18 +142,18 @@ def signup():
 
         # Add this block to validate the email domain
         if not email.endswith('utoronto.ca'):
-            flash('Please sign up with a uoft email.', 'danger')
+            flash('Please sign up with a uoft email.', 'alert')
             return render_template('signup.html')
 
         user_by_username = User.query.filter_by(username=username).first()
         user_by_email = User.query.filter_by(email=email).first()
 
         if user_by_username:
-            flash('Username already exists. Please choose another one.', 'danger')
+            flash('Username already exists. Please choose another one.', 'alert')
             return render_template('signup.html')
 
         if user_by_email:
-            flash('Email already registered. Please use another email or login.', 'danger')
+            flash('Email already registered. Please use another email or login.', 'alert')
             return render_template('signup.html')
 
         hashed_password = generate_password_hash(password, method='scrypt')
