@@ -201,7 +201,8 @@ def event_details(event_id):
         comments = event.comments
         google_maps_url = "https://www.google.com/maps/embed/v1/place?key=" + GOOGLE_MAPS_API_KEY + "&q=" + urllib.parse.quote_plus(event.location)
         parsedDateTime = helpers.parseDateTime(event.date, event.start_time, event.end_time)
-        return render_template('event_details.html', event = event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY)
+        tags = json.loads(event.tags)
+        return render_template('event_details.html', event = event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY, tags=tags)
     else:
         flash('Event not found', 'danger')
         return redirect(url_for('home'))

@@ -128,7 +128,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function like(event_id) {
     const likeCount = document.getElementById("like-count");
-    const likeButton = document.getElementById("like-button");
     const heartIcon = document.getElementById("heart-icon");
 
     fetch(`/like_event/${event_id}`, { method: "POST" }).then((res) => res.json()).then((data) => {
@@ -158,7 +157,5 @@ function rsvp(event_id) {
             rsvpButton.classList.add("text-purple-700");
             rsvpButton.innerHTML = "RSVP";
         }
-        console.log("Hello")
-        console.log(data["rsvp_count"])
     });
 }
