@@ -1,125 +1,22 @@
 {% extends "base-white.html" %}
 
-
-{% block title %}Update Profile{% endblock %}
+{% block title %}Profile{% endblock %}
 
 {% block content %}
 {% include "base-profile.html" %}
 <div style="margin-top: 150px; position: relative;"></div>
 <div class="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto" style="position: relative; left: auto; transform: translateX(0%);">
-    <!-- Flash Messages -->
-    {% for category, message in get_flashed_messages(with_categories=true) %}
-    <div class="flash-{{ category }}">{{ message }}</div>
-    {% endfor %}
-    <h2 class="text-center mb-4 text-xl font-medium">Update Your Profile</h2>
+    <h2 class="text-center mb-4 text-xl font-medium">Your Profile</h2>
     
-    <form id="profileForm" action="{{ url_for('profile') }}" method="post" class="space-y-4">
-        {{ form.hidden_tag() }}
-
-        <div>
-            <label for="username" class="block text-sm font-medium text-gray-600">Username:</label>
-            {{ form.username(id="username", class="mt-1 p-2 w-full border rounded-md") }}
-            {% if form.username.errors %}
-                <ul class="text-red-500 text-sm mt-1">
-                    {% for error in form.username.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-
-        <div>
-            <label for="password" class="block text-sm font-medium text-gray-600">New Password:</label>
-            {{ form.password(id="password", class="mt-1 p-2 w-full border rounded-md") }}
-            {% if form.password.errors %}
-                <ul class="text-red-500 text-sm mt-1">
-                    {% for error in form.password.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-
-        <div>
-            <label for="bio" class="block text-sm font-medium text-gray-600">Bio:</label>
-            {{ form.bio(id="bio", class="mt-1 p-2 w-full border rounded-md") }}
-            {% if form.bio.errors %}
-                <ul class="text-red-500 text-sm mt-1">
-                    {% for error in form.bio.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-
-        <!-- Hidden Old Password Field; will be filled by the modal -->
-        <input type="hidden" id="old_password" name="old_password">
-
-        <div>
-            <input type="submit" value="Update Profile" class="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
-        </div>
-    </form>
-</div>
-
-<!-- Old Password Confirmation Modal -->
-<div id="oldPasswordModal" class="hidden fixed z-50 left-0 top-0 w-full h-full overflow-auto bg-black bg-opacity-50">
-    <div class="modal-content bg-white w-1/2 mx-auto mt-20 p-5 border">
-        <div class="modal-header flex justify-between items-center pb-3">
-            <h4 class="text-lg font-bold">Confirm Old Password</h4>
-            <button type="button" onclick="closeModal()" class="text-black">&times;</button>
-        </div>
-        <div class="modal-body mb-3">
-            <input type="password" id="old_password_confirm" class="mt-1 p-2 w-full border rounded-md" placeholder="Enter Old Password">
-        </div>
-        <div class="modal-footer">
-            <button type="button" onclick="submitProfileForm()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Confirm</button>
-        </div>
+    <div>
+        <label class="block text-sm font-medium text-gray-600">Name:</label>
+        <p class="mt-2 p-2 w-full border rounded-md">{{ name }}</p>
     </div>
-</div>
-
-<script>
-    document.getElementById('profileForm').addEventListener('submit', function(event) {
-    var username = document.getElementById('username').value;
-    var password = document.getElementById('password').value;
-    var oldPassword = document.getElementById('old_password').value;
-
-    // Assuming 'current_user' is a context variable containing the current user's info
-    if ((username !== '{{ current_user.username }}' || password.length > 0) && oldPassword.length === 0) {
-        event.preventDefault(); // Prevent form from submitting
-        document.getElementById('oldPasswordModal').style.display = 'block'; // Show the modal
-    }
-});
-
-    function submitProfileForm() {
-        // Get the old password from the modal and assign it to the hidden form field
-        var oldPasswordConfirm = document.getElementById('old_password_confirm').value;
-        document.getElementById('old_password').value = oldPasswordConfirm;
-        
-        // Submit the form after the old password has been confirmed
-        document.getElementById('profileForm').submit();
-    }
-
-    function closeModal() {
-        // Close the modal without submitting the form
-        document.getElementById('oldPasswordModal').style.display = 'none';
-    }
-
-</script>
-
-<style>
-    /* The Modal (background) */
-    .hidden {
-        display: none; /* Hidden by default */
-    }
     
-    /* Modal Content */
-    .modal-content {
-        background-color: #fefefe;
-        margin: 15% auto; /* 15% from the top and centered */
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%; /* Could be more or less, depending on screen size */
-    }
-</style>
-
+    <div style="margin-top: 20px;"> <!-- Adjust the margin-top value as needed -->
+        <label class="block text-sm font-medium text-gray-600">Bio:</label>
+        <p class="mt-2 p-2 w-full border rounded-md">{{ bio }}</p>
+    </div>
+    
+</div>
 {% endblock %}

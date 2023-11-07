@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
-from project.forms import CreateEventForm, ProfileForm
+from forms import CreateEventForm, ProfileForm
 from datetime import datetime
 
 
@@ -259,6 +259,14 @@ def create_event():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    name = current_user.username
+    bio = current_user.bio
+    return render_template('profile.html', title='View Profile', name=name, bio=bio)
+
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
     form = ProfileForm()
     if form.validate_on_submit():
         if form.old_password.data and current_user.check_password(form.old_password.data):
@@ -282,7 +290,7 @@ def profile():
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.bio.data = current_user.bio
-    return render_template('profile.html', title='Update Profile', form=form)
+    return render_template('edit_profile.html', title='Update Profile', form=form)
 
 ## ---------------------------------------------------------------------------- ##
 
