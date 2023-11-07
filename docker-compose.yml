@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   web-app:
@@ -11,6 +11,8 @@ services:
     environment:
       - FLASK_ENV=development
       - FLASK_APP=app.py
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_TOKEN}
+      - GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_TOKEN}
 
   test:
     build: .

@@ -3,16 +3,18 @@
 <head>
   {% block head %}
   <title>{% block title %}Default Title{% endblock %}</title>
-  {# <link href="../static/tailwind/tailwind-styles.css" rel="stylesheet"> #}
   <link rel="stylesheet" href="../static/styles.css">
   {# TailwindCSS CDN #}
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   {# Flowbite (a component library on top of TailwindCSS) CDN #}
   <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.0.0/flowbite.min.css" rel="stylesheet" />
   {# Font-Awesome CDN #}
-  <script src="https://kit.fontawesome.com/64f03eab00.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   {# Google Maps #}
   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  {# Tagify CSS#}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
   {% endblock head %}
 </head>
 <body>
@@ -63,8 +65,8 @@
         <!-- Dropdown menu -->
         <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
           <div class="px-4 py-3">
-            <span class="block text-sm text-gray-900 dark:text-white">Test User</span>
-            <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">first.last@mail.utoronto.com</span>
+            <span class="block text-sm text-gray-900 dark:text-white">{{current_user.username}}</span>
+            <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">{{current_user.email}}</span>
           </div>
           <ul class="py-2" aria-labelledby="user-menu-button">
             <li>
@@ -132,10 +134,13 @@
 
   {# Flowbite JS CDN: #}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.0.0/flowbite.min.js"></script>
+  {# Moment Library #}
+  {{ moment.include_moment() }}
   {% endblock body %}
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=[API_KEY]&libraries=places"></script>
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{key}}&libraries=places"></script>
   <script src="https://unpkg.com/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
   <script src="https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
