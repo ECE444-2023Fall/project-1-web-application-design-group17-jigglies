@@ -33,7 +33,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)  # New email field
     password = db.Column(db.String(150), nullable=False)
-    name = db.Column(db.String(150), nullable=True)
+    bio = db.Column(db.String(150), nullable=True)
 
     def update_username(self, new_username):
         self.username = new_username
@@ -46,6 +46,13 @@ class User(UserMixin, db.Model):
 
     def update_name(self, new_name):
         self.name = new_name
+        db.session.commit()
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+    
+    def update_bio(self, new_bio):
+        self.bio = new_bio
         db.session.commit()
 
 # Event Database
@@ -254,22 +261,27 @@ def create_event():
 def profile():
     form = ProfileForm()
     if form.validate_on_submit():
-        if form.old_password.data and current_user.verify_password(form.old_password.data):
-            # Assuming the methods `update_username`, `update_password`, and `update_name` exist
-            # and handle the updating logic including saving to the database.
-            if form.username.data:
+        if form.old_password.data and current_user.check_password(form.old_password.data):
+            has_changes = False
+            if form.username.data and form.username.data != current_user.username:
                 current_user.update_username(form.username.data)
-            if form.password.data:
+                has_changes = True
+            if form.password.data:  # Ensure there's a method to validate if the password is indeed new
                 current_user.update_password(form.password.data)
-            if form.name.data:
-                current_user.update_name(form.name.data)
-            flash('Your profile has been updated!', 'success')
-            return redirect(url_for('profile'))
+                has_changes = True
+            if form.bio.data: 
+                current_user.update_bio(form.bio.data)
+                has_changes = True
+            if has_changes:
+                flash('Your profile has been updated!', 'success')
+                return redirect(url_for('profile'))
+            else:
+                flash('No changes detected.', 'info')
         else:
             flash('Old password is incorrect.', 'danger')
     elif request.method == 'GET':
         form.username.data = current_user.username
-        form.name.data = current_user.name
+        form.bio.data = current_user.bio
     return render_template('profile.html', title='Update Profile', form=form)
 
 ## ---------------------------------------------------------------------------- ##

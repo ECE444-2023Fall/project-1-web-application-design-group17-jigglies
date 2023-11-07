@@ -15,12 +15,12 @@ class CreateEventForm(FlaskForm):
 class ProfileForm(FlaskForm):
     old_password = PasswordField('Old Password', validators=[DataRequired()])
     username = StringField('Username')
+    bio = StringField('Bio')
     password = PasswordField('New Password')
     confirm_password = PasswordField('Confirm Password', validators=[EqualTo('password')])
-    name = StringField('Name')
     submit = SubmitField('Update Profile')
 
     def validate_old_password(self, old_password):
-        if not current_user.verify_password(old_password.data):
+        if not current_user.check_password(old_password.data):
             raise ValidationError('Old password is incorrect.')
 
