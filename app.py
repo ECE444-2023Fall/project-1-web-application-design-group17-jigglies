@@ -201,12 +201,6 @@ def autocomplete():
     return jsonify(results_list)
 
 
-
-@app.route('/all_events')
-def all_events():
-    events = Event.query.all()
-    return render_template('all_events.html', events=events)
-
 @app.route('/event/<int:event_id>')
 @login_required
 def event_details(event_id):
