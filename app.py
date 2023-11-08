@@ -258,7 +258,7 @@ def event_success():
 
 
 @app.route('/create_event', methods=['GET', 'POST'])
-# @login_required 
+@login_required 
 def create_event():
     if request.method == 'GET':
         return render_template('create_event.html', key=GOOGLE_PLACES_API_KEY)
