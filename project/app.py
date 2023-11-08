@@ -6,8 +6,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+from werkzeug.datastructures import FileStorage
+import os
 
-from forms import CreateEventForm, ProfileForm
+from project.forms.forms import CreateEventForm, ProfileForm
 from datetime import datetime
 
 
@@ -15,7 +17,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = '/imgs'
+app.config['UPLOAD_FOLDER'] = '/project/static/images/'
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -34,6 +36,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)  # New email field
     password = db.Column(db.String(150), nullable=False)
     bio = db.Column(db.String(150), nullable=True)
+    profile_pic = db.Column(db.String(150), nullable=True)
 
     def update_username(self, new_username):
         self.username = new_username
@@ -43,13 +46,6 @@ class User(UserMixin, db.Model):
         hashed_password = generate_password_hash(new_password, method='scrypt')
         self.password = hashed_password
         db.session.commit()
-
-    def update_name(self, new_name):
-        self.name = new_name
-        db.session.commit()
-
-    def check_password(self, password):
-        return check_password_hash(self.password, password)
     
     def update_bio(self, new_bio):
         self.bio = new_bio
@@ -84,7 +80,7 @@ def load_user(user_id):
 @login_required
 def index():
     # events = Event.query.all()
-    return render_template('index.html')
+    return render_template('index.html', current_user=current_user)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -263,34 +259,61 @@ def profile():
     bio = current_user.bio
     return render_template('profile.html', title='View Profile', name=name, bio=bio)
 
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
     form = ProfileForm()
+    status = None
     if form.validate_on_submit():
-        if form.old_password.data and current_user.check_password(form.old_password.data):
-            has_changes = False
-            if form.username.data and form.username.data != current_user.username:
-                current_user.update_username(form.username.data)
+        has_changes = False
+        # Check if username needs to be updated
+        if 'username' in request.form:
+            new_username = form.username.data
+            if new_username and new_username != current_user.username:
+                current_user.update_username(new_username)
                 has_changes = True
-            if form.password.data:  # Ensure there's a method to validate if the password is indeed new
-                current_user.update_password(form.password.data)
+        # Check if password needs to be updated
+        if 'password' in request.form:
+            new_password = form.password.data
+            if new_password:
+                current_user.update_password(new_password)
                 has_changes = True
-            if form.bio.data: 
-                current_user.update_bio(form.bio.data)
+        # Check if bio needs to be updated
+        if 'bio' in request.form:
+            new_bio = form.bio.data
+            if new_bio and new_bio != current_user.bio:
+                current_user.update_bio(new_bio)
                 has_changes = True
-            if has_changes:
-                flash('Your profile has been updated!', 'success')
-                return redirect(url_for('profile'))
-            else:
-                flash('No changes detected.', 'info')
+        if form.profile_pic.data:
+            file = form.profile_pic.data  # This is the FileStorage object
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            current_user.profile_pic = file_path  # Update the profile picture path in the database
+            print(current_user.profile_pic)
+            db.session.commit()
+        # Set status based on whether changes were made
+        if has_changes:
+            db.session.commit()
+            status = 'success'
         else:
-            flash('Old password is incorrect.', 'danger')
+            status = 'no_changes'
     elif request.method == 'GET':
+        # Pre-fill the form with the current user's data
         form.username.data = current_user.username
         form.bio.data = current_user.bio
-    return render_template('edit_profile.html', title='Update Profile', form=form)
+
+    return render_template('edit_profile.html', title='Update Profile', form=form, status=status)
+
+
+
+
 
 ## ---------------------------------------------------------------------------- ##
 
