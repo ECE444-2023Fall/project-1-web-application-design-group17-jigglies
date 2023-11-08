@@ -271,14 +271,6 @@ def rsvp_event(event_id):
         db.session.commit()
     return jsonify({"rsvp_count": len(event.rsvps),"user_has_rsvp": current_user.id in map(lambda rsvp: rsvp.author, event.rsvps )})
 
-@app.route('/autocomplete', methods=['GET'])
-def autocomplete():
-    query = request.args.get('query')
-    results = Event.query.filter(
-        (Event.event_name.ilike(f'%{query}%')) |
-        (Event.event_organization.ilike(f'%{query}%'))
-    ).all()
-
 ## ---------------------------------------------------------------------------- ##
 
 
