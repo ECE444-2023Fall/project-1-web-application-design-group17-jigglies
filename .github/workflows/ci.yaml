@@ -2,7 +2,7 @@ name: Unit Tests CI Pipeline
 
 on:
   push:
-  pull_requests:
+  pull_request:
 
 jobs:
   run-tests:
