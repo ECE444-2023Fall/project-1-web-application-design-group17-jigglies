@@ -20,7 +20,7 @@
       <div class="flex justify-between items-top mb-6">
         <h1 class="inline-block text-5xl font-extrabold text-gray-900 lg:text-4xl dark:text-white">{{ event.event_name }}</h1>
         <div class="flex items-top">
-          <button type="button"
+          <button type="button" data-tooltip-target="tooltip-like"
             id="like-button" onclick="like({{event.id}})" class="interact-button text-red-500 border border-red-500 font-medium rounded-lg text-sm text-center flex items-center mr-2 p-2.5 {% if current_user.id == event.created_by %} cursor-not-allowed{% endif %}" {% if current_user.id == event.created_by %}disabled{% endif %}>
             {% if current_user.id in event.likes|map(attribute="author")|list %}
               <i id="heart-icon" class="fa-solid fa-heart fa-lg mr-2" style="color: #ff2600;" viewBox="0 0 512 512"></i>
@@ -29,13 +29,19 @@
             {% endif %}
             <span id="like-count">{{ event.likes|length}}</span>
           </button>
+          {% if current_user.id == event.created_by %}
+            <div id="tooltip-like" role="tooltip"
+              class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-red-600 rounded-lg shadow-sm opacity-0 tooltip">You can't like your own event!
+              <div class="tooltip-arrow" data-popper-arrow></div>
+            </div>
+          {% endif %}
           {# Like, Save icons #}
           {% if current_user.id in event.rsvps|map(attribute="author")|list %}
             <button type="button" id="rsvp-button" onclick="rsvp({{event.id}})" class="interact-button text-white bg-purple-700 border border-purple-700 font-medium rounded-lg text-sm text-center flex items-center mr-2 p-2.5 {% if current_user.id == event.created_by %}cursor-not-allowed{% endif %}" {% if current_user.id == event.created_by %}disabled{% endif %}>RSVP'd</button>
           {% else %}
-            <button data-tooltip-target="tooltip-default" type="button" id="rsvp-button" onclick="rsvp({{event.id}})" class="interact-button text-purple-700 border border-purple-700 font-medium rounded-lg text-sm text-center flex items-center mr-2 p-2.5 {% if current_user.id == event.created_by or event.rsvps|count >= event.capacity %}cursor-not-allowed{% endif %}" {% if current_user.id == event.created_by or event.rsvps|count >= event.capacity %}disabled{% endif %}>RSVP</button>
+            <button data-tooltip-target="tooltip-rsvp" type="button" id="rsvp-button" onclick="rsvp({{event.id}})" class="interact-button text-purple-700 border border-purple-700 font-medium rounded-lg text-sm text-center flex items-center mr-2 p-2.5 {% if current_user.id == event.created_by or event.rsvps|count >= event.capacity %}cursor-not-allowed{% endif %}" {% if current_user.id == event.created_by or event.rsvps|count >= event.capacity %}disabled{% endif %}>RSVP</button>
             {% if current_user.id == event.created_by %}
-              <div id="tooltip-default" role="tooltip"
+              <div id="tooltip-rsvp" role="tooltip"
                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-purple-600 rounded-lg shadow-sm opacity-0 tooltip">You can't RSVP for your own event!
                 <div class="tooltip-arrow" data-popper-arrow></div>
               </div>
