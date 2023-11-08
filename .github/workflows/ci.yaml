@@ -2,18 +2,27 @@ name: Unit Tests CI Pipeline
 
 on:
   push:
+    branches: [ main ] 
   pull_request:
+    branches: [ main ]  
 
 jobs:
   build:
-  
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       
-      - name: Run tests
-        run: docker compose up test
+      - name: Set up Docker Compose
+        run: docker-compose -v  
 
-    
+      - name: Build and run tests
+        run: docker-compose up --build -d 
+      
+      - name: Run tests
+        run: docker-compose run test
+
+      - name: Clean up
+        if: always()
+        run: docker-compose down
