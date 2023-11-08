@@ -14,7 +14,7 @@ import urllib
 from project import helpers
 
 from project.forms import CreateEventForm, ProfileForm
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 app = Flask(__name__, template_folder='project/templates', static_folder='project/static')
