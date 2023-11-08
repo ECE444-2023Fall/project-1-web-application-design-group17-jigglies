@@ -145,8 +145,12 @@ function like(event_id) {
 
 function rsvp(event_id) {
     const rsvpButton = document.getElementById("rsvp-button");
+    const rsvpCount = document.getElementById("rsvp-count");
+    const rsvpGrammar = document.getElementById("rsvp-count-grammar");
 
     fetch(`/rsvp_event/${event_id}`, { method: "POST" }).then((res) => res.json()).then((data) => {
+        rsvpCount.innerHTML = data["rsvp_count"]
+        if (parseInt(data["rsvp_count"]) == 1) {rsvpGrammar.innerHTML = "person is"} else {rsvpGrammar.innerHTML = "people are"}
         if (data["user_has_rsvp"] === true) {
             rsvpButton.classList.remove("text-purple-700");
             rsvpButton.classList.add("text-white", "bg-purple-700");
