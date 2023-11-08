@@ -5,44 +5,41 @@ document.addEventListener("DOMContentLoaded", function () {
     const imagePreview = document.getElementById("image-preview");
     const uploadIcon = document.getElementById("upload-icon");
 
-    if (!dropZone) {
-        console.error("Drop zone element not found!");
-        return;
-    }
+    if (dropZone) {
+        dropZone.addEventListener("dragover", function (e) {
+            e.preventDefault();
+        });
 
-    dropZone.addEventListener("dragover", function (e) {
-        e.preventDefault();
-    });
+        dropZone.addEventListener("drop", function (e) {
+            e.preventDefault();
 
-    dropZone.addEventListener("drop", function (e) {
-        e.preventDefault();
+            if (e.dataTransfer.items && e.dataTransfer.items[0].kind === "file") {
+                const file = e.dataTransfer.items[0].getAsFile();
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                fileInput.files = dt.files;
+                previewImage(file);
+            }
+        });
 
-        if (e.dataTransfer.items && e.dataTransfer.items[0].kind === "file") {
-            const file = e.dataTransfer.items[0].getAsFile();
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            fileInput.files = dt.files;
-            previewImage(file);
+        fileInput.addEventListener("change", function () {
+            const file = fileInput.files[0];
+            if (file) {
+                previewImage(file);
+            }
+        });
+
+        function previewImage(file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove("hidden");
+                uploadIcon.classList.add("hidden");
+                uploadText.textContent = "Replace image";
+            };
+            reader.readAsDataURL(file);
         }
-    });
-
-    fileInput.addEventListener("change", function () {
-        const file = fileInput.files[0];
-        if (file) {
-            previewImage(file);
-        }
-    });
-
-    function previewImage(file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            imagePreview.src = e.target.result;
-            imagePreview.classList.remove("hidden");
-            uploadIcon.classList.add("hidden");
-            uploadText.textContent = "Replace image";
-        };
-        reader.readAsDataURL(file);
-    }
+}
     var input = document.querySelector("#tags");
 
     // Initialize Tagify with maxTags setting
@@ -77,12 +74,68 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 5000);
     }
 
-    function initialize() {
-        var input = document.getElementById('location');
-        if (input) {
-            var options = {
-                componentRestrictions: { country: 'CA' }  // Restrict results to Canada
-            };
+// Search integration
+function performSearch() {
+    let query = document.getElementById('search_query').value;
+    window.location.href = '/search?search_query=' + encodeURIComponent(query);
+}
+
+
+const searchInput = document.getElementById('search_query');
+const suggestionsBox = document.getElementById('suggestions');
+
+searchInput.addEventListener("input", function(event) {
+    const value = event.target.value;
+    suggestionsBox.innerHTML = "";
+
+    if (value === "") {
+        suggestionsBox.classList.add('hidden'); // hide dropdown if input is empty
+        return;
+    }
+
+    // Fetching data from the server
+    fetch(`/autocomplete?search_query=${value}`)
+    .then(response => response.json())
+    .then(data => {
+        if(data.length) { // check if there are suggestions
+            suggestionsBox.classList.remove('hidden'); // show dropdown if there are suggestions
+        } else {
+            suggestionsBox.classList.add('hidden'); // hide dropdown if there are no suggestions
+        }
+
+        // Create a <ul> element
+        const ulElement = document.createElement("ul");
+        ulElement.classList.add("text-sm", "text-gray-700", "dark:text-gray-200", "border-2", "border-blue-500", "rounded-lg", "shadow-2xl");
+
+        for (let item of data) {
+            const liElement = document.createElement("li");
+            liElement.textContent = item.name;
+            liElement.classList.add( "hover:bg-gray-200", "cursor-pointer", "px-4" , 'py-2','hover:bg-gray-100', 'dark:hover:bg-gray-600', 'dark:hover:text-white',"rounded-lg");
+
+            liElement.addEventListener("click", function() {
+                searchInput.value = item.name;
+                suggestionsBox.innerHTML = "";
+                suggestionsBox.classList.add('hidden'); // hide dropdown after selection
+                performSearch();
+            });
+
+            ulElement.appendChild(liElement);
+        }
+
+        suggestionsBox.appendChild(ulElement);
+    })
+    .catch(error => {
+        console.error("Error fetching search results:", error);
+    });
+});
+
+
+function initialize() {
+    var input = document.getElementById('location');
+    if (input) {
+        var options = {
+            componentRestrictions: { country: 'CA' }  // Restrict results to Canada
+        };
 
             var autocomplete = new google.maps.places.Autocomplete(input, options);
 
@@ -162,4 +215,12 @@ function rsvp(event_id) {
             rsvpButton.innerHTML = "RSVP";
         }
     });
+}
+
+function performSearch(event) {
+    if (event && event.key === "Enter") {
+        event.preventDefault();  // prevent the default behavior of Enter key
+        let query = document.getElementById('search_query').value;
+        window.location.href = '/search?search_query=' + encodeURIComponent(query);
+    }
 }

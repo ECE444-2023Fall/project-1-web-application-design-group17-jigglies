@@ -53,6 +53,13 @@
   object-position: center;
 }
 
+.responsive-tile-img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  object-position: center;
+}
+
 .tagify {
   --tag-bg: rgb(99 102 241) !important;
   --tag-hover: rgb(26, 35, 126) !important;
@@ -67,4 +74,18 @@
 
 .interact-button {
   height: 34px;
+}
+
+/* Grid layout styling */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Three equal columns */
+  gap: 20px; /* Space between grid items */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 800px) {
+  .grid {
+      grid-template-columns: 1fr; /* Single column layout for small screens */
+  }
 }

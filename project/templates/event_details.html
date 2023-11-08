@@ -6,10 +6,12 @@
 
 {% block content %}
   {########################### Event Image Section ################################}
-  {# TODO: replace with image from db #}
   {# TODO: image is responsive, but may cut off a bit of edges right now. Make the image clickable so that you can see the full image in a popup?#}
-  <img class="responsive-img" src="../static/images/sample-carousel.jpeg" alt="event photo">
-
+  {% if event.cover_photo %}
+    <img class="responsive-img" src="data:image/jpeg;base64,{{ event.cover_photo | b64encode | safe }}" alt="event photo">
+  {% else %}
+    <img class="responsive-img" src="{{ url_for('static', filename='images/pop.png') }}" alt="event photo">
+  {% endif%}
   
   {############################ Event Information Section ##############################}
   <div class="max-w-screen-xl flex flex-wrap justify-between mx-auto mt-8 mb-8 grid grid-cols-3 gap-2 sm:grid-cols-1">

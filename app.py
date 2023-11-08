@@ -178,17 +178,34 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+## ----------------------------------Search----------------------------------- ##
+
 @app.route('/search', methods=['GET'])
 def search():
-    query = request.args.get('query')
+    query = request.args.get('search_query')
 
-    # Query the database to find events that match the query (excluding time)
+    # Query the database to find events that match the query
     results = Event.query.filter(
         (Event.event_name.ilike(f'%{query}%')) |
         (Event.event_organization.ilike(f'%{query}%'))
     ).all()
 
-    return render_template('search_results.html', results=results, query=query)
+    return render_template('search_results.html', events=results, query=query)
+
+@app.route('/autocomplete', methods=['GET'])
+def autocomplete():
+    query = request.args.get('search_query')
+    print(f"Received query: {query}")
+
+    # Query the database to find events that match the query
+    results = Event.query.filter(
+        (Event.event_name.ilike(f'%{query}%'))
+    ).all()
+
+    # Transform results into a format suitable for the frontend
+    results_list = [{'name': result.event_name} for result in results]
+
+    return jsonify(results_list)
 
 
 @app.route('/event/<int:event_id>')
@@ -262,9 +279,6 @@ def autocomplete():
         (Event.event_organization.ilike(f'%{query}%'))
     ).all()
 
-    suggestions = [{"label": event.event_name, "value": event.event_name} for event in results]
-
-    return jsonify(suggestions)
 ## ---------------------------------------------------------------------------- ##
 
 
@@ -346,6 +360,62 @@ def create_event():
 
 
 ## ---------------------------------------------------------------------------- ##
+def populate_database():
+    # Add dummy users
+    users = [
+        {"username": "john", "email": "john@utoronto.ca", "password": "password123"},
+        {"username": "jane", "email": "jane@utoronto.ca", "password": "password123"}
+    ]
+    
+    for user in users:
+        hashed_password = generate_password_hash(user["password"], method='scrypt')
+        new_user = User(username=user["username"], email=user["email"], password=hashed_password)
+        db.session.add(new_user)
+    
+    # Add dummy events
+    events = [
+        {
+            "event_name": "Math 101 Class",
+            "event_organization": "UofT",
+            "date": datetime.today().date(),
+            "start_time": (datetime.now() + timedelta(hours=1)).time(),
+            "end_time": (datetime.now() + timedelta(hours=2)).time(),
+            "location": "UofT Campus",
+            "room": "Room 101",
+            "allow_comments": True,
+            "capacity": 50,
+            "event_information": "This is a Math 101 class."
+        },
+        {
+            "event_name": "Physics Lecture",
+            "event_organization": "UofT",
+            "date": datetime.today().date(),
+            "start_time": (datetime.now() + timedelta(hours=3)).time(),
+            "end_time": (datetime.now() + timedelta(hours=4)).time(),
+            "location": "UofT Science Building",
+            "room": "Room 201",
+            "allow_comments": False,
+            "capacity": 40,
+            "event_information": "Advanced physics lecture."
+        },
+        {
+            "event_name": "Computer Science Workshop",
+            "event_organization": "UofT TechHub",
+            "date": datetime.today().date(),
+            "start_time": (datetime.now() + timedelta(hours=5)).time(),
+            "end_time": (datetime.now() + timedelta(hours=6)).time(),
+            "location": "UofT Tech Center",
+            "room": "Room 10",
+            "allow_comments": True,
+            "capacity": 30,
+            "event_information": "A workshop on the latest trends in computer science."
+        }
+    ]
+    for event in events:
+        new_event = Event(**event)
+        db.session.add(new_event)
+
+    db.session.commit()
 
 ## ------------------------------- Profile ------------------------------- ##
 
@@ -370,7 +440,10 @@ def profile():
 
 if __name__ == '__main__':
     with app.app_context():
+        db.drop_all()
         db.create_all()
+        if not User.query.first() and not Event.query.first():
+            populate_database()
         # if not Event.query.first():
         #    add_dummy_events()
     app.run(debug=True)
