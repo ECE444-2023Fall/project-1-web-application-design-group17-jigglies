@@ -171,7 +171,8 @@ def signup():
 
         
         # Check if the verification code matches
-        if (email in session.get('verification_codes', {}) and user_verification_code == str(session['verification_codes'].get(email))):
+        stored_codes = session.get('verification_codes', {})
+        if email in stored_codes and str(stored_codes[email]) == user_verification_code:
             # Proceed with registration
             hashed_password = generate_password_hash(password, method='scrypt')
             new_user = User(username=username, email=email, password=hashed_password)
@@ -205,13 +206,15 @@ def send_verification_code():
     # Store the code in the session or database
     if 'verification_codes' not in session:
         session['verification_codes'] = {}
+
     session['verification_codes'][email] = verification_code
+    session.modified = True  # Ensure the session is marked as modified
 
     # Send the code via email
     msg = Message("Your Verification Code", sender="your-email@example.com", recipients=[email])
     msg.body = f"Your verification code is {verification_code}"
     mail.send(msg)
-
+    
     return jsonify({'message': 'Verification code sent! (Please check SPAM folder)'})
 
 @app.route('/logout')
