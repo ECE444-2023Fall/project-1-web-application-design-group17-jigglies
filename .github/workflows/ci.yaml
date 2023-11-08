@@ -9,7 +9,6 @@ jobs:
     strategy:
       fail-fast: false
   
-  name: Unit Tests
   runs-on: ubuntu-latest
 
   steps:
