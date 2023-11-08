@@ -68,3 +68,17 @@
 .interact-button {
   height: 34px;
 }
+
+/* Grid layout styling */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Three equal columns */
+  gap: 20px; /* Space between grid items */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 800px) {
+  .grid {
+      grid-template-columns: 1fr; /* Single column layout for small screens */
+  }
+}
