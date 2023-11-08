@@ -9,6 +9,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+from flask_mail import Mail, Message
+import random
 import base64
 import urllib
 from project import helpers
@@ -23,6 +25,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = '/imgs'
 
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'noreply.poppin@gmail.com'
+app.config['MAIL_PASSWORD'] = 'pnjn bbtn ihqe spwm'
+mail = Mail(app)
+
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -34,6 +43,8 @@ migrate = Migrate(app, db)
 
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 GOOGLE_PLACES_API_KEY = os.getenv('GOOGLE_PLACES_API_KEY')
+
+
 
 ## ----------------------------- Database Schemas ----------------------------- ##
 
@@ -139,6 +150,7 @@ def signup():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+        user_verification_code = request.form.get('verificationCode')
 
         # Add this block to validate the email domain
         if not email.endswith('utoronto.ca'):
@@ -150,20 +162,57 @@ def signup():
 
         if user_by_username:
             flash('Username already exists. Please choose another one.', 'alert')
-            return render_template('signup.html')
+            return render_template('signup.html', username=username, email=email)
 
         if user_by_email:
             flash('Email already registered. Please use another email or login.', 'alert')
-            return render_template('signup.html')
+            return render_template('signup.html', username=username, email=email)
 
-        hashed_password = generate_password_hash(password, method='scrypt')
-        new_user = User(username=username, email=email, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Registration successful. Please login.', 'success')
-        return redirect(url_for('login'))
 
+        
+        # Check if the verification code matches
+        if (email in session.get('verification_codes', {}) and user_verification_code == str(session['verification_codes'].get(email))):
+            # Proceed with registration
+            hashed_password = generate_password_hash(password, method='scrypt')
+            new_user = User(username=username, email=email, password=hashed_password)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful. Please login.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('Invalid verification code.', 'alert')
+            #return render_template('signup.html')
+        
     return render_template('signup.html')
+
+
+@app.route('/send_verification_code', methods=['POST'])
+def send_verification_code():
+    email = request.json.get('email')
+
+    # Validate email or other logic here
+    if not email:
+        return jsonify({'status': 'error', 'message': 'Please first enter your uoft email'})
+    user_by_email = User.query.filter_by(email=email).first()
+    if not email.endswith('utoronto.ca'):
+        return jsonify({'status': 'error', 'message': 'Please sign up with a uoft email.'})
+
+    if user_by_email:
+        return jsonify({'status': 'error', 'message': 'Email already registered. Please use another email or login'})
+
+    verification_code = random.randint(100000, 999999)
+
+    # Store the code in the session or database
+    if 'verification_codes' not in session:
+        session['verification_codes'] = {}
+    session['verification_codes'][email] = verification_code
+
+    # Send the code via email
+    msg = Message("Your Verification Code", sender="your-email@example.com", recipients=[email])
+    msg.body = f"Your verification code is {verification_code}"
+    mail.send(msg)
+
+    return jsonify({'message': 'Verification code sent! (Please check SPAM folder)'})
 
 @app.route('/logout')
 @login_required
