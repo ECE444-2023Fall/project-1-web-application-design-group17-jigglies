@@ -1,0 +1,22 @@
+name: Unit Tests CI Pipeline
+
+on:
+  push:
+  pull_requests:
+
+jobs:
+  run-tests:
+    strategy:
+      fail-fast: false
+  
+  name: Unit Tests
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Run tests
+      run: docker compose up test
+
+    
