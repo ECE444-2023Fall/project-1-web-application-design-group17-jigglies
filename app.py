@@ -9,12 +9,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-import base64
+from base64 import b64encode
 import urllib
 from project import helpers
 
 from project.forms import CreateEventForm, ProfileForm
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 app = Flask(__name__, template_folder='project/templates', static_folder='project/static')
@@ -46,6 +46,7 @@ class User(UserMixin, db.Model):
     comments = db.relationship("Comment", backref="user", passive_deletes=True)
     likes = db.relationship("Like", backref="user", passive_deletes=True)
     name = db.Column(db.String(150), nullable=True)
+    rsvps = db.relationship("Rsvp", backref="user", passive_deletes=True)
 
     def update_username(self, new_username):
         self.username = new_username
@@ -59,7 +60,7 @@ class User(UserMixin, db.Model):
     def update_name(self, new_name):
         self.name = new_name
         db.session.commit()
-
+    
 # Event Database
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -78,6 +79,7 @@ class Event(db.Model):
     cover_photo = db.Column(db.LargeBinary, nullable=True)
     comments = db.relationship("Comment", backref="event", passive_deletes=True)
     likes = db.relationship("Like", backref="event", passive_deletes=True)
+    rsvps = db.relationship("Rsvp", backref="event", passive_deletes=True)
     
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -87,6 +89,11 @@ class Comment(db.Model):
     event_id = db.Column(db.Integer, db.ForeignKey("event.id", ondelete="CASCADE"), nullable=False)
     
 class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id", ondelete="CASCADE"), nullable=False)
+
+class Rsvp(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey("event.id", ondelete="CASCADE"), nullable=False)
@@ -177,13 +184,45 @@ def logout():
 def search():
     query = request.args.get('search_query')
 
-    # Query the database to find events that match the query
-    results = Event.query.filter(
-        (Event.event_name.ilike(f'%{query}%')) |
-        (Event.event_organization.ilike(f'%{query}%'))
-    ).all()
+    # Query the database
+    if(query):
+        results = Event.query.filter(
+            (Event.event_name.ilike(f'%{query}%')) |
+            (Event.event_organization.ilike(f'%{query}%'))
+        ).all()
+    else:
+        results = Event.query.all()
 
-    return render_template('search_results.html', events=results, query=query)
+    # Prepare data for JSON serialization
+    events_data = []
+    for event in results:
+        event_dict = {
+            'id': event.id,
+            'event_name': event.event_name,
+            'event_organization': event.event_organization,
+            'date': event.date,  
+            'date': event.date.strftime('%Y-%m-%d'),
+            'start_time': event.start_time.strftime('%H:%M:%S'),
+            'end_time': event.end_time.strftime('%H:%M:%S'),
+            'room': event.room,
+            'allow_comments': event.allow_comments,
+            'capacity': event.capacity,
+            'event_information': event.event_information,
+            'tags': json.loads(event.tags) if event.tags else [],
+            # Convert binary data to base64 string for image
+            'cover_photo': b64encode(event.cover_photo).decode() if event.cover_photo else None
+        }
+        events_data.append(event_dict)
+
+    organizers = {event.event_organization for event in results}
+    tags = set()
+    for event in results:
+        if event.tags:
+            event_tags = json.loads(event.tags)
+            tags.update(event_tags)
+
+    return render_template('search_results.html', events=events_data, query=query, organizers=list(organizers), tags=list(tags))
+
 
 @app.route('/autocomplete', methods=['GET'])
 def autocomplete():
@@ -210,7 +249,8 @@ def event_details(event_id):
         comments = event.comments
         google_maps_url = "https://www.google.com/maps/embed/v1/place?key=" + GOOGLE_MAPS_API_KEY + "&q=" + urllib.parse.quote_plus(event.location)
         parsedDateTime = helpers.parseDateTime(event.date, event.start_time, event.end_time)
-        return render_template('event_details.html', event = event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY)
+        tags = json.loads(event.tags)
+        return render_template('event_details.html', event = event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY, tags=tags)
     else:
         flash('Event not found', 'danger')
         return redirect(url_for('home'))
@@ -218,13 +258,19 @@ def event_details(event_id):
 @app.route('/create_comment/<int:event_id>', methods=["POST"])
 @login_required
 def create_comment(event_id):
-    text = request.form["comment"]
+    comment_text = request.json.get("comment")
     event = Event.query.filter_by(id=event_id).first()
+    
     if event:
-        comment = Comment(text=text, author=current_user.id, event_id=event_id)
+        comment = Comment(text=comment_text, author=current_user.id, event_id=event_id)
         db.session.add(comment)
         db.session.commit()
-        return redirect(url_for("event_details", event_id=event_id))
+        
+        return jsonify({"comment": {
+            "text": comment.text,
+            "author": comment.user.username,
+            "datetime_created": comment.datetime_created
+        }})
     else:
         flash("Event does not exist!", "error")
         return redirect(url_for("home"))
@@ -246,6 +292,22 @@ def like_event(event_id):
         db.session.commit()
     return jsonify({"like_count": len(event.likes), "user_has_liked": current_user.id in map(lambda like: like.author, event.likes )})
     
+@app.route('/rsvp_event/<int:event_id>', methods=["POST"])
+@login_required
+def rsvp_event(event_id):
+    event = Event.query.filter_by(id=event_id).first()
+    rsvp = Rsvp.query.filter_by(author=current_user.id, event_id=event_id).first()
+
+    if not event:
+        return jsonify({"error": "Event does not exist."}, 400)
+    elif rsvp: # If user has already rsvp'd for the event, remove the rsvp from db.
+        db.session.delete(rsvp)
+        db.session.commit()
+    else:
+        rsvp = Rsvp(author=current_user.id, event_id=event_id)
+        db.session.add(rsvp)
+        db.session.commit()
+    return jsonify({"rsvp_count": len(event.rsvps),"user_has_rsvp": current_user.id in map(lambda rsvp: rsvp.author, event.rsvps )})
 
 ## ---------------------------------------------------------------------------- ##
 

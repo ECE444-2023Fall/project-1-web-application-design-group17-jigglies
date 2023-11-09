@@ -3,6 +3,7 @@
 {% block content %}
 
 <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+    <p class="mb-2 text-3xl font-extrabold text-gray-900 mb-5 lg:text-4xl dark:text-white">Here's whats poppin today:</p>
     <div class="w-full">
         {% if current_user.is_authenticated %}
             <div class="autocomplete-results" id="autocomplete-results"></div>
