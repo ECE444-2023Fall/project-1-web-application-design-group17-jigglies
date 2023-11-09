@@ -226,13 +226,19 @@ def event_details(event_id):
 @app.route('/create_comment/<int:event_id>', methods=["POST"])
 @login_required
 def create_comment(event_id):
-    text = request.form["comment"]
+    comment_text = request.json.get("comment")
     event = Event.query.filter_by(id=event_id).first()
+    
     if event:
-        comment = Comment(text=text, author=current_user.id, event_id=event_id)
+        comment = Comment(text=comment_text, author=current_user.id, event_id=event_id)
         db.session.add(comment)
         db.session.commit()
-        return redirect(url_for("event_details", event_id=event_id))
+        
+        return jsonify({"comment": {
+            "text": comment.text,
+            "author": comment.user.username,
+            "datetime_created": comment.datetime_created
+        }})
     else:
         flash("Event does not exist!", "error")
         return redirect(url_for("home"))

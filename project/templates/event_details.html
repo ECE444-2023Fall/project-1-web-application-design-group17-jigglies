@@ -92,42 +92,45 @@
       {# Comment Section #}
       {# Create comment form #}
       <h2 class="mb-4 text-2xl font-bold text-gray-900 lg:mb-6 lg:text-4xl dark:text-white">Comments</h2>
-      <form class="mb-6" method="post" action="/create_comment/{{event.id}}">
+      <div class="mb-6">
         <div class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           <label for="comment" class="sr-only">Your comment</label>
           <textarea id="comment" name="comment" rows="6" class="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 dark:text-white dark:placeholder-gray-400 dark:bg-gray-800" placeholder="Write a comment..."
             required></textarea>
         </div>
-        <button type="submit"
+        <button onclick="comment({{event.id}})"
           class="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-purple-700 rounded-lg focus:ring-4 focus:ring-purple-200 dark:focus:ring-purple-900 hover:bg-purple-800">
           Post comment
         </button>
-      </form>
+      </div>
 
       {# Display all comments #}
-      {% if comments %}
-        {% for comment in comments %}
-          <article class="p-6 mb-6 text-base bg-white border-t border-gray-200 rounded-lg dark:bg-gray-900">
-            <footer class="flex justify-between items-center mb-2">
-              <div class="flex items-center">
-                <p class="inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white"><img class="mr-2 w-6 h-6 rounded-full"
-                    src="https://flowbite.com/docs/images/people/profile-picture-2.jpg" alt="Comment author">{{ comment.user.username }}</p>
-                <p class="text-sm text-gray-600 dark:text-gray-400">{{ moment(comment.datetime_created).format("MMM D, YYYY @ h:mma") }}</p>
+      {# TODO: replace comment user photo with dynamic photo from database, once the profile page lets user upload a profile photo. #}
+      <div id="comment-display">
+        {% if comments %}
+          {% for comment in comments %}
+            <article class="p-6 mb-6 text-base bg-white border-t border-gray-200 rounded-lg dark:bg-gray-900">
+              <footer class="flex justify-between items-center mb-2">
+                <div class="flex items-center">
+                  <p class="inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white"><img class="mr-2 w-6 h-6 rounded-full"
+                      src="https://flowbite.com/docs/images/people/profile-picture-2.jpg" alt="Comment author">{{ comment.user.username }}</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">{{ moment(comment.datetime_created).format("MMM D, YYYY @ h:mma") }}</p>
+                </div>
+              </footer>
+              <p>{{comment.text}}</p>
+              <div class="flex items-center mt-4 space-x-4">
+                <button type="button" class="flex items-center font-medium text-sm text-gray-500 hover:underline dark:text-gray-400">
+                  <svg class="mr-1.5 w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                    <path
+                      d="M18 0H2a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2v4a1 1 0 0 0 1.707.707L10.414 13H18a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5 4h2a1 1 0 1 1 0 2h-2a1 1 0 1 1 0-2ZM5 4h5a1 1 0 1 1 0 2H5a1 1 0 0 1 0-2Zm2 5H5a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Zm9 0h-6a1 1 0 0 1 0-2h6a1 1 0 1 1 0 2Z" />
+                  </svg>
+                  Reply
+                </button>
               </div>
-            </footer>
-            <p>{{comment.text}}</p>
-            <div class="flex items-center mt-4 space-x-4">
-              <button type="button" class="flex items-center font-medium text-sm text-gray-500 hover:underline dark:text-gray-400">
-                <svg class="mr-1.5 w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                  <path
-                    d="M18 0H2a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2v4a1 1 0 0 0 1.707.707L10.414 13H18a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5 4h2a1 1 0 1 1 0 2h-2a1 1 0 1 1 0-2ZM5 4h5a1 1 0 1 1 0 2H5a1 1 0 0 1 0-2Zm2 5H5a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Zm9 0h-6a1 1 0 0 1 0-2h6a1 1 0 1 1 0 2Z" />
-                </svg>
-                Reply
-              </button>
-            </div>
-          </article>
-        {% endfor %}
-      {% endif %}
+            </article>
+          {% endfor %}
+        {% endif %}
+      </div>
     </div>
 
     {# Right Column Section #}
