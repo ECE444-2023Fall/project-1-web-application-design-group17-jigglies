@@ -16,11 +16,10 @@ function appendToDropDown(optionsList, element) {
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize flatpickr for the start date
     flatpickr("#start-date", {
-        altInput: true, // Uses a more user-friendly date format in the input
-        altFormat: "F j, Y", // User-friendly date format
-        dateFormat: "Y-m-d", // Format that the actual input value is stored in
+        altInput: true,
+        altFormat: "F j, Y", 
+        dateFormat: "Y-m-d",
         onChange: function(selectedDates, dateStr, instance) {
-            // This function is called whenever a user selects a date
             updateFilters();
         }
     });
@@ -39,8 +38,8 @@ document.addEventListener('DOMContentLoaded', function () {
 function updateFilters() {
     let filters = {
         dateRange: {
-            start: document.getElementById('start-date').value, // Retrieves the start date
-            end: document.getElementById('end-date').value // Retrieves the end date
+            start: document.getElementById('start-date').value,
+            end: document.getElementById('end-date').value
         },
         eventTags: [],
         organizers: [],
@@ -75,7 +74,7 @@ function updateFilters() {
 
 function matchesFilters(event, filters) {
     // Date Range Filter
-    let matchesDateRange = true; // Initialize as true; replace with actual logic if needed
+    let matchesDateRange = true; 
     if(filters.dateRange.start ){
         let eventDate = new Date(event.date);
         let startDate = new Date(filters.dateRange.start);
@@ -96,7 +95,7 @@ function matchesFilters(event, filters) {
     let matchesOrganizers = filters.organizers.length === 0 || filters.organizers.includes(event.event_organization);
 
     // Allow Comments Filter
-    let matchesComments = true; // Initialize as true; replace with actual logic if needed
+    let matchesComments = true;
     if (filters.allowComments.yes && filters.allowComments.no) {
         matchesComments = true; // If both are selected, all events match
     } else if (filters.allowComments.yes) {
@@ -106,7 +105,6 @@ function matchesFilters(event, filters) {
     }
 
     // Combine all filter checks
-    //return true
     return matchesDateRange && matchesEventTags && matchesOrganizers && matchesComments;
 }
 
