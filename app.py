@@ -178,10 +178,13 @@ def search():
     query = request.args.get('search_query')
 
     # Query the database
-    results = Event.query.filter(
-        (Event.event_name.ilike(f'%{query}%')) |
-        (Event.event_organization.ilike(f'%{query}%'))
-    ).all()
+    if(query):
+        results = Event.query.filter(
+            (Event.event_name.ilike(f'%{query}%')) |
+            (Event.event_organization.ilike(f'%{query}%'))
+        ).all()
+    else:
+        results = Event.query.all()
 
     # Prepare data for JSON serialization
     events_data = []
@@ -212,6 +215,7 @@ def search():
             tags.update(event_tags)
 
     return render_template('search_results.html', events=events_data, query=query, organizers=list(organizers), tags=list(tags))
+
 
 @app.route('/autocomplete', methods=['GET'])
 def autocomplete():

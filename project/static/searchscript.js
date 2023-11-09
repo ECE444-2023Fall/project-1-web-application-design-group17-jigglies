@@ -48,10 +48,6 @@ function updateFilters() {
             yes: document.querySelector('#filter-section-1 input[value="new-arrivals"]').checked,
             no: document.querySelector('#filter-section-1 input[value="sale"]').checked
         },
-        allowRSVP: {
-            yes: document.querySelector('#filter-section-2 input[value="new-arrivals"]').checked,
-            no: document.querySelector('#filter-section-2 input[value="sale"]').checked
-        }
     };
 
     // Collecting event tag values
@@ -80,12 +76,18 @@ function updateFilters() {
 function matchesFilters(event, filters) {
     // Date Range Filter
     let matchesDateRange = true; // Initialize as true; replace with actual logic if needed
-    if (filters.dateRange.start && filters.dateRange.end) {
+    if(filters.dateRange.start ){
         let eventDate = new Date(event.date);
         let startDate = new Date(filters.dateRange.start);
-        let endDate = new Date(filters.dateRange.end);
-        matchesDateRange = eventDate >= startDate && eventDate <= endDate;
+        matchesDateRange = eventDate >= startDate
+        if (filters.dateRange.start && filters.dateRange.end) {
+            let eventDate = new Date(event.date);
+            let startDate = new Date(filters.dateRange.start);
+            let endDate = new Date(filters.dateRange.end);
+            matchesDateRange = eventDate >= startDate && eventDate <= endDate;
+        }
     }
+
 
     // Event Tags Filter
     let matchesEventTags = filters.eventTags.length === 0 || filters.eventTags.some(tag => event.tags.includes(tag));
@@ -192,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Attaching event listeners to checkbox filters
-    document.querySelectorAll('#filter-section-1 input[type="checkbox"], #filter-section-2 input[type="checkbox"]').forEach(checkbox => {
+    document.querySelectorAll('#filter-section-1 input[type="checkbox"]').forEach(checkbox => {
         if (checkbox) {
             checkbox.addEventListener('change', updateFilters);
         }

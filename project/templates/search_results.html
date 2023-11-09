@@ -12,7 +12,7 @@
   
         <section aria-labelledby="products-heading" class="pb-24 pt-6">
           <h2 id="products-heading" class="sr-only">Products</h2>
-          <div class="grid grid-cols-1 gap-x-2 gap-y-10 lg:grid-cols-4">
+          <div class="grid grid-cols-1 gap-x-1 gap-y-10 lg:grid-cols-4">
             <!-- Filters -->
             <form class="hidden lg:block">
               <span class="font-medium text-gray-900">Date Range</span>
@@ -24,10 +24,10 @@
                   <input id="end-date" type="text" class="date-input" placeholder="Select date end">
               </div>
               
-              <div class="border-b border-gray-200 py-6"></div>
+              <div class="border-b border-gray-200 py-3"></div>
                 
               <!-- Event Tags Dropdown -->
-              <div class="border-b border-gray-200 py-6">
+              <div class="border-b border-gray-200 py-8">
                 <h3 class="-my-3 flow-root">
                     <!-- Expand/collapse section button -->
                     <button type="button" class="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500" aria-controls="filter-section-tags" aria-expanded="false">
@@ -51,7 +51,7 @@
               </div>
 
               <!-- Organizer Dropdown -->
-              <div class="border-b border-gray-200 py-6">
+              <div class="border-b border-gray-200 py-8">
                 <h3 class="-my-3 flow-root">
                     <button type="button" class="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500" aria-controls="filter-section-organizers" aria-expanded="false">
                         <span class="font-medium text-gray-900">Organizer</span>
@@ -88,24 +88,6 @@
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="border-b border-gray-200 py-6">
-                <h3 class="-my-3 flow-root">
-                    <span class="font-medium text-gray-900">Allow RSVP</span>
-                    <div class="pt-6" id="filter-section-2">
-                      <div class="space-y-4">
-                        <div class="flex items-center">
-                          <input id="filter-category-0" name="category[]" value="new-arrivals" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                          <label for="filter-category-0" class="ml-3 text-sm text-gray-600">Yes</label>
-                        </div>
-                        <div class="flex items-center">
-                          <input id="filter-category-1" name="category[]" value="sale" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                          <label for="filter-category-1" class="ml-3 text-sm text-gray-600">No</label>
-                        </div>
-                      </div>
-                    </div>
-                </h3> 
-      
               </div>
             </form>
   
