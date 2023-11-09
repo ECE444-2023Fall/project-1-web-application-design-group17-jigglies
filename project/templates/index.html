@@ -5,52 +5,67 @@
 {% if current_user.is_authenticated %}
 <div class="max-w-screen-xl flex flex-wrap justify-between mx-auto mt-8 mb-8 border border-gray-200 shadow-xl rounded-xl">
   <div class="w-full">
-    <div class="top-liked-events-section p-10 border-b border-gray-200">
+    <div class="upcoming-events-section p-10 border-b border-gray-200">
       <h1 class="inline-block text-4xl font-black text-gray-900 lg:text-4xl dark:text-white mb-6">Your Upcoming Events</h1>
       <div class="autocomplete-results" id="autocomplete-results"></div>
     
       <!-- Grid layout for event cards -->
-      <div class="grid grid-cols-3 gap-4 overflow-x-auto" id="event-cards">
-        {% for event in events %}
-        {{ components.event_tile(event) }}
-        {% endfor %}
+      {% if top_upcoming_rsvps %}
+      <div class="flex overflow-x-auto py-2" id="event-cards">
+          {% for event in top_upcoming_rsvps %}
+          <div class="event-tile mr-2">
+            {{ components.event_tile(event) }}
+          </div>
+          {% endfor %}
       </div>
+      {% else %}
+        <!-- Display a message if there the user doesn't have upcoming events. -->
+        <div class="flex items-center justify-center text-center p-8">
+          <span class="text-gray-500">You have no upcoming events!</span>
+        </div>
+      {% endif %}
     </div>
 
     <div class="top-liked-events-section p-10 border-b border-gray-200">
-      <h1 class="inline-block text-4xl font-black text-gray-900 lg:text-4xl dark:text-white mb-6">Top Liked Events</h1>
+      <h1 class="inline-block text-4xl font-black text-gray-900 lg:text-4xl dark:text-white mb-6">Top Liked</h1>
       <div class="autocomplete-results" id="autocomplete-results"></div>
     
       <!-- Grid layout for event cards -->
-      <div class="grid grid-col-3" id="event-cards">
-        {% for event in events %}
-          {{ components.event_tile(event) }}
-        {% endfor %}
-      </div>
+      {% if top_liked_events %}
+        <div class="flex overflow-x-auto py-2" id="event-cards">
+          {% for event in top_liked_events %}
+          <div class="event-tile mr-2">
+            {{ components.event_tile(event) }}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <!-- Display a message if there aren't any events. -->
+        <div class="flex items-center justify-center text-center p-8">
+          <span class="text-gray-500">There are no events!</span>
+        </div>
+      {% endif %}
     </div>
 
-    <div class="top-liked-events-section p-10 border-b border-gray-200">
-      <h1 class="inline-block text-4xl font-black text-gray-900 lg:text-4xl dark:text-white mb-6">Popular Events Near You</h1>
+    <div class="upcoming-events-section p-10 border-b border-gray-200">
+      <h1 class="inline-block text-4xl font-black text-gray-900 lg:text-4xl dark:text-white mb-6">Happening Today</h1>
       <div class="autocomplete-results" id="autocomplete-results"></div>
     
       <!-- Grid layout for event cards -->
-      <div class="grid grid-col-3" id="event-cards">
-        {% for event in events %}
-        {{ components.event_tile(event) }}
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="top-liked-events-section p-8">
-      <h1 class="inline-block text-4xl font-black text-gray-900 lg:text-4xl dark:text-white mb-6">Today</h1>
-      <div class="autocomplete-results" id="autocomplete-results"></div>
-    
-      <!-- Grid layout for event cards -->
-      <div class="grid grid-col-3" id="event-cards">
-        {% for event in events %}
-        {{ components.event_tile(event) }}
-        {% endfor %}
-      </div>
+      {% if events_today %}
+        <div class="flex overflow-x-auto py-2" id="event-cards">
+          {% for event in events_today %}
+          <div class="event-tile mr-2">
+            {{ components.event_tile(event) }}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <!-- Display a message if there aren't any events. -->
+        <div class="flex items-center justify-center text-center p-8">
+          <span class="text-gray-500">There are no events today!</span>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>
