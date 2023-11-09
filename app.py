@@ -12,8 +12,9 @@ from flask_moment import Moment
 from base64 import b64encode
 import urllib
 from project import helpers
+from werkzeug.datastructures import FileStorage
 
-from project.forms import CreateEventForm, ProfileForm
+from project.forms.forms import CreateEventForm, ProfileForm
 from datetime import datetime, timedelta
 import os
 
@@ -45,8 +46,10 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
     comments = db.relationship("Comment", backref="user", passive_deletes=True)
     likes = db.relationship("Like", backref="user", passive_deletes=True)
-    name = db.Column(db.String(150), nullable=True)
+    #name = db.Column(db.String(150), nullable=True)
     rsvps = db.relationship("Rsvp", backref="user", passive_deletes=True)
+    bio = db.Column(db.String(150), nullable=True)
+    #profile_pic = db.Column(db.String(150), nullable=True)
 
     def update_username(self, new_username):
         self.username = new_username
@@ -57,8 +60,8 @@ class User(UserMixin, db.Model):
         self.password = hashed_password
         db.session.commit()
 
-    def update_name(self, new_name):
-        self.name = new_name
+    def update_bio(self, new_bio):
+        self.bio = new_bio
         db.session.commit()
     
 # Event Database
@@ -66,7 +69,7 @@ class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_name = db.Column(db.String(80), unique=True, nullable=False)
     event_organization = db.Column(db.String(80), nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
@@ -452,17 +455,62 @@ def populate_database():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    name = current_user.username
+    bio = current_user.bio
+    return render_template('profile.html', title='View Profile', name=name, bio=bio)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
     form = ProfileForm()
+    status = None
     if form.validate_on_submit():
-        current_user.update_username(form.username.data)
-        current_user.update_password(form.password.data)
-        current_user.update_name(form.name.data)
-        flash('Your profile has been updated!', 'success')
-        return redirect(url_for('profile'))
+        has_changes = False
+        # Check if username needs to be updated
+        if 'username' in request.form:
+            new_username = form.username.data
+            if new_username and new_username != current_user.username:
+                current_user.update_username(new_username)
+                has_changes = True
+        # Check if password needs to be updated
+        if 'password' in request.form:
+            new_password = form.password.data
+            if new_password:
+                current_user.update_password(new_password)
+                has_changes = True
+        # Check if bio needs to be updated
+        if 'bio' in request.form:
+            new_bio = form.bio.data
+            if new_bio and new_bio != current_user.bio:
+                current_user.update_bio(new_bio)
+                has_changes = True
+        #if form.profile_pic.data:
+        #    file = form.profile_pic.data  # This is the FileStorage object
+        #    filename = secure_filename(file.filename)
+        #    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        #    file.save(file_path)
+        #    current_user.profile_pic = file_path  # Update the profile picture path in the database
+        #    print(current_user.profile_pic)
+        #    db.session.commit()
+        # Set status based on whether changes were made
+        if has_changes:
+            db.session.commit()
+            status = 'success'
+        else:
+            status = 'no_changes'
     elif request.method == 'GET':
+        # Pre-fill the form with the current user's data
         form.username.data = current_user.username
-        form.name.data = current_user.name
-    return render_template('profile.html', form=form)
+        form.bio.data = current_user.bio
+
+    return render_template('edit_profile.html', title='Update Profile', form=form, status=status)
+
 
 ## ---------------------------------------------------------------------------- ##
 
@@ -470,7 +518,7 @@ def profile():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.drop_all()
+        #db.drop_all()
         db.create_all()
         if not User.query.first() and not Event.query.first():
             populate_database()
