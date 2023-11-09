@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"  # Using version 3.8 for additional features
 
 services:
   web-app:
@@ -13,9 +13,46 @@ services:
       - FLASK_APP=app.py
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_TOKEN}
       - GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_TOKEN}
+      - PYTHONPATH=/project-1-web-application-design-group17-jigglies
+    networks:
+      - app-network
 
-  test:
+  unit-tests:
     build: .
-    command: pytest tests/
+    command: pytest tests/unit/
     volumes:
       - .:/project-1-web-application-design-group17-jigglies
+    environment:
+      - TEST_TYPE=unit
+    networks:
+      - app-network
+
+  automation-tests:
+    depends_on:
+      selenium-chrome:
+        condition: service_healthy
+    build: .
+    command: pytest tests/automation/
+    volumes:
+      - .:/project-1-web-application-design-group17-jigglies
+    environment:
+      - TEST_TYPE=regression
+    networks:
+      - app-network
+
+  selenium-chrome:
+    image: selenium/standalone-chrome:latest
+    ports:
+      - "4444:4444"
+    shm_size: '2gb'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
