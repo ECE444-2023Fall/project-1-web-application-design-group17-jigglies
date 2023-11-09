@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+import base64
 from base64 import b64encode
 import urllib
 from project import helpers
