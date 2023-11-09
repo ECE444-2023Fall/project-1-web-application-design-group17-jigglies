@@ -17,19 +17,15 @@ jobs:
       
       - name: Set up Docker Compose
         run: |
-          docker-compose -f docker-compose.ci.yml up -d web-app
-          docker-compose -f docker-compose.ci.yml ps
-          docker-compose -f docker-compose.ci.yml logs web-app
+          docker compose up web-app
 
       - name: Run unit tests
         run: |
-          docker-compose -f docker-compose.ci.yml run unit-tests
-          docker-compose -f docker-compose.ci.yml logs unit-tests
+          docker compose up unit-tests
 
       - name: Run automation tests
         run: |
-          docker-compose -f docker-compose.ci.yml run automation-tests
-          docker-compose -f docker-compose.ci.yml logs automation-tests
+          docker compose up automation tests
         
       - name: Clean up
         if: always()  # Ensure clean up happens even if tests fail
