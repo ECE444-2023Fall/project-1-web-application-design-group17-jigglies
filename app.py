@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-import base64
+from base64 import b64encode
 import urllib
 from project import helpers
 
@@ -177,13 +177,41 @@ def logout():
 def search():
     query = request.args.get('search_query')
 
-    # Query the database to find events that match the query
+    # Query the database
     results = Event.query.filter(
         (Event.event_name.ilike(f'%{query}%')) |
         (Event.event_organization.ilike(f'%{query}%'))
     ).all()
 
-    return render_template('search_results.html', events=results, query=query)
+    # Prepare data for JSON serialization
+    events_data = []
+    for event in results:
+        event_dict = {
+            'id': event.id,
+            'event_name': event.event_name,
+            'event_organization': event.event_organization,
+            'date': event.date,  
+            'date': event.date.strftime('%Y-%m-%d'),
+            'start_time': event.start_time.strftime('%H:%M:%S'),
+            'end_time': event.end_time.strftime('%H:%M:%S'),
+            'room': event.room,
+            'allow_comments': event.allow_comments,
+            'capacity': event.capacity,
+            'event_information': event.event_information,
+            'tags': json.loads(event.tags) if event.tags else [],
+            # Convert binary data to base64 string for image
+            'cover_photo': b64encode(event.cover_photo).decode() if event.cover_photo else None
+        }
+        events_data.append(event_dict)
+
+    organizers = {event.event_organization for event in results}
+    tags = set()
+    for event in results:
+        if event.tags:
+            event_tags = json.loads(event.tags)
+            tags.update(event_tags)
+
+    return render_template('search_results.html', events=events_data, query=query, organizers=list(organizers), tags=list(tags))
 
 @app.route('/autocomplete', methods=['GET'])
 def autocomplete():
