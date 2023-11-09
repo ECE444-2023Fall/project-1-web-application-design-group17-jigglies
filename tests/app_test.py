@@ -20,7 +20,7 @@ def client():
 
 
     with app.app_context():
-
+        db.drop_all()
         db.create_all()  # setup
         
         # Add User Entries
@@ -65,7 +65,6 @@ def test_unsuccessful_signup_with_non_uoft_email(client):
         email="test@gmail.com",
         password="password"
     ), follow_redirects=True)
-
     assert b"Please sign up with a uoft email." in response.data
 
 def test_successful_signup(client):
