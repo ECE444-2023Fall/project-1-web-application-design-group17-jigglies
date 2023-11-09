@@ -29,6 +29,7 @@ def browser():
         options=chrome_options  # Use 'options' instead of 'desired_capabilities'
     )
     yield driver
+    driver.save_screenshot('error.png')
     driver.quit()
 
 
@@ -87,7 +88,7 @@ def test_create_event(browser, client):
     assert browser.current_url == 'http://web-app:5000/', f'Login was unsuccessful, url was expected to be http://web-app:5000/ but is actually {browser.current_url}'
 
     # Verify the one already created event is seen
-    event_titles = browser.find_elements(By.CSS_SELECTOR, ".text-3xl")
+    event_titles = browser.find_elements(By.ID, "event_name")
     assert len(event_titles) == 1, "Less or more than one event titles found on the page."
 
     # Verify that the titles are displayed (non-empty text)
@@ -165,7 +166,7 @@ def test_create_event(browser, client):
     return_home_link.click()
 
     # Verify the two events are now seen
-    event_titles = browser.find_elements(By.CSS_SELECTOR, ".text-3xl")
+    event_titles = browser.find_elements(By.ID, "event_name")
     assert len(event_titles) == 2, "Less or more than two event titles found on the page."
 
     # Verify that the titles are displayed (non-empty text)
