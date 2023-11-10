@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+import base64
 from base64 import b64encode
 import urllib
 from project import helpers
@@ -22,7 +23,6 @@ app = Flask(__name__, template_folder='project/templates', static_folder='projec
 app.config['SECRET_KEY'] = 'mysecret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = '/imgs'
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -46,10 +46,9 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
     comments = db.relationship("Comment", backref="user", passive_deletes=True)
     likes = db.relationship("Like", backref="user", passive_deletes=True)
-    #name = db.Column(db.String(150), nullable=True)
     rsvps = db.relationship("Rsvp", backref="user", passive_deletes=True)
     bio = db.Column(db.String(150), nullable=True)
-    #profile_pic = db.Column(db.String(150), nullable=True)
+    profile_pic = db.Column(db.LargeBinary, nullable=True)
 
     def update_username(self, new_username):
         self.username = new_username
@@ -62,6 +61,10 @@ class User(UserMixin, db.Model):
 
     def update_bio(self, new_bio):
         self.bio = new_bio
+        db.session.commit()
+
+    def update_profile_pic(self, pic):
+        self.profile_pic = pic
         db.session.commit()
     
 # Event Database
@@ -503,14 +506,14 @@ def edit_profile():
             if new_bio and new_bio != current_user.bio:
                 current_user.update_bio(new_bio)
                 has_changes = True
-        #if form.profile_pic.data:
-        #    file = form.profile_pic.data  # This is the FileStorage object
-        #    filename = secure_filename(file.filename)
-        #    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        #    file.save(file_path)
-        #    current_user.profile_pic = file_path  # Update the profile picture path in the database
-        #    print(current_user.profile_pic)
-        #    db.session.commit()
+        if form.profile_pic.data:
+            image_file = request.files['profile_pic']
+            image_data = None
+            if image_file:
+                image_data = image_file.read()
+            profile_pic = image_data
+            current_user.update_profile_pic(profile_pic)
+            has_changes = True
         # Set status based on whether changes were made
         if has_changes:
             db.session.commit()
