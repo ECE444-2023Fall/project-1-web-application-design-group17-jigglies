@@ -18,7 +18,6 @@ import re
 from project import helpers
 from werkzeug.datastructures import FileStorage
 
-from project.forms import CreateEventForm, ProfileForm
 from datetime import datetime, timedelta
 from project.forms.forms import CreateEventForm, ProfileForm
 from datetime import datetime, timedelta
@@ -491,7 +490,7 @@ def create_event():
 
 
 ## ---------------------------------------------------------------------------- ##
-
+def populate_database():
     # Add dummy users
     users = [
         {"username": "john", "email": "john@utoronto.ca", "password": "password123"},
@@ -622,13 +621,12 @@ def liked_events():
 
 ## -------------------------------------------------------------------------------- ##
 
-
 if __name__ == '__main__':
     with app.app_context():
         db.drop_all()
         db.create_all()
-        #if not User.query.first() and not Event.query.first():
-            #populate_database()
+        if not User.query.first() and not Event.query.first():
+            populate_database()
         # if not Event.query.first():
         #    add_dummy_events()
     app.run(debug=True)
