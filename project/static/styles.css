@@ -20,6 +20,40 @@
   background-color: #0056b3;
 }
 
+.flash-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    position: relative;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+  }
+
+  .flash-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    position: relative;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+  }
+
+  /* General styling for flash message container */
+  .flash-container {
+    width: 100%;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+  }
+
+  /* If you want to use icons with the messages */
+  .flash-icon {
+    margin-right: 0.5rem;
+  }
 #save {
   fill: #551dd7;
 }
