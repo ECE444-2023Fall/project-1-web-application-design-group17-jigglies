@@ -207,14 +207,16 @@ def logout():
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('search_query')
-
+   
     # Query the database
     if(query):
         results = Event.query.filter(
             (Event.event_name.ilike(f'%{query}%')) |
             (Event.event_organization.ilike(f'%{query}%'))
         ).all()
+        description = "Search Results: " + query
     else:
+        description = "Explore all events:"
         results = Event.query.all()
 
     # Prepare data for JSON serialization
@@ -245,7 +247,7 @@ def search():
             event_tags = json.loads(event.tags)
             tags.update(event_tags)
 
-    return render_template('search_results.html', events=events_data, query=query, organizers=list(organizers), tags=list(tags))
+    return render_template('search_results.html', events=events_data, query=query, organizers=list(organizers), tags=list(tags), description=description)
 
 
 @app.route('/autocomplete', methods=['GET'])
