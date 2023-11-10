@@ -1,125 +1,161 @@
 {% extends "base-white.html" %}
 
 {% block content %}
+<div class="max-w-screen-xl flex flex-wrap justify-between mx-auto mt-8 mb-8 border border-gray-200 shadow-xl rounded-xl">
+  <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-6"> 
+      <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ description }}</h1>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<div class="bg-white">
-    <div>
-      <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24">
-          <h1 class="text-4xl font-bold tracking-tight text-gray-900">Search Results: </h1>
-        </div>
-  
-        <section aria-labelledby="products-heading" class="pb-24 pt-6">
-          <h2 id="products-heading" class="sr-only">Products</h2>
-          <div class="grid grid-cols-1 gap-x-1 gap-y-10 lg:grid-cols-4">
-            <!-- Filters -->
-            <form class="hidden lg:block">
-              <span class="font-medium text-gray-900">Date Range</span>
-                <div class="relative">
-                  <input id="start-date" type="text" class="date-input" placeholder="Select date start">
-                </div>
-              <span class="mx-4 text-gray-500">to</span>
-              <div class="relative">
-                  <input id="end-date" type="text" class="date-input" placeholder="Select date end">
+    <section aria-labelledby="products-heading" class="pb-24 pt-6">
+      <div class="grid grid-cols-1 gap-x-1 gap-y-10 lg:grid-cols-4">
+        <!-- Filters -->
+        <form class="hidden lg:block">
+          <div class="w-2/3">
+            <span class="font-medium text-gray-900">Date Range</span>
+            <div class="relative max-w-xs my-2">
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                <!-- Calendar Icon for Start Date -->
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                </svg>
               </div>
-              
-              <div class="border-b border-gray-200 py-3"></div>
-                
-              <!-- Event Tags Dropdown -->
-              <div class="border-b border-gray-200 py-8">
-                <h3 class="-my-3 flow-root">
-                    <!-- Expand/collapse section button -->
-                    <button type="button" class="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500" aria-controls="filter-section-tags" aria-expanded="false">
-                        <span class="font-medium text-gray-900">Event Tags</span>
-                        <span class="ml-6 flex items-center">
-                            <button id="dropdownOrganizersButton2" data-dropdown-toggle="tagDropDown"class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
-                                Select Tags
-                                <svg class="w-2.5 h-2.5 ml-2.5" aria-hidden="true" fill="none" viewBox="0 0 10 6">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                                </svg>
-                            </button>
-                        </span>
-                    </button>
-                </h3>
-                <!-- Dropdown menu -->
-                <div id="tagDropDown" class="z-10 hidden w-48 bg-white rounded-lg shadow dark:bg-gray-700">
-                    <ul id="dropdownTags" class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownOrganizersButton2">
-                        <!-- Event tags will be populated here dynamically -->
-                    </ul>
-                </div>
-              </div>
-
-              <!-- Organizer Dropdown -->
-              <div class="border-b border-gray-200 py-8">
-                <h3 class="-my-3 flow-root">
-                    <button type="button" class="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500" aria-controls="filter-section-organizers" aria-expanded="false">
-                        <span class="font-medium text-gray-900">Organizer</span>
-                        <span class="ml-6 flex items-center">
-                            <button id="dropdownOrganizersButton" data-dropdown-toggle="dropdownOrganizers" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
-                                Select Organizers
-                                <svg class="w-2.5 h-2.5 ml-2.5" aria-hidden="true" fill="none" viewBox="0 0 10 6">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                                </svg>
-                            </button>
-                        </span>
-                    </button>
-                </h3>
-                <!-- Dropdown menu -->
-                <div id="dropdownOrganizers" class="z-10 hidden w-48 bg-white rounded-lg shadow dark:bg-gray-700">
-                    <ul id="organizersList" class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownOrganizersButton">
-                        <!-- Organizers will be populated here dynamically -->
-                    </ul>
-                </div>
-              </div>
-
-              
-              <div class="border-b border-gray-200 py-6">
-                <span class="font-medium text-gray-900">Allow Comments</span>
-                <div class="pt-6" id="filter-section-1">
-                  <div class="space-y-4">
-                    <div class="flex items-center">
-                      <input id="filter-category-0" name="category[]" value="new-arrivals" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                      <label for="filter-category-0" class="ml-3 text-sm text-gray-600">Yes</label>
-                    </div>
-                    <div class="flex items-center">
-                      <input id="filter-category-1" name="category[]" value="sale" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                      <label for="filter-category-1" class="ml-3 text-sm text-gray-600">No</label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </form>
-  
-            <!-- Event List -->
-            <div class="lg:col-span-3">
-              <div class="w-full">
-                  {% if current_user.is_authenticated %}
-                  <div class="autocomplete-results" id="autocomplete-results"></div>
-                  <!-- Grid layout for event cards -->
-                  <div class="grid grid-col-3" id="event-cards">
-                      <!-- Event cards will be dynamically inserted here by JavaScript -->
-                  </div>
-                  {% endif %}
-              </div>
+              <input datepicker type="text" id="start-date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start">
             </div>
+          
+            <span class="mx-4 text-gray-500">to</span>
+          
+            <div class="relative max-w-xs my-2">
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                <!-- Calendar Icon for End Date -->
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                </svg>
+              </div>
+              <input datepicker type="text" id="end-date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end">
             </div>
           </div>
-        </section>
-      </main>
-    </div>
-  </div>
+          
+
+          
+          <div class="border-b border-gray-200 py-3"></div>
+            
+            <!-- Event Tags Dropdown -->
+            <div class="border-t border-gray-200 px-4 py-6">
+              <h3 class="-mx-2 -my-3 flow-root">
+                <!-- Expand/collapse section button -->
+                <button type="button" id="toggleEventTagsButton" class="flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500" aria-controls="filter-section-event-tags" aria-expanded="false">
+                  <span class="font-medium text-gray-900">Event Tags</span>
+                  <span class="ml-6 flex items-center">
+                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                    </svg>
+                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clip-rule="evenodd" />
+                    </svg>
+                  </span>
+                </button>
+              </h3>
+              <div class="pt-6" id="filter-section-event-tags">
+                <div class="space-y-6" id="dropdownTags">
+                  <!-- Event tags will be populated here dynamically -->
+                </div>
+              </div>
+            </div>
+          
+
+          
+
+          <!-- Organizer Dropdown -->
+          <div class="border-t border-gray-200 px-4 py-6">
+            <h3 class="-mx-2 -my-3 flow-root">
+              <!-- Expand/collapse section button -->
+              <button type="button" id="toggleOrganizerButton" class="flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500" aria-controls="filter-section-organizer" aria-expanded="false">
+                <span class="font-medium text-gray-900">Organizers</span>
+                <span class="ml-6 flex items-center">
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                  </svg>
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+              </button>
+            </h3>
+            <div class="pt-6" id="filter-section-organizer">
+              <div class="space-y-6" id="organizersList">
+                <!-- Organizers will be populated here dynamically -->
+              </div>
+            </div>
+          </div>
+
+
+        <!-- Organizer Dropdown -->
+        <div class="border-t border-gray-200 px-4 py-6">
+          <h3 class="-mx-2 -my-3 flow-root">
+            <!-- Expand/collapse section button -->
+            <button type="button" id="toggleComments" class="flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500" aria-controls="filter-section-organizer" aria-expanded="false">
+              <span class="font-medium text-gray-900">Allow Comments</span>
+              <span class="ml-6 flex items-center">
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                </svg>
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </button>
+          </h3>
+          <div class="pt-6" id="filter-section-1">
+            <div class="space-y-6">
+              <!-- Checkbox for 'Yes' option -->
+              <div class="flex items-center">
+                <input id="filter-category-0" name="category[]" value="new-arrivals" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                <label for="filter-category-0" class="ml-3 text-sm text-gray-600">Yes</label>
+              </div>
+        
+              <!-- Checkbox for 'No' option -->
+              <div class="flex items-center">
+                <input id="filter-category-1" name="category[]" value="sale" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                <label for="filter-category-1" class="ml-3 text-sm text-gray-600">No</label>
+              </div>
+            </div>
+          </div>
+        </div>
+          
+        </form>
+
+        <!-- Event List -->
+        <div class="lg:col-span-3">
+          <div class="w-full">
+              {% if current_user.is_authenticated %}
+              <div class="autocomplete-results" id="autocomplete-results"></div>
+              <!-- Grid layout for event cards -->
+              <div class="grid grid-col-3" id="event-cards">
+                  <!-- Event cards will be dynamically inserted here by JavaScript -->
+              </div>
+              {% endif %}
+          </div>
+        </div>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>
+
 
 <!-- scripts for search -->
 <script src="{{ url_for('static', filename='searchscript.js') }}"></script>
 <script type="text/javascript">
   let organizersData = {{ organizers | tojson | safe }};
-  appendToDropDown(organizersData, 'organizersList')
+  // appendToList(organizersData, 'organizersList')
 
   let tagsData = {{ tags | tojson | safe }};
-  appendToDropDown(tagsData, 'dropdownTags')
+  // appendToDropDown(tagsData, 'dropdownTags')
+  // appendToList(organizersData, 'dropdownTags')
 
+  appendToList(organizersData, 'organizersList', 'organizer'); 
+  appendToList(tagsData, 'dropdownTags', 'tags'); 
   let allEvents = {{ events | tojson | safe }};
 
   let defaultEventImageUrl = "{{ url_for('static', filename='images/pop.png') }}";
