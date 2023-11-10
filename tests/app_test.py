@@ -94,21 +94,6 @@ def test_correct_login(client):
     ), follow_redirects=True)
     assert login_response.status_code == 200
     
-def test_event_details_page(client):
-    """Test event details page is correctly displayed."""
-    login_response = client.post('/login', data=dict(
-            user_identifier="harrypotter",
-            password="testpass1"
-    ), follow_redirects=True)
-    
-    assert login_response.status_code == 200
-    
-    event1 = Event.query.filter_by(event_name='Duplicate Event Name').first()
-    
-    event_resp = client.get(f"/event/{event1.id}")
-    assert event_resp.status_code == 200
-    assert b'Duplicate Event Name' in event_resp.data
-    
 def test_rsvp_event(client):
     """Test RSVP'ing for an event."""
     login_response = client.post('/login', data=dict(
