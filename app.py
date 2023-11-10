@@ -246,18 +246,31 @@ def autocomplete():
 @app.route('/event/<int:event_id>')
 @login_required
 def event_details(event_id):
-    event = Event.query.get(event_id)
+    event = Event.query.filter_by(id=event_id).first()
 
     if event is not None:
         comments = event.comments
-        google_maps_url = "https://www.google.com/maps/embed/v1/place?key=" + GOOGLE_MAPS_API_KEY + "&q=" + urllib.parse.quote_plus(event.location)
+
+        if event.location is not None:
+            google_maps_url = "https://www.google.com/maps/embed/v1/place?key=" + GOOGLE_MAPS_API_KEY + "&q=" + urllib.parse.quote_plus(event.location)
+        else:
+            google_maps_url = None
+
         parsedDateTime = helpers.parseDateTime(event.date, event.start_time, event.end_time)
-        tags = json.loads(event.tags)
-        return render_template('event_details.html', event = event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY, tags=tags)
+
+        # Check if tags are not None before trying to load JSON
+        if event.tags is not None:
+            tags = json.loads(event.tags)
+        else:
+            tags = []
+
+        return render_template('event_details.html', event=event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY, tags=tags)
     else:
         flash('Event not found', 'danger')
         return redirect(url_for('home'))
-    
+
+
+
 @app.route('/create_comment/<int:event_id>', methods=["POST"])
 @login_required
 def create_comment(event_id):
@@ -514,11 +527,20 @@ def edit_profile():
 
 ## ---------------------------------------------------------------------------- ##
 
+## ----------------------- Liked Events --------------------------------------- ##
+
+@app.route('/liked_events')
+@login_required
+def liked_events():
+    liked_events = Event.query.join(Like).filter(Like.author == current_user.id).all()
+    return render_template('liked_events.html', liked_events=liked_events)
+
+## -------------------------------------------------------------------------------- ##
 
 
 if __name__ == '__main__':
     with app.app_context():
-        #db.drop_all()
+        db.drop_all()
         db.create_all()
         if not User.query.first() and not Event.query.first():
             populate_database()
