@@ -41,19 +41,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 }
     var input = document.querySelector("#tags");
+    if (input){
+        // Initialize Tagify with maxTags setting
+        var tagify = new Tagify(input, {
+            delimiters: ", ",
+            maxTags: 5
+        });
 
-    // Initialize Tagify with maxTags setting
-    var tagify = new Tagify(input, {
-        delimiters: ", ",
-        maxTags: 5
-    });
-
-    // Add an event listener to notify the user when they've reached the max number of tags
-    tagify.on('input', function (e) {
-        if (tagify.value.length >= tagify.settings.maxTags) {
-            showErrorTooltip(input, 'You have reached the maximum number of allowed tags!');
-        }
-    });
+        // Add an event listener to notify the user when they've reached the max number of tags
+        tagify.on('input', function (e) {
+            if (tagify.value.length >= tagify.settings.maxTags) {
+                showErrorTooltip(input, 'You have reached the maximum number of allowed tags!');
+            }
+        });
+}
 
 
     function showErrorTooltip(inputElement, message) {
@@ -73,62 +74,103 @@ document.addEventListener("DOMContentLoaded", function () {
             tip.destroy(); // Properly clean up the tippy instance
         }, 5000);
     }
+    const email_input = document.querySelector('#email')
+    if (email_input){
+        document.getElementById('sendCode').addEventListener('click', function(event) {
+            event.preventDefault();
+
+            var email = document.getElementById('email').value;
+            fetch('/send_verification_code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({email: email}),
+            })
+            .then(response => response.json())
+            .then(data => {
+                showErrorTooltip(document.querySelector("#email"), data.message);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
 
 // Search integration
-function performSearch() {
-    let query = document.getElementById('search_query').value;
+function performSearch(event) {
+    const search = document.getElementById('search_query');
+    const search_2 = document.getElementById('search_query_2');
+    if (search) {
+        searchInput = search
+    }
+    if (search_2) {
+        searchInput = search_2
+    }
+    let query = searchInput.value;
     window.location.href = '/search?search_query=' + encodeURIComponent(query);
 }
 
 
-const searchInput = document.getElementById('search_query');
-const suggestionsBox = document.getElementById('suggestions');
+const search = document.getElementById('search_query');
+const suggestions = document.getElementById('suggestions');
 
-searchInput.addEventListener("input", function(event) {
-    const value = event.target.value;
-    suggestionsBox.innerHTML = "";
+const search_2 = document.getElementById('search_query_2');
+const suggestions_2 = document.getElementById('suggestions_2');
 
-    if (value === "") {
-        suggestionsBox.classList.add('hidden'); // hide dropdown if input is empty
-        return;
-    }
+function setupSearchInput(searchInput, suggestionsBox) {
+    searchInput.addEventListener("input", function(event) {
+        const value = event.target.value;
+        suggestionsBox.innerHTML = "";
 
-    // Fetching data from the server
-    fetch(`/autocomplete?search_query=${value}`)
-    .then(response => response.json())
-    .then(data => {
-        if(data.length) { // check if there are suggestions
-            suggestionsBox.classList.remove('hidden'); // show dropdown if there are suggestions
-        } else {
-            suggestionsBox.classList.add('hidden'); // hide dropdown if there are no suggestions
+        if (value === "") {
+            suggestionsBox.classList.add('hidden');
+            return;
         }
 
-        // Create a <ul> element
-        const ulElement = document.createElement("ul");
-        ulElement.classList.add("text-sm", "text-gray-700", "dark:text-gray-200", "border-2", "border-blue-500", "rounded-lg", "shadow-2xl");
+        // Fetching data from the server
+        fetch(`/autocomplete?search_query=${value}`)
+        .then(response => response.json())
+        .then(data => {
+            if(data.length) {
+                suggestionsBox.classList.remove('hidden');
+            } else {
+                suggestionsBox.classList.add('hidden');
+            }
 
-        for (let item of data) {
-            const liElement = document.createElement("li");
-            liElement.textContent = item.name;
-            liElement.classList.add( "hover:bg-gray-200", "cursor-pointer", "px-4" , 'py-2','hover:bg-gray-100', 'dark:hover:bg-gray-600', 'dark:hover:text-white',"rounded-lg");
+            const ulElement = document.createElement("ul");
+            ulElement.classList.add("text-sm", "text-gray-700", "dark:text-gray-200", "border-2", "border-blue-500", "rounded-lg", "shadow-2xl");
 
-            liElement.addEventListener("click", function() {
-                searchInput.value = item.name;
-                suggestionsBox.innerHTML = "";
-                suggestionsBox.classList.add('hidden'); // hide dropdown after selection
-                performSearch();
+            data.forEach(item => {
+                const liElement = document.createElement("li");
+                liElement.textContent = item.name;
+                liElement.classList.add("hover:bg-gray-200", "cursor-pointer", "px-4", 'py-2', 'hover:bg-gray-100', 'dark:hover:bg-gray-600', 'dark:hover:text-white', "rounded-lg");
+
+                liElement.addEventListener("click", function() {
+                    searchInput.value = item.name;
+                    suggestionsBox.innerHTML = "";
+                    suggestionsBox.classList.add('hidden');
+                    performSearch();
+                });
+
+                ulElement.appendChild(liElement);
             });
 
-            ulElement.appendChild(liElement);
-        }
-
-        suggestionsBox.appendChild(ulElement);
-    })
-    .catch(error => {
-        console.error("Error fetching search results:", error);
+            suggestionsBox.appendChild(ulElement);
+        })
+        .catch(error => {
+            console.error("Error fetching search results:", error);
+        });
     });
-});
+}
 
+if (search) {
+    setupSearchInput(search, suggestions);
+}
+
+if (search_2) {
+    setupSearchInput(search_2, suggestions_2);
+}
 
 function initialize() {
     var input = document.getElementById('location');
@@ -156,33 +198,55 @@ function initialize() {
             });
         }
     }
-    // Get the start and end time select elements
-    const startTimeSelect = document.getElementById('start-time');
-    const endTimeSelect = document.getElementById('end-time');
+    var input = document.getElementById('location');
+    if (input){
+        // Get the start and end time select elements
+        const startTimeSelect = document.getElementById('start-time');
+        const endTimeSelect = document.getElementById('end-time');
 
-    // Function to check and validate times
-    function validateTimes() {
-        const startTimeValue = parseInt(startTimeSelect.value, 10);
-        const endTimeValue = parseInt(endTimeSelect.value, 10);
+        // Function to check and validate times
+        function validateTimes() {
+            const startTimeValue = parseInt(startTimeSelect.value, 10);
+            const endTimeValue = parseInt(endTimeSelect.value, 10);
 
-        if (endTimeValue <= startTimeValue) {
-            showErrorTooltip(endTimeSelect, 'End time should be after start time');
-            endTimeSelect.value = ''; // Clear the end time selection
+            if (endTimeValue <= startTimeValue) {
+                showErrorTooltip(endTimeSelect, 'End time should be after start time');
+                endTimeSelect.value = ''; // Clear the end time selection
+            }
         }
+
+        // Add event listeners to check the times whenever they change
+        startTimeSelect.addEventListener('change', validateTimes);
+        endTimeSelect.addEventListener('change', validateTimes);
+
+
+        // Call the initialize function when the window loads.
+        google.maps.event.addDomListener(window, 'load', initialize);
     }
-
-    // Add event listeners to check the times whenever they change
-    startTimeSelect.addEventListener('change', validateTimes);
-    endTimeSelect.addEventListener('change', validateTimes);
-
-    // Call the initialize function when the window loads.
-    google.maps.event.addDomListener(window, 'load', initialize);
 });
+
+function like(event_id) {
+    const likeCount = document.getElementById("like-count")
+    const likeButton = document.getElementById("like-button")
+    const heartIcon = document.getElementById("heart-icon");
+
+    fetch(`/like_event/${event_id}`, { method: "POST" }).then((res) => res.json()).then((data) => {
+        likeCount.innerHTML = data["like_count"]
+        if (data["user_has_liked"] === true) {
+            heartIcon.classList.remove("fa-regular");
+            heartIcon.classList.add("fa-solid");
+        }
+        else {
+            heartIcon.classList.remove("fa-solid");
+            heartIcon.classList.add("fa-regular");
+        }
+    });
+}
+
 
 function comment(event_id) {
     var commentText = document.getElementById("comment").value;
     var commentSection = document.getElementById("comment-display");
-
     fetch(`/create_comment/${event_id}`, { 
         method: "POST", 
         body: JSON.stringify({ comment: commentText }),
@@ -193,7 +257,6 @@ function comment(event_id) {
         commentText = data["comment"]["text"];
         commentAuthor = data["comment"]["author"];
         commentDateTimeCreated = data["comment"]["datetime_created"];
-
         newCommentHTML = `
         <article class="p-6 mb-6 text-base bg-white border-t border-gray-200 rounded-lg dark:bg-gray-900">
             <footer class="flex justify-between items-center mb-2">
@@ -220,28 +283,10 @@ function comment(event_id) {
     });
 }
 
-function like(event_id) {
-    const likeCount = document.getElementById("like-count");
-    const heartIcon = document.getElementById("heart-icon");
-
-    fetch(`/like_event/${event_id}`, { method: "POST" }).then((res) => res.json()).then((data) => {
-        likeCount.innerHTML = data["like_count"]
-        if (data["user_has_liked"] === true) {
-            heartIcon.classList.remove("fa-regular");
-            heartIcon.classList.add("fa-solid");
-        }
-        else {
-            heartIcon.classList.remove("fa-solid");
-            heartIcon.classList.add("fa-regular");
-        }
-    });
-}
-
 function rsvp(event_id) {
     const rsvpButton = document.getElementById("rsvp-button");
     const rsvpCount = document.getElementById("rsvp-count");
     const rsvpGrammar = document.getElementById("rsvp-count-grammar");
-
     fetch(`/rsvp_event/${event_id}`, { method: "POST" }).then((res) => res.json()).then((data) => {
         rsvpCount.innerHTML = data["rsvp_count"]
         if (parseInt(data["rsvp_count"]) == 1) {rsvpGrammar.innerHTML = "person is"} else {rsvpGrammar.innerHTML = "people are"}
@@ -259,9 +304,9 @@ function rsvp(event_id) {
 }
 
 function performSearch(event) {
-    if (event && event.key === "Enter") {
-        event.preventDefault();  // prevent the default behavior of Enter key
-        let query = document.getElementById('search_query').value;
+    if (event.key === "Enter") {
+        event.preventDefault();  // prevent the default behavior of the Enter key
+        let query = event.target.value;  // Use the value from the event's target element
         window.location.href = '/search?search_query=' + encodeURIComponent(query);
     }
 }
