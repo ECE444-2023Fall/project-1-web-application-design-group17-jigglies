@@ -13,10 +13,11 @@ from flask_mail import Mail, Message
 import random
 import base64
 import urllib
+import re
 from project import helpers
 
 from project.forms import CreateEventForm, ProfileForm
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 app = Flask(__name__, template_folder='project/templates', static_folder='project/static')
@@ -167,6 +168,10 @@ def signup():
         if user_by_email:
             flash('Email already registered. Please use another email or login.', 'alert')
             return render_template('signup.html', username=username, email=email)
+        
+        if len(password) < 6 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[!@#$%^&*(),.?\":{}|<>]", password):
+            flash('Password too weak. It must be at least 6 characters long and include uppercase and lowercase letters, and special characters.', 'alert')
+            return render_template('signup.html', username=username, email=email)
 
 
         
@@ -226,6 +231,7 @@ def logout():
 ## ----------------------------------Search----------------------------------- ##
 
 @app.route('/search', methods=['GET'])
+@login_required
 def search():
     query = request.args.get('search_query')
 
@@ -238,6 +244,7 @@ def search():
     return render_template('search_results.html', events=results, query=query)
 
 @app.route('/autocomplete', methods=['GET'])
+@login_required
 def autocomplete():
     query = request.args.get('search_query')
     print(f"Received query: {query}")
@@ -380,7 +387,7 @@ def create_event():
 
 
 ## ---------------------------------------------------------------------------- ##
-def populate_database():
+
     # Add dummy users
     users = [
         {"username": "john", "email": "john@utoronto.ca", "password": "password123"},
@@ -462,8 +469,8 @@ if __name__ == '__main__':
     with app.app_context():
         db.drop_all()
         db.create_all()
-        if not User.query.first() and not Event.query.first():
-            populate_database()
+        #if not User.query.first() and not Event.query.first():
+            #populate_database()
         # if not Event.query.first():
         #    add_dummy_events()
     app.run(debug=True)
