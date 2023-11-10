@@ -1,13 +1,13 @@
-name: Unit Tests CI Pipeline
+name: CI Pipeline
 
 on:
   push:
-    branches: [ main ] 
+    branches: [ main ]
   pull_request:
-    branches: [ main ]  
+    branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
   
     runs-on: ubuntu-latest
 
@@ -15,9 +15,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       
-      - name: Run tests
-        run: docker compose up test --build # Ensure the tests are rebuilt every time
-      
+      - name: Set up Docker Compose
+        run: docker-compose up -d web-app
+
+      - name: Run unit tests
+        run: |
+          docker-compose run --rm unit-tests
+          docker-compose logs unit-tests
+
+      - name: Run automation tests
+        run: |
+          docker-compose run --rm automation-tests
+          docker-compose logs automation-tests
+        
       - name: Clean up
         if: always()  # Ensure clean up happens even if tests fail
         run: docker-compose down
