@@ -530,13 +530,20 @@ def edit_profile():
 
 ## ---------------------------------------------------------------------------- ##
 
-## ----------------------- Liked Events --------------------------------------- ##
+## ----------------------- Personal Profile Events --------------------------------------- ##
 
 @app.route('/liked_events')
 @login_required
 def liked_events():
     liked_events = Event.query.join(Like).filter(Like.author == current_user.id).all()
     return render_template('liked_events.html', liked_events=liked_events)
+
+@app.route('/my_events')
+@login_required
+def my_events():
+    user_created_events = Event.query.filter_by(created_by=current_user.id).all()
+    return render_template('my_events.html', user_created_events=user_created_events)
+
 
 ## -------------------------------------------------------------------------------- ##
 
