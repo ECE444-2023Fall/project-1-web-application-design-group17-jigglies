@@ -302,3 +302,15 @@ function rsvp(event_id) {
         }
     });
 }
+
+function performSearch(event) {
+    if (event && event.key === "Enter") {
+        event.preventDefault();  // prevent the default behavior of Enter key
+        let query = document.getElementById('search_query').value;
+    if (event.key === "Enter") {
+        event.preventDefault();  // prevent the default behavior of the Enter key
+        let query = event.target.value;  // Use the value from the event's target element
+        window.location.href = '/search?search_query=' + encodeURIComponent(query);
+    }
+}
+}
