@@ -3,6 +3,7 @@
 {% block title %}Liked Events{% endblock %}
 
 {% block content %}
+
 <div class="flex">
 {% include "base-profile.html" %}
 
@@ -26,7 +27,14 @@
                             </a>
                             <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Hosted by: {{ event.event_organization }}</p>
                             <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">{{ event.date.strftime('%B %d, %Y') }} @ {{ event.start_time.strftime('%I:%M %p') }}</p>
-                            <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Address: {{ event.location }}</p>                        
+                            <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Address: 
+                                {% if event.location.split()|length > 10 %}
+                                    {{ event.location.split()[:10]|join(' ') }}...
+                                {% else %}
+                                    {{ event.location }}
+                                {% endif %}
+                            </p>
+                                                   
                             <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
                                 {% if event.event_information.split()|length > 30 %}
                                     {{event.event_information.split()[:30]|join(' ') }}...

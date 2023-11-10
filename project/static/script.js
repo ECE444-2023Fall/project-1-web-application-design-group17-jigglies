@@ -265,3 +265,9 @@ function performSearch(event) {
         window.location.href = '/search?search_query=' + encodeURIComponent(query);
     }
 }
+
+function confirmDelete(deleteUrl) {
+    if (confirm("Are you sure you want to delete this event?")) {
+        window.location.href = deleteUrl;
+    }
+}

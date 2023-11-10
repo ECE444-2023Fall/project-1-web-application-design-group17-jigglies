@@ -544,6 +544,15 @@ def my_events():
     user_created_events = Event.query.filter_by(created_by=current_user.id).all()
     return render_template('my_events.html', user_created_events=user_created_events)
 
+@app.route('/delete_event/<int:event_id>')
+@login_required
+def delete_event(event_id):
+    event = Event.query.get(event_id)
+    if event and event.created_by == current_user.id:
+        db.session.delete(event)
+        db.session.commit()
+    return redirect(url_for('my_events'))
+
 
 ## -------------------------------------------------------------------------------- ##
 
