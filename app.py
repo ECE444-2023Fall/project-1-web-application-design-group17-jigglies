@@ -115,14 +115,32 @@ def load_user(user_id):
 
 @app.template_filter('b64encode')
 def b64encode_filter(data):
-    return base64.b64encode(data).decode() if data else None
+    return b64encode(data).decode() if data else None
 
 
 @app.route('/')
 @login_required
 def index():
+    today = datetime.today().date()
+    events_today = Event.query.filter_by(date=today).all()
+    user_events = Event.query.filter_by(created_by=current_user.id).all()
+    
+    top_upcoming_rsvps = Event.query \
+        .join(Rsvp, Event.id == Rsvp.event_id) \
+        .filter(Rsvp.author == current_user.id, Event.date >= today) \
+        .order_by(Event.date.asc()) \
+        .limit(5) \
+        .all()
+        
+    top_liked_events = Event.query \
+        .join(Like, isouter=True) \
+        .group_by(Event.id) \
+        .order_by(func.count(Like.id).desc()) \
+        .limit(5) \
+        .all()
+    
     events = Event.query.all()
-    return render_template('index.html', events = events)
+    return render_template('index.html', events = events, events_today=events_today, user_events=user_events, top_upcoming_rsvps=top_upcoming_rsvps, top_liked_events=top_liked_events)
 
 
 @app.route('/login', methods=['GET', 'POST'])
