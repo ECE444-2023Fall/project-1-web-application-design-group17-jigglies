@@ -9,12 +9,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+from flask_mail import Mail, Message
+import random
 import base64
 from base64 import b64encode
 import urllib
+import re
 from project import helpers
 from werkzeug.datastructures import FileStorage
 
+from datetime import datetime, timedelta
 from project.forms.forms import CreateEventForm, ProfileForm
 from datetime import datetime, timedelta
 import os
@@ -23,6 +27,14 @@ app = Flask(__name__, template_folder='project/templates', static_folder='projec
 app.config['SECRET_KEY'] = 'mysecret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = '/imgs'
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'noreply.poppin@gmail.com'
+app.config['MAIL_PASSWORD'] = 'pnjn bbtn ihqe spwm'
+mail = Mail(app)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -35,6 +47,8 @@ migrate = Migrate(app, db)
 
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 GOOGLE_PLACES_API_KEY = os.getenv('GOOGLE_PLACES_API_KEY')
+
+
 
 ## ----------------------------- Database Schemas ----------------------------- ##
 
@@ -170,31 +184,76 @@ def signup():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+        user_verification_code = request.form.get('verificationCode')
 
         # Add this block to validate the email domain
         if not email.endswith('utoronto.ca'):
-            flash('Please sign up with a uoft email.', 'danger')
+            flash('Please sign up with a uoft email.', 'alert')
             return render_template('signup.html')
 
         user_by_username = User.query.filter_by(username=username).first()
         user_by_email = User.query.filter_by(email=email).first()
 
         if user_by_username:
-            flash('Username already exists. Please choose another one.', 'danger')
-            return render_template('signup.html')
+            flash('Username already exists. Please choose another one.', 'alert')
+            return render_template('signup.html', username=username, email=email)
 
         if user_by_email:
-            flash('Email already registered. Please use another email or login.', 'danger')
-            return render_template('signup.html')
+            flash('Email already registered. Please use another email or login.', 'alert')
+            return render_template('signup.html', username=username, email=email)
+        
+        if len(password) < 6 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[!@#$%^&*(),.?\":{}|<>]", password):
+            flash('Password too weak. It must be at least 6 characters long and include uppercase and lowercase letters, and special characters.', 'alert')
+            return render_template('signup.html', username=username, email=email)
 
-        hashed_password = generate_password_hash(password, method='scrypt')
-        new_user = User(username=username, email=email, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Registration successful. Please login.', 'success')
-        return redirect(url_for('login'))
 
+        
+        # Check if the verification code matches
+        stored_codes = session.get('verification_codes', {})
+        if email in stored_codes and str(stored_codes[email]) == user_verification_code:
+            # Proceed with registration
+            hashed_password = generate_password_hash(password, method='scrypt')
+            new_user = User(username=username, email=email, password=hashed_password)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful. Please login.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('Invalid verification code.', 'alert')
+            #return render_template('signup.html')
+        
     return render_template('signup.html')
+
+
+@app.route('/send_verification_code', methods=['POST'])
+def send_verification_code():
+    email = request.json.get('email')
+
+    # Validate email or other logic here
+    if not email:
+        return jsonify({'status': 'error', 'message': 'Please first enter your uoft email'})
+    user_by_email = User.query.filter_by(email=email).first()
+    if not email.endswith('utoronto.ca'):
+        return jsonify({'status': 'error', 'message': 'Please sign up with a uoft email.'})
+
+    if user_by_email:
+        return jsonify({'status': 'error', 'message': 'Email already registered. Please use another email or login'})
+
+    verification_code = random.randint(100000, 999999)
+
+    # Store the code in the session or database
+    if 'verification_codes' not in session:
+        session['verification_codes'] = {}
+
+    session['verification_codes'][email] = verification_code
+    session.modified = True  # Ensure the session is marked as modified
+
+    # Send the code via email
+    msg = Message("Your Verification Code", sender="your-email@example.com", recipients=[email])
+    msg.body = f"Your verification code is {verification_code}"
+    mail.send(msg)
+    
+    return jsonify({'message': 'Verification code sent! (Please check SPAM folder)'})
 
 @app.route('/logout')
 @login_required
@@ -205,6 +264,7 @@ def logout():
 ## ----------------------------------Search----------------------------------- ##
 
 @app.route('/search', methods=['GET'])
+@login_required
 def search():
     query = request.args.get('search_query')
    
@@ -251,6 +311,7 @@ def search():
 
 
 @app.route('/autocomplete', methods=['GET'])
+@login_required
 def autocomplete():
     query = request.args.get('search_query')
     print(f"Received query: {query}")
@@ -559,7 +620,6 @@ def liked_events():
     return render_template('liked_events.html', liked_events=liked_events)
 
 ## -------------------------------------------------------------------------------- ##
-
 
 if __name__ == '__main__':
     with app.app_context():
