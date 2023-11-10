@@ -87,8 +87,14 @@ def test_create_event(browser, client):
     # Verify the login was successful
     assert browser.current_url == 'http://web-app:5000/', f'Login was unsuccessful, url was expected to be http://web-app:5000/ but is actually {browser.current_url}'
 
+    # Go to Search Page
+    search_link = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.LINK_TEXT, 'Search')))
+    search_link.click()
+
+    browser.save_screenshot('screenshot_after_submission.png')
+
     # Verify the one already created event is seen
-    event_titles = browser.find_elements(By.ID, "event_name")
+    event_titles = WebDriverWait(browser, 10).until(EC.presence_of_all_elements_located((By.ID, "event_name")))
     assert len(event_titles) == 1, "Less or more than one event titles found on the page."
 
     # Verify that the titles are displayed (non-empty text)
