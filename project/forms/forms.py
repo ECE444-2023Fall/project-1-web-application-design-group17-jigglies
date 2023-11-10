@@ -2,8 +2,10 @@
 A File with All Form's used in the Databases
 '''
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
-from wtforms.validators import DataRequired, Email, Length, EqualTo
+from wtforms import StringField, SubmitField, PasswordField, FileField
+from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
+from flask_login import current_user
+from flask_wtf.file import FileAllowed
 
 class CreateEventForm(FlaskForm):
     name = StringField('What is the name of the Event?', validators=[DataRequired()])
@@ -12,9 +14,9 @@ class CreateEventForm(FlaskForm):
     submit = SubmitField('Submit')
 
 class ProfileForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
-    name = StringField('Name', validators=[Length(max=150)])
-    password = PasswordField('New Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
+    username = StringField('Username')
+    bio = StringField('Bio')
+    password = PasswordField('New Password')
     submit = SubmitField('Update Profile')
+    profile_pic = FileField('Profile Image', validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Images only!')])
 

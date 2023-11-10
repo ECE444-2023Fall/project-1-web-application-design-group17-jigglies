@@ -12,11 +12,15 @@ from flask_moment import Moment
 from flask_mail import Mail, Message
 import random
 import base64
+from base64 import b64encode
 import urllib
 import re
 from project import helpers
+from werkzeug.datastructures import FileStorage
 
 from project.forms import CreateEventForm, ProfileForm
+from datetime import datetime, timedelta
+from project.forms.forms import CreateEventForm, ProfileForm
 from datetime import datetime, timedelta
 import os
 
@@ -57,7 +61,9 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
     comments = db.relationship("Comment", backref="user", passive_deletes=True)
     likes = db.relationship("Like", backref="user", passive_deletes=True)
-    name = db.Column(db.String(150), nullable=True)
+    rsvps = db.relationship("Rsvp", backref="user", passive_deletes=True)
+    bio = db.Column(db.String(150), nullable=True)
+    profile_pic = db.Column(db.LargeBinary, nullable=True)
 
     def update_username(self, new_username):
         self.username = new_username
@@ -68,16 +74,20 @@ class User(UserMixin, db.Model):
         self.password = hashed_password
         db.session.commit()
 
-    def update_name(self, new_name):
-        self.name = new_name
+    def update_bio(self, new_bio):
+        self.bio = new_bio
         db.session.commit()
 
+    def update_profile_pic(self, pic):
+        self.profile_pic = pic
+        db.session.commit()
+    
 # Event Database
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_name = db.Column(db.String(80), unique=True, nullable=False)
     event_organization = db.Column(db.String(80), nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
@@ -90,6 +100,7 @@ class Event(db.Model):
     cover_photo = db.Column(db.LargeBinary, nullable=True)
     comments = db.relationship("Comment", backref="event", passive_deletes=True)
     likes = db.relationship("Like", backref="event", passive_deletes=True)
+    rsvps = db.relationship("Rsvp", backref="event", passive_deletes=True)
     
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -99,6 +110,11 @@ class Comment(db.Model):
     event_id = db.Column(db.Integer, db.ForeignKey("event.id", ondelete="CASCADE"), nullable=False)
     
 class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id", ondelete="CASCADE"), nullable=False)
+
+class Rsvp(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey("event.id", ondelete="CASCADE"), nullable=False)
@@ -114,14 +130,32 @@ def load_user(user_id):
 
 @app.template_filter('b64encode')
 def b64encode_filter(data):
-    return base64.b64encode(data).decode() if data else None
+    return b64encode(data).decode() if data else None
 
 
 @app.route('/')
 @login_required
 def index():
+    today = datetime.today().date()
+    events_today = Event.query.filter_by(date=today).all()
+    user_events = Event.query.filter_by(created_by=current_user.id).all()
+    
+    top_upcoming_rsvps = Event.query \
+        .join(Rsvp, Event.id == Rsvp.event_id) \
+        .filter(Rsvp.author == current_user.id, Event.date >= today) \
+        .order_by(Event.date.asc()) \
+        .limit(5) \
+        .all()
+        
+    top_liked_events = Event.query \
+        .join(Like, isouter=True) \
+        .group_by(Event.id) \
+        .order_by(func.count(Like.id).desc()) \
+        .limit(5) \
+        .all()
+    
     events = Event.query.all()
-    return render_template('index.html', events = events)
+    return render_template('index.html', events = events, events_today=events_today, user_events=user_events, top_upcoming_rsvps=top_upcoming_rsvps, top_liked_events=top_liked_events)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -234,14 +268,48 @@ def logout():
 @login_required
 def search():
     query = request.args.get('search_query')
+   
+    # Query the database
+    if(query):
+        results = Event.query.filter(
+            (Event.event_name.ilike(f'%{query}%')) |
+            (Event.event_organization.ilike(f'%{query}%'))
+        ).all()
+        description = "Search Results: " + query
+    else:
+        description = "Explore all events:"
+        results = Event.query.all()
 
-    # Query the database to find events that match the query
-    results = Event.query.filter(
-        (Event.event_name.ilike(f'%{query}%')) |
-        (Event.event_organization.ilike(f'%{query}%'))
-    ).all()
+    # Prepare data for JSON serialization
+    events_data = []
+    for event in results:
+        event_dict = {
+            'id': event.id,
+            'event_name': event.event_name,
+            'event_organization': event.event_organization,
+            'date': event.date,  
+            'date': event.date.strftime('%Y-%m-%d'),
+            'start_time': event.start_time.strftime('%H:%M:%S'),
+            'end_time': event.end_time.strftime('%H:%M:%S'),
+            'room': event.room,
+            'allow_comments': event.allow_comments,
+            'capacity': event.capacity,
+            'event_information': event.event_information,
+            'tags': json.loads(event.tags) if event.tags else [],
+            # Convert binary data to base64 string for image
+            'cover_photo': b64encode(event.cover_photo).decode() if event.cover_photo else None
+        }
+        events_data.append(event_dict)
 
-    return render_template('search_results.html', events=results, query=query)
+    organizers = {event.event_organization for event in results}
+    tags = set()
+    for event in results:
+        if event.tags:
+            event_tags = json.loads(event.tags)
+            tags.update(event_tags)
+
+    return render_template('search_results.html', events=events_data, query=query, organizers=list(organizers), tags=list(tags), description=description)
+
 
 @app.route('/autocomplete', methods=['GET'])
 @login_required
@@ -263,27 +331,47 @@ def autocomplete():
 @app.route('/event/<int:event_id>')
 @login_required
 def event_details(event_id):
-    event = Event.query.get(event_id)
+    event = Event.query.filter_by(id=event_id).first()
 
     if event is not None:
         comments = event.comments
-        google_maps_url = "https://www.google.com/maps/embed/v1/place?key=" + GOOGLE_MAPS_API_KEY + "&q=" + urllib.parse.quote_plus(event.location)
+
+        if event.location is not None:
+            google_maps_url = "https://www.google.com/maps/embed/v1/place?key=" + GOOGLE_MAPS_API_KEY + "&q=" + urllib.parse.quote_plus(event.location)
+        else:
+            google_maps_url = None
+
         parsedDateTime = helpers.parseDateTime(event.date, event.start_time, event.end_time)
-        return render_template('event_details.html', event = event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY)
+
+        # Check if tags are not None before trying to load JSON
+        if event.tags is not None:
+            tags = json.loads(event.tags)
+        else:
+            tags = []
+
+        return render_template('event_details.html', event=event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY, tags=tags)
     else:
         flash('Event not found', 'danger')
         return redirect(url_for('home'))
-    
+
+
+
 @app.route('/create_comment/<int:event_id>', methods=["POST"])
 @login_required
 def create_comment(event_id):
-    text = request.form["comment"]
+    comment_text = request.json.get("comment")
     event = Event.query.filter_by(id=event_id).first()
+    
     if event:
-        comment = Comment(text=text, author=current_user.id, event_id=event_id)
+        comment = Comment(text=comment_text, author=current_user.id, event_id=event_id)
         db.session.add(comment)
         db.session.commit()
-        return redirect(url_for("event_details", event_id=event_id))
+        
+        return jsonify({"comment": {
+            "text": comment.text,
+            "author": comment.user.username,
+            "datetime_created": comment.datetime_created
+        }})
     else:
         flash("Event does not exist!", "error")
         return redirect(url_for("home"))
@@ -305,6 +393,22 @@ def like_event(event_id):
         db.session.commit()
     return jsonify({"like_count": len(event.likes), "user_has_liked": current_user.id in map(lambda like: like.author, event.likes )})
     
+@app.route('/rsvp_event/<int:event_id>', methods=["POST"])
+@login_required
+def rsvp_event(event_id):
+    event = Event.query.filter_by(id=event_id).first()
+    rsvp = Rsvp.query.filter_by(author=current_user.id, event_id=event_id).first()
+
+    if not event:
+        return jsonify({"error": "Event does not exist."}, 400)
+    elif rsvp: # If user has already rsvp'd for the event, remove the rsvp from db.
+        db.session.delete(rsvp)
+        db.session.commit()
+    else:
+        rsvp = Rsvp(author=current_user.id, event_id=event_id)
+        db.session.add(rsvp)
+        db.session.commit()
+    return jsonify({"rsvp_count": len(event.rsvps),"user_has_rsvp": current_user.id in map(lambda rsvp: rsvp.author, event.rsvps )})
 
 ## ---------------------------------------------------------------------------- ##
 
@@ -317,7 +421,7 @@ def event_success():
 
 
 @app.route('/create_event', methods=['GET', 'POST'])
-# @login_required 
+@login_required 
 def create_event():
     if request.method == 'GET':
         return render_template('create_event.html', key=GOOGLE_PLACES_API_KEY)
@@ -449,20 +553,74 @@ def create_event():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    name = current_user.username
+    bio = current_user.bio
+    return render_template('profile.html', title='View Profile', name=name, bio=bio)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
     form = ProfileForm()
+    status = None
     if form.validate_on_submit():
-        current_user.update_username(form.username.data)
-        current_user.update_password(form.password.data)
-        current_user.update_name(form.name.data)
-        flash('Your profile has been updated!', 'success')
-        return redirect(url_for('profile'))
+        has_changes = False
+        # Check if username needs to be updated
+        if 'username' in request.form:
+            new_username = form.username.data
+            if new_username and new_username != current_user.username:
+                current_user.update_username(new_username)
+                has_changes = True
+        # Check if password needs to be updated
+        if 'password' in request.form:
+            new_password = form.password.data
+            if new_password:
+                current_user.update_password(new_password)
+                has_changes = True
+        # Check if bio needs to be updated
+        if 'bio' in request.form:
+            new_bio = form.bio.data
+            if new_bio and new_bio != current_user.bio:
+                current_user.update_bio(new_bio)
+                has_changes = True
+        if form.profile_pic.data:
+            image_file = request.files['profile_pic']
+            image_data = None
+            if image_file:
+                image_data = image_file.read()
+            profile_pic = image_data
+            current_user.update_profile_pic(profile_pic)
+            has_changes = True
+        # Set status based on whether changes were made
+        if has_changes:
+            db.session.commit()
+            status = 'success'
+        else:
+            status = 'no_changes'
     elif request.method == 'GET':
+        # Pre-fill the form with the current user's data
         form.username.data = current_user.username
-        form.name.data = current_user.name
-    return render_template('profile.html', form=form)
+        form.bio.data = current_user.bio
+
+    return render_template('edit_profile.html', title='Update Profile', form=form, status=status)
+
 
 ## ---------------------------------------------------------------------------- ##
 
+## ----------------------- Liked Events --------------------------------------- ##
+
+@app.route('/liked_events')
+@login_required
+def liked_events():
+    liked_events = Event.query.join(Like).filter(Like.author == current_user.id).all()
+    return render_template('liked_events.html', liked_events=liked_events)
+
+## -------------------------------------------------------------------------------- ##
 
 
 if __name__ == '__main__':

@@ -1,0 +1,30 @@
+{% macro event_tile(event)%}
+<div class="bg-white border border-gray-200 rounded-lg shadow bg-gray-800 dark:border-gray-700 shadow-xl w-full">
+  {% if event.cover_photo %}
+  <img class="responsive-tile-img rounded-t-lg" src="data:image/jpeg;base64,{{ event.cover_photo | b64encode | safe }}" alt="Event Image {{ event.id }}" />
+  {% else %}
+  <img class="responsive-tile-img rounded-t-lg" src="{{ url_for('static', filename='images/pop.png') }}" alt="Default Event Image" />
+  {% endif %}
+  <div class="p-5 flex-grow flex flex-col relative">
+    <div class="flex-grow">
+      <a href="#">
+        <h1 class="mb-2 text-3xl font-extrabold text-gray-900 mb-2 lg:text-4xl dark:text-white">{{ event.event_name }}</h1>
+      </a>
+      <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Hosted by: {{ event.event_organization }}</p>
+      <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">{{ event.date.strftime('%B %d, %Y') }} @ {{ event.start_time.strftime('%I:%M %p') }}</p>
+      <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Address: {{ event.location }}</p>
+      <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 event-info">
+        {% if event.event_information.split()|length > 30 %}
+        {{event.event_information.split()[:30]|join(' ') }}...
+        {% else %}
+        {{ event.event_information }}
+        {% endif %}
+      </p>
+    </div>
+    <a href="{{ url_for('event_details', event_id=event.id) }}"
+      class="self-start inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-purple-700 rounded-lg hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800">
+      Learn more
+    </a>
+  </div>
+</div>
+{% endmacro %}
