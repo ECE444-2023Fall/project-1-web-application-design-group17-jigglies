@@ -7,7 +7,7 @@
     <title>{% block title %}Default Title{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-200 h-screen w-screen flex flex-col items-center justify-center">
+<body class="bg-white-200 h-screen w-screen flex flex-col items-center justify-center">
 
     {% block header %}
         <h1 class="mb-1 font-lexend font-medium text-2xl text-center text-black">Welcome to</h1>
@@ -21,11 +21,20 @@
     {% if messages %}
         <div class="mt-4">
             {% for category, message in messages %}
-                <p class="text-red-500 text-center">{{ message }}</p>
+                {% if category == 'alert' %}
+                    <p class="text-red-500 text-center">{{ message }}</p>
+                {% elif category == 'success' %}
+                    <p class="text-green-500 text-center">{{ message }}</p>
+                {% else %}
+                    <p class="text-center">{{ message }}</p>
+                {% endif %}
             {% endfor %}
         </div>
     {% endif %}
     {% endwith %}
-
+    <script src="https://unpkg.com/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

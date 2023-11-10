@@ -1,18 +1,3 @@
-function appendToDropDown(optionsList, element) {
-    const dropdownMenu = document.getElementById(element);
-
-    dropdownMenu.innerHTML = '';
-
-    optionsList.forEach(option => {
-        const listItem = document.createElement('li');
-        listItem.innerHTML = `<div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                  <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                                  <label class="w-full ml-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">${option}</label>
-                              </div>`;
-        dropdownMenu.appendChild(listItem);
-    });
-}
-
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize flatpickr for the start date
     flatpickr("#start-date", {
@@ -66,8 +51,6 @@ function updateFilters() {
         return matchesFilters(event, filters);
     });
 
-    console.log("call events", allEvents);
-    console.log('Current Filters:', filters);
     displayEvents(filteredEvents);
     
 }
@@ -104,14 +87,13 @@ function matchesFilters(event, filters) {
         matchesComments = !event.allow_comments;
     }
 
-    // Combine all filter checks
     return matchesDateRange && matchesEventTags && matchesOrganizers && matchesComments;
 }
 
 
 function displayEvents(filteredEvents) {
     const eventCardsContainer = document.getElementById('event-cards');
-    eventCardsContainer.innerHTML = ''; // Clear existing events
+    eventCardsContainer.innerHTML = ''; 
 
     filteredEvents.forEach(event => {
         // Create a new div element for each event
@@ -121,7 +103,6 @@ function displayEvents(filteredEvents) {
 
         // Determine the source for the image
         const imageSrc = event.cover_photo ? `data:image/jpeg;base64,${event.cover_photo}` : defaultEventImageUrl;
-        console.log(imageSrc)
         const eventDetailsUrl = `/event/${event.id}`;
 
         // Add event details to the div
@@ -201,3 +182,60 @@ document.addEventListener('DOMContentLoaded', function () {
     // Call updateFilters on page load to initialize
     updateFilters();
 });
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleOrganizerButton = document.getElementById('toggleOrganizerButton');
+    const organizerSection = document.getElementById('filter-section-organizer');
+
+    const toggleTagsButton = document.getElementById('toggleEventTagsButton');
+    const tagsSection = document.getElementById('filter-section-event-tags');
+
+    const toggleCommentsButton = document.getElementById('toggleComments');
+    const commentsSection = document.getElementById('filter-section-1');
+  
+    toggleOrganizerButton.addEventListener('click', function() {
+        organizerSection.classList.toggle('hidden');
+        const isExpanded = toggleOrganizerButton.getAttribute('aria-expanded') === 'true';
+        toggleOrganizerButton.setAttribute('aria-expanded', !isExpanded);
+    });
+
+    toggleTagsButton.addEventListener('click', function() {
+        tagsSection.classList.toggle('hidden');
+        const isExpanded = toggleTagsButton.getAttribute('aria-expanded') === 'true';
+        toggleTagsButton.setAttribute('aria-expanded', !isExpanded);
+    });
+
+    // Add the event listener for the "Allow Comments" button
+    toggleCommentsButton.addEventListener('click', function() {
+        commentsSection.classList.toggle('hidden');
+        const isExpanded = toggleCommentsButton.getAttribute('aria-expanded') === 'true';
+        toggleCommentsButton.setAttribute('aria-expanded', !isExpanded);
+    });
+});
+
+function appendToList(items, elementId, inputName) {
+    const listElement = document.getElementById(elementId);
+    listElement.innerHTML = ''; // Clear existing content
+
+    items.forEach(item => {
+        const checkboxDiv = document.createElement('div');
+        checkboxDiv.classList.add('flex', 'items-center');
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = `filter-${inputName}-${item.id}`;
+        input.name = `${inputName}[]`;
+        input.value = item.value;
+        input.classList.add('h-4', 'w-4', 'rounded', 'border-gray-300', 'text-indigo-600', 'focus:ring-indigo-500');
+
+        const label = document.createElement('label');
+        label.htmlFor = input.id;
+        label.classList.add('ml-3', 'min-w-0', 'flex-1', 'text-gray-500');
+        label.textContent = item; 
+
+        checkboxDiv.appendChild(input);
+        checkboxDiv.appendChild(label);
+        listElement.appendChild(checkboxDiv);
+    });
+}

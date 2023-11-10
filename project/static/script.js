@@ -291,22 +291,14 @@ function rsvp(event_id) {
         rsvpCount.innerHTML = data["rsvp_count"]
         if (parseInt(data["rsvp_count"]) == 1) {rsvpGrammar.innerHTML = "person is"} else {rsvpGrammar.innerHTML = "people are"}
         if (data["user_has_rsvp"] === true) {
-            rsvpButton.classList.remove("text-purple-700");
-            rsvpButton.classList.add("text-white", "bg-purple-700");
+            rsvpButton.classList.remove("text-blue-700");
+            rsvpButton.classList.add("text-white", "bg-blue-700");
             rsvpButton.innerHTML = "RSVP'd";
         }
         else {
-            rsvpButton.classList.remove("text-white", "bg-purple-700");
-            rsvpButton.classList.add("text-purple-700");
+            rsvpButton.classList.remove("text-white", "bg-blue-700");
+            rsvpButton.classList.add("text-blue-700");
             rsvpButton.innerHTML = "RSVP";
         }
     });
-}
-
-function performSearch(event) {
-    if (event.key === "Enter") {
-        event.preventDefault();  // prevent the default behavior of the Enter key
-        let query = event.target.value;  // Use the value from the event's target element
-        window.location.href = '/search?search_query=' + encodeURIComponent(query);
-    }
 }
