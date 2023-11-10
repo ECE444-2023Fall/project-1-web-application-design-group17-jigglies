@@ -148,20 +148,12 @@
 <script src="{{ url_for('static', filename='searchscript.js') }}"></script>
 <script type="text/javascript">
   let organizersData = {{ organizers | tojson | safe }};
-  // appendToList(organizersData, 'organizersList')
-
   let tagsData = {{ tags | tojson | safe }};
-  // appendToDropDown(tagsData, 'dropdownTags')
-  // appendToList(organizersData, 'dropdownTags')
+  let allEvents = {{ events | tojson | safe }};
+  let defaultEventImageUrl = "{{ url_for('static', filename='images/pop.png') }}";
 
   appendToList(organizersData, 'organizersList', 'organizer'); 
   appendToList(tagsData, 'dropdownTags', 'tags'); 
-  let allEvents = {{ events | tojson | safe }};
-
-  let defaultEventImageUrl = "{{ url_for('static', filename='images/pop.png') }}";
 </script>
-
-
-
 {% endblock %}
 

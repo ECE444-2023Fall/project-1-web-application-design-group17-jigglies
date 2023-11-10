@@ -51,8 +51,6 @@ function updateFilters() {
         return matchesFilters(event, filters);
     });
 
-    console.log("call events", allEvents);
-    console.log('Current Filters:', filters);
     displayEvents(filteredEvents);
     
 }
@@ -105,7 +103,6 @@ function displayEvents(filteredEvents) {
 
         // Determine the source for the image
         const imageSrc = event.cover_photo ? `data:image/jpeg;base64,${event.cover_photo}` : defaultEventImageUrl;
-        console.log(imageSrc)
         const eventDetailsUrl = `/event/${event.id}`;
 
         // Add event details to the div
@@ -194,7 +191,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const toggleTagsButton = document.getElementById('toggleEventTagsButton');
     const tagsSection = document.getElementById('filter-section-event-tags');
 
-    // Correct the ID here to "toggleComments"
     const toggleCommentsButton = document.getElementById('toggleComments');
     const commentsSection = document.getElementById('filter-section-1');
   

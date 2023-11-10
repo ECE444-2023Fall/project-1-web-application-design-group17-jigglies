@@ -174,7 +174,7 @@ def login():
             login_user(user)
             return redirect(url_for('index'))
         else:
-            flash('Login Unsuccessful. Check your details and try again.', 'danger')
+            flash('Login Unsuccessful. Check your details and try again.', 'alert')
 
     return render_template('login.html')
 
