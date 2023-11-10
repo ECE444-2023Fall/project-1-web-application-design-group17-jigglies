@@ -40,6 +40,20 @@
             {% endif %}
         </div>
 
+        <!-- Profile Picture Update Field -->
+        <div id="profilepicField" style="display: none;">
+            <label for="profile_pic" class="block text-sm font-medium text-gray-600">Profile Picture:</label>
+            <!-- File input for the profile picture -->
+            <input type="file" id="profile_pic" name="profile_pic" class="mt-1 p-2 w-full border rounded-md">
+            {% if form.profile_pic.errors %}
+                <ul class="text-red-500 text-sm mt-1">
+                    {% for error in form.profile_pic.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
         <div id="passwordField" style="display: none;">
             <label for="password" class="block text-sm font-medium text-gray-600">New Password:</label>
             {{ form.password(id="password", class="mt-1 p-2 w-full border rounded-md") }}
