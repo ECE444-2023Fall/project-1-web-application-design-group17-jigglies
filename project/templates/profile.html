@@ -1,0 +1,38 @@
+{% extends "base-white.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+{% include "base-profile.html" %}
+<div style="margin-top: 150px; position: relative;"></div>
+<div class="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto" style="position: relative; left: auto; transform: translateX(0%);">
+    <h2 class="text-center mb-4 text-xl font-medium">Your Profile</h2>
+    
+    <!-- Profile Image Section -->
+    <div class="text-center mb-4">
+        <!--Dynamically set the image URL to the user's profile picture -->
+        {% if current_user.profile_pic %}
+            <!-- If a custom profile picture exists, use it -->
+            <img class="rounded-full h-32 w-32 object-cover mx-auto" src="data:image/jpeg;base64,{{ current_user.profile_pic | b64encode | safe }}" alt="Profile Picture">
+        {% else %} 
+            <!-- Otherwise, use a default placeholder image -->
+            <img src="../static/images/profile.png" alt="Profile Picture" class="rounded-full h-32 w-32 object-cover mx-auto">
+        {% endif %}
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-600">Name:</label>
+        <p class="mt-2 p-2 w-full border rounded-md">{{ current_user.username }}</p>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <label class="block text-sm font-medium text-gray-600">Bio:</label>
+        <p class="mt-2 p-2 w-full border rounded-md">{{ current_user.bio }}</p>
+    </div>
+    <div style = "padding-top: 20px;"> </div>
+    <a href="/edit_profile">
+        <input type="submit" value="Edit Profile" class="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+    </a>
+    
+</div>
+{% endblock %}

@@ -9,12 +9,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+from flask_mail import Mail, Message
+import random
 import base64
 from base64 import b64encode
 import urllib
+import re
 from project import helpers
+from werkzeug.datastructures import FileStorage
 
-from project.forms import CreateEventForm, ProfileForm
+from datetime import datetime, timedelta
+from project.forms.forms import CreateEventForm, ProfileForm
 from datetime import datetime, timedelta
 import os
 
@@ -23,6 +28,13 @@ app.config['SECRET_KEY'] = 'mysecret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = '/imgs'
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'noreply.poppin@gmail.com'
+app.config['MAIL_PASSWORD'] = 'pnjn bbtn ihqe spwm'
+mail = Mail(app)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -36,6 +48,8 @@ migrate = Migrate(app, db)
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 GOOGLE_PLACES_API_KEY = os.getenv('GOOGLE_PLACES_API_KEY')
 
+
+
 ## ----------------------------- Database Schemas ----------------------------- ##
 
 class User(UserMixin, db.Model):
@@ -46,8 +60,9 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
     comments = db.relationship("Comment", backref="user", passive_deletes=True)
     likes = db.relationship("Like", backref="user", passive_deletes=True)
-    name = db.Column(db.String(150), nullable=True)
     rsvps = db.relationship("Rsvp", backref="user", passive_deletes=True)
+    bio = db.Column(db.String(150), nullable=True)
+    profile_pic = db.Column(db.LargeBinary, nullable=True)
 
     def update_username(self, new_username):
         self.username = new_username
@@ -58,8 +73,12 @@ class User(UserMixin, db.Model):
         self.password = hashed_password
         db.session.commit()
 
-    def update_name(self, new_name):
-        self.name = new_name
+    def update_bio(self, new_bio):
+        self.bio = new_bio
+        db.session.commit()
+
+    def update_profile_pic(self, pic):
+        self.profile_pic = pic
         db.session.commit()
     
 # Event Database
@@ -67,7 +86,7 @@ class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_name = db.Column(db.String(80), unique=True, nullable=False)
     event_organization = db.Column(db.String(80), nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
@@ -110,14 +129,32 @@ def load_user(user_id):
 
 @app.template_filter('b64encode')
 def b64encode_filter(data):
-    return base64.b64encode(data).decode() if data else None
+    return b64encode(data).decode() if data else None
 
 
 @app.route('/')
 @login_required
 def index():
+    today = datetime.today().date()
+    events_today = Event.query.filter_by(date=today).all()
+    user_events = Event.query.filter_by(created_by=current_user.id).all()
+    
+    top_upcoming_rsvps = Event.query \
+        .join(Rsvp, Event.id == Rsvp.event_id) \
+        .filter(Rsvp.author == current_user.id, Event.date >= today) \
+        .order_by(Event.date.asc()) \
+        .limit(5) \
+        .all()
+        
+    top_liked_events = Event.query \
+        .join(Like, isouter=True) \
+        .group_by(Event.id) \
+        .order_by(func.count(Like.id).desc()) \
+        .limit(5) \
+        .all()
+    
     events = Event.query.all()
-    return render_template('index.html', events = events)
+    return render_template('index.html', events = events, events_today=events_today, user_events=user_events, top_upcoming_rsvps=top_upcoming_rsvps, top_liked_events=top_liked_events)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -137,7 +174,7 @@ def login():
             login_user(user)
             return redirect(url_for('index'))
         else:
-            flash('Login Unsuccessful. Check your details and try again.', 'danger')
+            flash('Login Unsuccessful. Check your details and try again.', 'alert')
 
     return render_template('login.html')
 
@@ -147,31 +184,76 @@ def signup():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+        user_verification_code = request.form.get('verificationCode')
 
         # Add this block to validate the email domain
         if not email.endswith('utoronto.ca'):
-            flash('Please sign up with a uoft email.', 'danger')
+            flash('Please sign up with a uoft email.', 'alert')
             return render_template('signup.html')
 
         user_by_username = User.query.filter_by(username=username).first()
         user_by_email = User.query.filter_by(email=email).first()
 
         if user_by_username:
-            flash('Username already exists. Please choose another one.', 'danger')
-            return render_template('signup.html')
+            flash('Username already exists. Please choose another one.', 'alert')
+            return render_template('signup.html', username=username, email=email)
 
         if user_by_email:
-            flash('Email already registered. Please use another email or login.', 'danger')
-            return render_template('signup.html')
+            flash('Email already registered. Please use another email or login.', 'alert')
+            return render_template('signup.html', username=username, email=email)
+        
+        if len(password) < 6 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[!@#$%^&*(),.?\":{}|<>]", password):
+            flash('Password too weak. It must be at least 6 characters long and include uppercase and lowercase letters, and special characters.', 'alert')
+            return render_template('signup.html', username=username, email=email)
 
-        hashed_password = generate_password_hash(password, method='scrypt')
-        new_user = User(username=username, email=email, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Registration successful. Please login.', 'success')
-        return redirect(url_for('login'))
 
+        
+        # Check if the verification code matches
+        stored_codes = session.get('verification_codes', {})
+        if email in stored_codes and str(stored_codes[email]) == user_verification_code:
+            # Proceed with registration
+            hashed_password = generate_password_hash(password, method='scrypt')
+            new_user = User(username=username, email=email, password=hashed_password)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful. Please login.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('Invalid verification code.', 'alert')
+            #return render_template('signup.html')
+        
     return render_template('signup.html')
+
+
+@app.route('/send_verification_code', methods=['POST'])
+def send_verification_code():
+    email = request.json.get('email')
+
+    # Validate email or other logic here
+    if not email:
+        return jsonify({'status': 'error', 'message': 'Please first enter your uoft email'})
+    user_by_email = User.query.filter_by(email=email).first()
+    if not email.endswith('utoronto.ca'):
+        return jsonify({'status': 'error', 'message': 'Please sign up with a uoft email.'})
+
+    if user_by_email:
+        return jsonify({'status': 'error', 'message': 'Email already registered. Please use another email or login'})
+
+    verification_code = random.randint(100000, 999999)
+
+    # Store the code in the session or database
+    if 'verification_codes' not in session:
+        session['verification_codes'] = {}
+
+    session['verification_codes'][email] = verification_code
+    session.modified = True  # Ensure the session is marked as modified
+
+    # Send the code via email
+    msg = Message("Your Verification Code", sender="your-email@example.com", recipients=[email])
+    msg.body = f"Your verification code is {verification_code}"
+    mail.send(msg)
+    
+    return jsonify({'message': 'Verification code sent! (Please check SPAM folder)'})
 
 @app.route('/logout')
 @login_required
@@ -182,16 +264,19 @@ def logout():
 ## ----------------------------------Search----------------------------------- ##
 
 @app.route('/search', methods=['GET'])
+@login_required
 def search():
     query = request.args.get('search_query')
-
+   
     # Query the database
     if(query):
         results = Event.query.filter(
             (Event.event_name.ilike(f'%{query}%')) |
             (Event.event_organization.ilike(f'%{query}%'))
         ).all()
+        description = "Search Results: " + query
     else:
+        description = "Explore all events:"
         results = Event.query.all()
 
     # Prepare data for JSON serialization
@@ -222,10 +307,11 @@ def search():
             event_tags = json.loads(event.tags)
             tags.update(event_tags)
 
-    return render_template('search_results.html', events=events_data, query=query, organizers=list(organizers), tags=list(tags))
+    return render_template('search_results.html', events=events_data, query=query, organizers=list(organizers), tags=list(tags), description=description)
 
 
 @app.route('/autocomplete', methods=['GET'])
+@login_required
 def autocomplete():
     query = request.args.get('search_query')
     print(f"Received query: {query}")
@@ -244,18 +330,31 @@ def autocomplete():
 @app.route('/event/<int:event_id>')
 @login_required
 def event_details(event_id):
-    event = Event.query.get(event_id)
+    event = Event.query.filter_by(id=event_id).first()
 
     if event is not None:
         comments = event.comments
-        google_maps_url = "https://www.google.com/maps/embed/v1/place?key=" + GOOGLE_MAPS_API_KEY + "&q=" + urllib.parse.quote_plus(event.location)
+
+        if event.location is not None:
+            google_maps_url = "https://www.google.com/maps/embed/v1/place?key=" + GOOGLE_MAPS_API_KEY + "&q=" + urllib.parse.quote_plus(event.location)
+        else:
+            google_maps_url = None
+
         parsedDateTime = helpers.parseDateTime(event.date, event.start_time, event.end_time)
-        tags = json.loads(event.tags)
-        return render_template('event_details.html', event = event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY, tags=tags)
+
+        # Check if tags are not None before trying to load JSON
+        if event.tags is not None:
+            tags = json.loads(event.tags)
+        else:
+            tags = []
+
+        return render_template('event_details.html', event=event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY, tags=tags)
     else:
         flash('Event not found', 'danger')
         return redirect(url_for('home'))
-    
+
+
+
 @app.route('/create_comment/<int:event_id>', methods=["POST"])
 @login_required
 def create_comment(event_id):
@@ -453,21 +552,74 @@ def populate_database():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    name = current_user.username
+    bio = current_user.bio
+    return render_template('profile.html', title='View Profile', name=name, bio=bio)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
     form = ProfileForm()
+    status = None
     if form.validate_on_submit():
-        current_user.update_username(form.username.data)
-        current_user.update_password(form.password.data)
-        current_user.update_name(form.name.data)
-        flash('Your profile has been updated!', 'success')
-        return redirect(url_for('profile'))
+        has_changes = False
+        # Check if username needs to be updated
+        if 'username' in request.form:
+            new_username = form.username.data
+            if new_username and new_username != current_user.username:
+                current_user.update_username(new_username)
+                has_changes = True
+        # Check if password needs to be updated
+        if 'password' in request.form:
+            new_password = form.password.data
+            if new_password:
+                current_user.update_password(new_password)
+                has_changes = True
+        # Check if bio needs to be updated
+        if 'bio' in request.form:
+            new_bio = form.bio.data
+            if new_bio and new_bio != current_user.bio:
+                current_user.update_bio(new_bio)
+                has_changes = True
+        if form.profile_pic.data:
+            image_file = request.files['profile_pic']
+            image_data = None
+            if image_file:
+                image_data = image_file.read()
+            profile_pic = image_data
+            current_user.update_profile_pic(profile_pic)
+            has_changes = True
+        # Set status based on whether changes were made
+        if has_changes:
+            db.session.commit()
+            status = 'success'
+        else:
+            status = 'no_changes'
     elif request.method == 'GET':
+        # Pre-fill the form with the current user's data
         form.username.data = current_user.username
-        form.name.data = current_user.name
-    return render_template('profile.html', form=form)
+        form.bio.data = current_user.bio
+
+    return render_template('edit_profile.html', title='Update Profile', form=form, status=status)
+
 
 ## ---------------------------------------------------------------------------- ##
 
+## ----------------------- Liked Events --------------------------------------- ##
 
+@app.route('/liked_events')
+@login_required
+def liked_events():
+    liked_events = Event.query.join(Like).filter(Like.author == current_user.id).all()
+    return render_template('liked_events.html', liked_events=liked_events)
+
+## -------------------------------------------------------------------------------- ##
 
 if __name__ == '__main__':
     with app.app_context():
