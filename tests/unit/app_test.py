@@ -11,18 +11,25 @@ def test_unsuccessful_signup_with_non_uoft_email(client):
     response = client.post('/signup', data=dict(
         username="testUserNonUofT",
         email="test@gmail.com",
-        password="password"
+        password="Password1!"
     ), follow_redirects=True)
     assert b"Please sign up with a uoft email." in response.data
 
 def test_successful_signup(client):
     """Test successful signup"""
-    response = client.post('/signup', data=dict(
-        username="testUser2",
-        email="test@utoronto.ca",
-        password="password"
-    ), follow_redirects=True)
+    # Set up the session to include a mocked verification code
+    with client.session_transaction() as sess:
+        sess['verification_codes'] = {'test@utoronto.ca': '123456'}
 
+    # Send the POST request with the verification code
+    response = client.post('/signup', data={
+        'username': "testUser2",
+        'email': "test@utoronto.ca",
+        'password': "Password1!",
+        'verificationCode': "123456"  # Correct mock verification code
+    }, follow_redirects=True)
+
+    # Check the response for the successful registration message
     assert b"Registration successful. Please login" in response.data
 
 ## ----------------------------- Taeuk Kang - Tests ----------------------------- ##
@@ -114,18 +121,13 @@ def test_duplicate_event_name_submission(client):
 
 def test_signup_with_existing_username(client):
     """Test signup with an existing username"""
-    # First, signup a user using the client
-    client.post('/signup', data=dict(
-        username="testuser",
-        email="test@utoronto.ca",
-        password="password"
-    ), follow_redirects=True)
     
     # Attempt to sign up again with the same username
     response = client.post('/signup', data=dict(
-        username="testuser",
+        username="harrypotter",
         email="newtest@utoronto.ca",
-        password="password"
+        password="Password",
+        verificationCode="0000"
     ), follow_redirects=True)
     
     assert b"Username already exists. Please choose another one." in response.data
