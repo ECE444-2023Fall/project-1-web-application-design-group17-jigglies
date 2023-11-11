@@ -426,8 +426,9 @@ def event_success():
 @app.route('/create_event', methods=['GET', 'POST'])
 @login_required 
 def create_event():
+    tomorrow = (datetime.utcnow() + timedelta(days=1)).date()
     if request.method == 'GET':
-        return render_template('create_event.html', key=GOOGLE_PLACES_API_KEY)
+        return render_template('create_event.html', tomorrow=tomorrow, key=GOOGLE_PLACES_API_KEY)
     
     if request.method == 'POST':
         # Extract event name
@@ -436,7 +437,7 @@ def create_event():
         # Check if event name already exists
         if Event.query.filter_by(event_name=event_name).first():
             flash('An event with the name already exists, please choose another name', 'danger')
-            return render_template('create_event.html', key=GOOGLE_PLACES_API_KEY)
+            return render_template('create_event.html', tomorrow=tomorrow, key=GOOGLE_PLACES_API_KEY)
         
         # Extract event organization name
         event_organization = request.form['organization']
@@ -454,7 +455,7 @@ def create_event():
         # If end time is before start time, return error as it is an invalid input
         if end_time_obj <= start_time_obj:
             flash('Invalid Time inputs, please check and resubmit', 'danger')
-            return render_template('create_event.html', key=GOOGLE_PLACES_API_KEY)
+            return render_template('create_event.html', tomorrow=tomorrow, key=GOOGLE_PLACES_API_KEY)
 
         tag_info = request.form['tags']
         tags = [tag['value'] for tag in json.loads(tag_info)]
@@ -490,7 +491,7 @@ def create_event():
         db.session.commit()
         return redirect(url_for('event_success'))
 
-    return render_template(url_for('create_event'), key=GOOGLE_PLACES_API_KEY) 
+    return render_template(url_for('create_event'), tomorrow=tomorrow, key=GOOGLE_PLACES_API_KEY) 
 
 
 ## ---------------------------------------------------------------------------- ##

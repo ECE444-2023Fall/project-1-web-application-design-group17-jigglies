@@ -5,6 +5,40 @@ document.addEventListener("DOMContentLoaded", function () {
     const imagePreview = document.getElementById("image-preview");
     const uploadIcon = document.getElementById("upload-icon");
 
+    const form = document.getElementById('create_event'); // Make sure to replace with your actual form ID
+    const startTimeSelect = document.getElementById('start-time');
+    const endTimeSelect = document.getElementById('end-time');
+
+    if (form){
+        function validateTimes() {
+            const startTimeValue = parseInt(startTimeSelect.value, 10);
+            const endTimeValue = parseInt(endTimeSelect.value, 10);
+
+            if (endTimeValue <= startTimeValue) {
+                showErrorTooltip(endTimeSelect, 'End time should be after start time');
+                endTimeSelect.setCustomValidity('End time should be after start time'); // Set custom validity
+                endTimeSelect.value = ''; // Clear the end time selection
+            } else {
+                endTimeSelect.setCustomValidity(''); // Clear custom validity
+            }
+        }
+
+        // Prevent form submission if times are invalid
+        form.addEventListener('submit', (e) => {
+            validateTimes(); // Validate times on submit as well
+            if (!endTimeSelect.checkValidity()) {
+                e.preventDefault(); // Prevent form submission
+                showErrorTooltip(endTimeSelect, endTimeSelect.validationMessage);
+            }
+        });
+
+        // Add change event listeners
+        startTimeSelect.addEventListener('change', validateTimes);
+        endTimeSelect.addEventListener('change', validateTimes);
+    }
+
+    
+
     if (dropZone) {
         dropZone.addEventListener("dragover", function (e) {
             e.preventDefault();
@@ -200,20 +234,7 @@ function initialize() {
     }
     var input = document.getElementById('location');
     if (input){
-        // Get the start and end time select elements
-        const startTimeSelect = document.getElementById('start-time');
-        const endTimeSelect = document.getElementById('end-time');
 
-        // Function to check and validate times
-        function validateTimes() {
-            const startTimeValue = parseInt(startTimeSelect.value, 10);
-            const endTimeValue = parseInt(endTimeSelect.value, 10);
-
-            if (endTimeValue <= startTimeValue) {
-                showErrorTooltip(endTimeSelect, 'End time should be after start time');
-                endTimeSelect.value = ''; // Clear the end time selection
-            }
-        }
 
         // Add event listeners to check the times whenever they change
         startTimeSelect.addEventListener('change', validateTimes);
