@@ -1,4 +1,5 @@
 import json
+from app import app, db, User, Event, Rsvp, Comment, Like
 from io import BytesIO
 from flask import url_for
 
@@ -35,24 +36,114 @@ def test_successful_signup(client):
 ## ----------------------------- Taeuk Kang - Tests ----------------------------- ##
 def test_incorrect_login(client):
     """Test login with an incorrect email/password."""
-    response = client.post('/login', data=dict(
-        username="falseusername",
-        email="false.user@mail.utoronto.ca",
-        password="wrongpass"
+    login_response = client.post('/login', data=dict(
+            user_identifier="falseusername",
+            password="wrongpass"
     ), follow_redirects=True)
-
-    assert b"Login Unsuccessful. Check your details and try again." in response.data
+    assert b"Login Unsuccessful. Check your details and try again." in login_response.data
 
 def test_correct_login(client):
     """Test login with a correct email/password."""
-    response = client.post('/login', data=dict(
-        user_identifier="harrypotter",
-        password="testpass1"
-    ))
-
-    assert response.status_code == 302
-    assert '/' in response.headers['Location']
-
+    login_response = client.post('/login', data=dict(
+            user_identifier="harrypotter",
+            password="testpass1"
+    ), follow_redirects=True)
+    assert login_response.status_code == 200
+    
+def test_rsvp_event(client):
+    """Test RSVP'ing for an event."""
+    login_response = client.post('/login', data=dict(
+            user_identifier="harrypotter",
+            password="testpass1"
+    ), follow_redirects=True)
+    
+    assert login_response.status_code == 200
+    
+    user1 = User.query.filter_by(username="harrypotter").first()
+    event1 = Event.query.filter_by(event_name='Duplicate Event Name').first()
+    
+    # Test RSVP'ing for an event.
+    rsvp_resp = client.post(f"/rsvp_event/{event1.id}")
+    data = rsvp_resp.get_json()
+    assert rsvp_resp.status_code == 200
+    assert data['rsvp_count'] == 1
+    assert data['user_has_rsvp'] is True
+    
+    # Check DB if it's populated with new RSVP entry.
+    rsvp = Rsvp.query.filter_by(author=user1.id, event_id=event1.id).first()
+    assert rsvp is not None
+    
+    # Test unRSVP'ing for an event.
+    rsvp_resp = client.post(f"/rsvp_event/{event1.id}")
+    data = rsvp_resp.get_json()
+    assert rsvp_resp.status_code == 200
+    assert data['rsvp_count'] == 0
+    assert data['user_has_rsvp'] is False
+    
+    rsvp = Rsvp.query.filter_by(author=user1.id, event_id=event1.id).first()
+    assert rsvp is None
+    
+def test_like_event(client):
+    """Test liking/unliking an event."""
+    login_response = client.post('/login', data=dict(
+            user_identifier="harrypotter",
+            password="testpass1"
+    ), follow_redirects=True)
+    
+    assert login_response.status_code == 200
+    
+    user1 = User.query.filter_by(username="harrypotter").first()
+    event1 = Event.query.filter_by(event_name='Duplicate Event Name').first()
+    
+    # Test liking an event.
+    like_resp = client.post(f"/like_event/{event1.id}")
+    data = like_resp.get_json()
+    assert like_resp.status_code == 200
+    assert data['like_count'] == 1
+    assert data['user_has_liked'] is True
+    
+    like = Like.query.filter_by(author=user1.id, event_id=event1.id).first()
+    assert like is not None
+    
+    # Test unliking an event.
+    like_resp = client.post(f"/like_event/{event1.id}")
+    data = like_resp.get_json()
+    assert like_resp.status_code == 200
+    assert data['like_count'] == 0
+    assert data['user_has_liked'] is False
+    
+    like = Like.query.filter_by(author=user1.id, event_id=event1.id).first()
+    assert like is None
+    
+def test_comment(client):
+    """Test commenting on an event."""
+    login_response = client.post('/login', data=dict(
+            user_identifier="harrypotter",
+            password="testpass1"
+    ), follow_redirects=True)
+    
+    assert login_response.status_code == 200
+    
+    user1 = User.query.filter_by(username="harrypotter").first()
+    event1 = Event.query.filter_by(event_name='Duplicate Event Name').first()
+    
+    # Test commenting on an event.
+    comment_data = json.dumps({"comment": "Test comment!"})
+    headers = {
+        'Content-Type': 'application/json',
+    }
+    comment_resp = client.post(f'/create_comment/{event1.id}', data=comment_data, headers=headers)
+    data = comment_resp.get_json()
+    
+    assert comment_resp.status_code == 200
+    assert data['comment']['text'] == "Test comment!"
+    assert data['comment']['author'] == user1.username
+    
+    # Check if DB is populated with new comment.
+    comment = Comment.query.filter_by(event_id=event1.id, author=user1.id).first()
+    assert comment is not None
+    assert comment.text == "Test comment!"
+    
 
 ## ----------------------------- Bilal Ikram - Tests ----------------------------- ##
 

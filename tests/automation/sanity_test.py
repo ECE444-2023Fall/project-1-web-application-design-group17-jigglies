@@ -88,7 +88,7 @@ def test_create_event(browser, client):
     assert browser.current_url == 'http://web-app:5000/', f'Login was unsuccessful, url was expected to be http://web-app:5000/ but is actually {browser.current_url}'
 
     # Go to Search Page
-    search_link = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.LINK_TEXT, 'Search')))
+    search_link = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.LINK_TEXT, 'Explore')))
     search_link.click()
 
     browser.save_screenshot('screenshot_after_submission.png')
