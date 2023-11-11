@@ -98,24 +98,33 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 // Search integration
-function performSearch() {
-    let query = document.getElementById('search_query').value;
+function performSearch(event) {
+    const search = document.getElementById('search_query');
+    const search_2 = document.getElementById('search_query_2');
+    if (search) {
+        searchInput = search
+    }
+    if (search_2) {
+        searchInput = search_2
+    }
+    let query = searchInput.value;
     window.location.href = '/search?search_query=' + encodeURIComponent(query);
 }
 
 
-const searchInput = document.getElementById('search_query');
-const suggestionsBox = document.getElementById('suggestions');
+const search = document.getElementById('search_query');
+const suggestions = document.getElementById('suggestions');
 
-const search = document.querySelector('search_query')
+const search_2 = document.getElementById('search_query_2');
+const suggestions_2 = document.getElementById('suggestions_2');
 
-if (search) {
+function setupSearchInput(searchInput, suggestionsBox) {
     searchInput.addEventListener("input", function(event) {
         const value = event.target.value;
         suggestionsBox.innerHTML = "";
 
         if (value === "") {
-            suggestionsBox.classList.add('hidden'); // hide dropdown if input is empty
+            suggestionsBox.classList.add('hidden');
             return;
         }
 
@@ -123,30 +132,29 @@ if (search) {
         fetch(`/autocomplete?search_query=${value}`)
         .then(response => response.json())
         .then(data => {
-            if(data.length) { // check if there are suggestions
-                suggestionsBox.classList.remove('hidden'); // show dropdown if there are suggestions
+            if(data.length) {
+                suggestionsBox.classList.remove('hidden');
             } else {
-                suggestionsBox.classList.add('hidden'); // hide dropdown if there are no suggestions
+                suggestionsBox.classList.add('hidden');
             }
 
-            // Create a <ul> element
             const ulElement = document.createElement("ul");
             ulElement.classList.add("text-sm", "text-gray-700", "dark:text-gray-200", "border-2", "border-blue-500", "rounded-lg", "shadow-2xl");
 
-            for (let item of data) {
+            data.forEach(item => {
                 const liElement = document.createElement("li");
                 liElement.textContent = item.name;
-                liElement.classList.add( "hover:bg-gray-200", "cursor-pointer", "px-4" , 'py-2','hover:bg-gray-100', 'dark:hover:bg-gray-600', 'dark:hover:text-white',"rounded-lg");
+                liElement.classList.add("hover:bg-gray-200", "cursor-pointer", "px-4", 'py-2', 'hover:bg-gray-100', 'dark:hover:bg-gray-600', 'dark:hover:text-white', "rounded-lg");
 
                 liElement.addEventListener("click", function() {
                     searchInput.value = item.name;
                     suggestionsBox.innerHTML = "";
-                    suggestionsBox.classList.add('hidden'); // hide dropdown after selection
+                    suggestionsBox.classList.add('hidden');
                     performSearch();
                 });
 
                 ulElement.appendChild(liElement);
-            }
+            });
 
             suggestionsBox.appendChild(ulElement);
         })
@@ -156,6 +164,13 @@ if (search) {
     });
 }
 
+if (search) {
+    setupSearchInput(search, suggestions);
+}
+
+if (search_2) {
+    setupSearchInput(search_2, suggestions_2);
+}
 
 function initialize() {
     var input = document.getElementById('location');
@@ -200,58 +215,19 @@ function initialize() {
             }
         }
 
-    // Add event listeners to check the times whenever they change
-    startTimeSelect.addEventListener('change', validateTimes);
-    endTimeSelect.addEventListener('change', validateTimes);
+        // Add event listeners to check the times whenever they change
+        startTimeSelect.addEventListener('change', validateTimes);
+        endTimeSelect.addEventListener('change', validateTimes);
+
 
         // Call the initialize function when the window loads.
         google.maps.event.addDomListener(window, 'load', initialize);
     }
 });
 
-function comment(event_id) {
-    var commentText = document.getElementById("comment").value;
-    var commentSection = document.getElementById("comment-display");
-
-    fetch(`/create_comment/${event_id}`, { 
-        method: "POST", 
-        body: JSON.stringify({ comment: commentText }),
-        headers: {
-            "Content-Type": "application/json"
-        }, 
-    }).then((res) => res.json()).then((data) => {
-        commentText = data["comment"]["text"];
-        commentAuthor = data["comment"]["author"];
-        commentDateTimeCreated = data["comment"]["datetime_created"];
-
-        newCommentHTML = `
-        <article class="p-6 mb-6 text-base bg-white border-t border-gray-200 rounded-lg dark:bg-gray-900">
-            <footer class="flex justify-between items-center mb-2">
-                <div class="flex items-center">
-                    <p class="inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white"><img class="mr-2 w-6 h-6 rounded-full"
-                        src="https://flowbite.com/docs/images/people/profile-picture-2.jpg" alt="Comment author">${commentAuthor}</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">${moment(commentDateTimeCreated).format("MMM D, YYYY @ h:mma")}</p>
-                </div>
-            </footer>
-            <p>${commentText}</p>
-            <div class="flex items-center mt-4 space-x-4">
-                <button type="button" class="flex items-center font-medium text-sm text-gray-500 hover:underline dark:text-gray-400">
-                    <svg class="mr-1.5 w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                        <path
-                            d="M18 0H2a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2v4a1 1 0 0 0 1.707.707L10.414 13H18a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5 4h2a1 1 0 1 1 0 2h-2a1 1 0 1 1 0-2ZM5 4h5a1 1 0 1 1 0 2H5a1 1 0 0 1 0-2Zm2 5H5a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Zm9 0h-6a1 1 0 0 1 0-2h6a1 1 0 1 1 0 2Z" />
-                    </svg>
-                    Reply
-                </button>
-            </div>
-        </article>
-        `;
-        commentSection.insertAdjacentHTML("beforeend", newCommentHTML);
-        document.getElementById("comment").value = "";
-    });
-}
-
 function like(event_id) {
-    const likeCount = document.getElementById("like-count");
+    const likeCount = document.getElementById("like-count")
+    const likeButton = document.getElementById("like-button")
     const heartIcon = document.getElementById("heart-icon");
 
     fetch(`/like_event/${event_id}`, { method: "POST" }).then((res) => res.json()).then((data) => {
@@ -267,11 +243,44 @@ function like(event_id) {
     });
 }
 
+
+function comment(event_id) {
+    var commentText = document.getElementById("comment").value;
+    var commentSection = document.getElementById("comment-display");
+    fetch(`/create_comment/${event_id}`, { 
+        method: "POST", 
+        body: JSON.stringify({ comment: commentText }),
+        headers: {
+            "Content-Type": "application/json"
+        }, 
+    }).then((res) => res.json()).then((data) => {
+        commentText = data["comment"]["text"];
+        commentAuthor = data["comment"]["author"];
+        commentDateTimeCreated = data["comment"]["datetime_created"];
+        profilePic = data["profile_pic"];
+        profilePicSrc = profilePic ? `data:image/jpeg;base64,${profilePic}` : "../static/images/profile.png";
+
+        newCommentHTML = `
+        <article class="p-6 mb-6 text-base bg-white border-t border-gray-200 rounded-lg dark:bg-gray-900">
+            <footer class="flex justify-between items-center mb-2">
+                <div class="flex items-center">
+                    <p class="inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white"><img class="mr-2 w-6 h-6 rounded-full"
+                        src="${profilePicSrc}" alt="Comment author">${commentAuthor}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">${moment(commentDateTimeCreated).format("MMM D, YYYY @ h:mma")}</p>
+                </div>
+            </footer>
+            <p>${commentText}</p>
+        </article>
+        `;
+        commentSection.insertAdjacentHTML("beforeend", newCommentHTML);
+        document.getElementById("comment").value = "";
+    });
+}
+
 function rsvp(event_id) {
     const rsvpButton = document.getElementById("rsvp-button");
     const rsvpCount = document.getElementById("rsvp-count");
     const rsvpGrammar = document.getElementById("rsvp-count-grammar");
-
     fetch(`/rsvp_event/${event_id}`, { method: "POST" }).then((res) => res.json()).then((data) => {
         rsvpCount.innerHTML = data["rsvp_count"]
         if (parseInt(data["rsvp_count"]) == 1) {rsvpGrammar.innerHTML = "person is"} else {rsvpGrammar.innerHTML = "people are"}
@@ -292,6 +301,10 @@ function performSearch(event) {
     if (event && event.key === "Enter") {
         event.preventDefault();  // prevent the default behavior of Enter key
         let query = document.getElementById('search_query').value;
+    if (event.key === "Enter") {
+        event.preventDefault();  // prevent the default behavior of the Enter key
+        let query = event.target.value;  // Use the value from the event's target element
         window.location.href = '/search?search_query=' + encodeURIComponent(query);
     }
+}
 }

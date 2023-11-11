@@ -1,60 +1,9 @@
-from pathlib import Path
-import pytest
 import json
 from app import app, db, User, Event, Rsvp, Comment, Like
 from io import BytesIO
-from datetime import datetime
 from flask import url_for
-from flask_login import LoginManager
-from werkzeug.security import generate_password_hash
-
-TEST_DB = "test.db"
-
-@pytest.fixture
-def client():
-    BASE_DIR = Path(__file__).resolve().parent.parent
-    app.config["TESTING"] = True
-    app.config["DATABASE"] = BASE_DIR.joinpath(TEST_DB)
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{BASE_DIR.joinpath(TEST_DB)}"
-    
 
 
-    with app.app_context():
-        db.drop_all()
-        db.create_all()  # setup
-        
-        # Add User Entries
-        user1 = User(username="harrypotter", email="harry.potter@mail.utoronto.ca", password=generate_password_hash("testpass1", method='scrypt'))
-        user2 = User(username="ronweasely", email="ron.weasely@mail.utoronto.ca", password=generate_password_hash("testpass1", method='scrypt'))
-        db.session.add(user1)
-        db.session.add(user2)
-
-        db.session.commit()
-        
-
-        # Add Event Entry
-        event_entry = Event(
-            event_name='Duplicate Event Name',
-            event_organization='UofT',
-            created_by=user1.id,
-            date= datetime.strptime('2024-11-11', '%Y-%m-%d').date(),
-            start_time=datetime.strptime('9', '%H').time(),
-            end_time=datetime.strptime('10', '%H').time(),
-            location='25 College Street, Toronto, ON, Canada',
-            room="A540",
-            allow_comments=True,
-            capacity=123,
-            event_information="This is a test event to avoid duplicate Event Name entries",
-            cover_photo=BytesIO(b'Test image data').read()
-        )
-        db.session.add(event_entry)
-
-        # Commit all changes to DB
-        db.session.commit()
-        
-        yield app.test_client() # tests run here
-        db.drop_all()
-        db.create_all()  # teardown
 
 
 ## ----------------------------- Jason Wang - Tests ----------------------------- ##
@@ -63,18 +12,25 @@ def test_unsuccessful_signup_with_non_uoft_email(client):
     response = client.post('/signup', data=dict(
         username="testUserNonUofT",
         email="test@gmail.com",
-        password="password"
+        password="Password1!"
     ), follow_redirects=True)
     assert b"Please sign up with a uoft email." in response.data
 
 def test_successful_signup(client):
     """Test successful signup"""
-    response = client.post('/signup', data=dict(
-        username="testUser2",
-        email="test@utoronto.ca",
-        password="password"
-    ), follow_redirects=True)
+    # Set up the session to include a mocked verification code
+    with client.session_transaction() as sess:
+        sess['verification_codes'] = {'test@utoronto.ca': '123456'}
 
+    # Send the POST request with the verification code
+    response = client.post('/signup', data={
+        'username': "testUser2",
+        'email': "test@utoronto.ca",
+        'password': "Password1!",
+        'verificationCode': "123456"  # Correct mock verification code
+    }, follow_redirects=True)
+
+    # Check the response for the successful registration message
     assert b"Registration successful. Please login" in response.data
 
 ## ----------------------------- Taeuk Kang - Tests ----------------------------- ##
@@ -256,18 +212,13 @@ def test_duplicate_event_name_submission(client):
 
 def test_signup_with_existing_username(client):
     """Test signup with an existing username"""
-    # First, signup a user using the client
-    client.post('/signup', data=dict(
-        username="testuser",
-        email="test@utoronto.ca",
-        password="password"
-    ), follow_redirects=True)
     
     # Attempt to sign up again with the same username
     response = client.post('/signup', data=dict(
-        username="testuser",
+        username="harrypotter",
         email="newtest@utoronto.ca",
-        password="password"
+        password="Password",
+        verificationCode="0000"
     ), follow_redirects=True)
     
     assert b"Username already exists. Please choose another one." in response.data

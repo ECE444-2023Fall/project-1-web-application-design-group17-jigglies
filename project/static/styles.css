@@ -94,11 +94,14 @@
 
 .event-info {
   display: -webkit-box;
-  -webkit-line-clamp: 4; /* Max number of lines */
+  -webkit-line-clamp: 3; /* Max number of lines */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 100px;
+}
+
+.event-tile-inner-section {
+  min-height: 250px;
 }
 
 .responsive-tile-img {

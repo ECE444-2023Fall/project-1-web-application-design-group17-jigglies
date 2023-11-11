@@ -365,12 +365,16 @@ def create_comment(event_id):
         comment = Comment(text=comment_text, author=current_user.id, event_id=event_id)
         db.session.add(comment)
         db.session.commit()
+        profile_pic = b64encode(current_user.profile_pic).decode() if current_user.profile_pic else None
         
-        return jsonify({"comment": {
-            "text": comment.text,
-            "author": comment.user.username,
-            "datetime_created": comment.datetime_created
-        }})
+        return jsonify({
+            "comment": {
+                "text": comment.text,
+                "author": comment.user.username,
+                "datetime_created": comment.datetime_created
+            },
+            "profile_pic": profile_pic
+        })
     else:
         flash("Event does not exist!", "error")
         return redirect(url_for("home"))
