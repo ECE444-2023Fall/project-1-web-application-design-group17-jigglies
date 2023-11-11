@@ -4,15 +4,17 @@
 
 {% block content %}
 
-<div class="flex">
-{% include "base-profile.html" %}
+<div class="max-w-screen-xl flex items-center justify-between mx-auto p-4">
+    <body>
+        {% include "base-profile.html" %}
 
-<div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <div class="flex-col">
+
     <p class="mb-2 text-3xl font-extrabold text-gray-900 mb-5 lg:text-4xl dark:text-white">Events You've Liked</p>
     <div class="w-full">
         {% if liked_events %}
             <!-- Grid layout for liked event cards -->
-            <div class="grid grid-col-3" id="liked-event-cards">
+            <div class="grid grid-cols-3" id="liked-event-cards">
                 {% for event in liked_events %}
                 <div class="bg-white border border-gray-200 rounded-lg shadow bg-gray-800 dark:border-gray-700 shadow-xl" style="display: flex; flex-direction: column; height: 100%;">
                     {% if event.cover_photo %}
@@ -55,6 +57,7 @@
         {% endif %}
     </div>
 </div>
+    </body>
 </div>
 
 

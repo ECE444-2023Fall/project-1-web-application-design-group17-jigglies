@@ -3,15 +3,19 @@
 {% block title %}My Events{% endblock %}
 
 {% block content %}
-{% include "base-profile.html" %}
-<div class="flex">
 
-<div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+<div class="max-w-screen-xl flex items-center justify-between mx-auto p-4">
+<body>
+    {% include "base-profile.html" %}
+
+
+<div class="flex-col">
+
     <p class="mb-2 text-3xl font-extrabold text-gray-900 mb-5 lg:text-4xl dark:text-white">Events You've Created</p>
     <div class="w-full">
         {% if user_created_events %}
             <!-- Grid layout for user created event cards -->
-            <div class="grid grid-col-3" id="user-created-event-cards">
+            <div class="grid grid-cols-3" id="user-created-event-cards">
                 {% for event in user_created_events %}
                 <div class="bg-white border border-gray-200 rounded-lg shadow bg-gray-800 dark:border-gray-700 shadow-xl" style="display: flex; flex-direction: column; height: 100%;">
                     {% if event.cover_photo %}
@@ -54,6 +58,8 @@
         {% endif %}
     </div>
 </div>
+
+</body>
 </div>
 
 {% endblock %}
