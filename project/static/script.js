@@ -234,20 +234,7 @@ function initialize() {
     }
     var input = document.getElementById('location');
     if (input){
-        // Get the start and end time select elements
-        // const startTimeSelect = document.getElementById('start-time');
-        //const endTimeSelect = document.getElementById('end-time');
 
-        // Function to check and validate times
-        // function validateTimes() {
-           // const startTimeValue = parseInt(startTimeSelect.value, 10);
-           // const endTimeValue = parseInt(endTimeSelect.value, 10);
-
-            //if (endTimeValue <= startTimeValue) {
-              //  showErrorTooltip(endTimeSelect, 'End time should be after start time');
-            //    endTimeSelect.value = ''; // Clear the end time selection
-          //  }
-        //}
 
         // Add event listeners to check the times whenever they change
         startTimeSelect.addEventListener('change', validateTimes);
