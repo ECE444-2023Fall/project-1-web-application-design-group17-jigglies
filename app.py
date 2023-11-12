@@ -9,12 +9,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+from flask_mail import Mail, Message
+import random
 import base64
 from base64 import b64encode
 import urllib
+import re
 from project import helpers
 from werkzeug.datastructures import FileStorage
 
+from datetime import datetime, timedelta
 from project.forms.forms import CreateEventForm, ProfileForm
 from datetime import datetime, timedelta
 import os
@@ -23,6 +27,14 @@ app = Flask(__name__, template_folder='project/templates', static_folder='projec
 app.config['SECRET_KEY'] = 'mysecret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = '/imgs'
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'noreply.poppin@gmail.com'
+app.config['MAIL_PASSWORD'] = 'pnjn bbtn ihqe spwm'
+mail = Mail(app)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -35,6 +47,8 @@ migrate = Migrate(app, db)
 
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 GOOGLE_PLACES_API_KEY = os.getenv('GOOGLE_PLACES_API_KEY')
+
+
 
 ## ----------------------------- Database Schemas ----------------------------- ##
 
@@ -115,14 +129,32 @@ def load_user(user_id):
 
 @app.template_filter('b64encode')
 def b64encode_filter(data):
-    return base64.b64encode(data).decode() if data else None
+    return b64encode(data).decode() if data else None
 
 
 @app.route('/')
 @login_required
 def index():
+    today = datetime.today().date()
+    events_today = Event.query.filter_by(date=today).all()
+    user_events = Event.query.filter_by(created_by=current_user.id).all()
+    
+    top_upcoming_rsvps = Event.query \
+        .join(Rsvp, Event.id == Rsvp.event_id) \
+        .filter(Rsvp.author == current_user.id, Event.date >= today) \
+        .order_by(Event.date.asc()) \
+        .limit(5) \
+        .all()
+        
+    top_liked_events = Event.query \
+        .join(Like, isouter=True) \
+        .group_by(Event.id) \
+        .order_by(func.count(Like.id).desc()) \
+        .limit(5) \
+        .all()
+    
     events = Event.query.all()
-    return render_template('index.html', events = events)
+    return render_template('index.html', events = events, events_today=events_today, user_events=user_events, top_upcoming_rsvps=top_upcoming_rsvps, top_liked_events=top_liked_events)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -142,7 +174,7 @@ def login():
             login_user(user)
             return redirect(url_for('index'))
         else:
-            flash('Login Unsuccessful. Check your details and try again.', 'danger')
+            flash('Login Unsuccessful. Check your details and try again.', 'alert')
 
     return render_template('login.html')
 
@@ -152,31 +184,76 @@ def signup():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+        user_verification_code = request.form.get('verificationCode')
 
         # Add this block to validate the email domain
         if not email.endswith('utoronto.ca'):
-            flash('Please sign up with a uoft email.', 'danger')
+            flash('Please sign up with a uoft email.', 'alert')
             return render_template('signup.html')
 
         user_by_username = User.query.filter_by(username=username).first()
         user_by_email = User.query.filter_by(email=email).first()
 
         if user_by_username:
-            flash('Username already exists. Please choose another one.', 'danger')
-            return render_template('signup.html')
+            flash('Username already exists. Please choose another one.', 'alert')
+            return render_template('signup.html', username=username, email=email)
 
         if user_by_email:
-            flash('Email already registered. Please use another email or login.', 'danger')
-            return render_template('signup.html')
+            flash('Email already registered. Please use another email or login.', 'alert')
+            return render_template('signup.html', username=username, email=email)
+        
+        if len(password) < 6 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[!@#$%^&*(),.?\":{}|<>]", password):
+            flash('Password too weak. It must be at least 6 characters long and include uppercase and lowercase letters, and special characters.', 'alert')
+            return render_template('signup.html', username=username, email=email)
 
-        hashed_password = generate_password_hash(password, method='scrypt')
-        new_user = User(username=username, email=email, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Registration successful. Please login.', 'success')
-        return redirect(url_for('login'))
 
+        
+        # Check if the verification code matches
+        stored_codes = session.get('verification_codes', {})
+        if email in stored_codes and str(stored_codes[email]) == user_verification_code:
+            # Proceed with registration
+            hashed_password = generate_password_hash(password, method='scrypt')
+            new_user = User(username=username, email=email, password=hashed_password)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful. Please login.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('Invalid verification code.', 'alert')
+            #return render_template('signup.html')
+        
     return render_template('signup.html')
+
+
+@app.route('/send_verification_code', methods=['POST'])
+def send_verification_code():
+    email = request.json.get('email')
+
+    # Validate email or other logic here
+    if not email:
+        return jsonify({'status': 'error', 'message': 'Please first enter your uoft email'})
+    user_by_email = User.query.filter_by(email=email).first()
+    if not email.endswith('utoronto.ca'):
+        return jsonify({'status': 'error', 'message': 'Please sign up with a uoft email.'})
+
+    if user_by_email:
+        return jsonify({'status': 'error', 'message': 'Email already registered. Please use another email or login'})
+
+    verification_code = random.randint(100000, 999999)
+
+    # Store the code in the session or database
+    if 'verification_codes' not in session:
+        session['verification_codes'] = {}
+
+    session['verification_codes'][email] = verification_code
+    session.modified = True  # Ensure the session is marked as modified
+
+    # Send the code via email
+    msg = Message("Your Verification Code", sender="your-email@example.com", recipients=[email])
+    msg.body = f"Your verification code is {verification_code}"
+    mail.send(msg)
+    
+    return jsonify({'message': 'Verification code sent! (Please check SPAM folder)'})
 
 @app.route('/logout')
 @login_required
@@ -187,16 +264,19 @@ def logout():
 ## ----------------------------------Search----------------------------------- ##
 
 @app.route('/search', methods=['GET'])
+@login_required
 def search():
     query = request.args.get('search_query')
-
+   
     # Query the database
     if(query):
         results = Event.query.filter(
             (Event.event_name.ilike(f'%{query}%')) |
             (Event.event_organization.ilike(f'%{query}%'))
         ).all()
+        description = "Search Results: " + query
     else:
+        description = "Explore all events:"
         results = Event.query.all()
 
     # Prepare data for JSON serialization
@@ -227,10 +307,11 @@ def search():
             event_tags = json.loads(event.tags)
             tags.update(event_tags)
 
-    return render_template('search_results.html', events=events_data, query=query, organizers=list(organizers), tags=list(tags))
+    return render_template('search_results.html', events=events_data, query=query, organizers=list(organizers), tags=list(tags), description=description)
 
 
 @app.route('/autocomplete', methods=['GET'])
+@login_required
 def autocomplete():
     query = request.args.get('search_query')
     print(f"Received query: {query}")
@@ -269,8 +350,8 @@ def event_details(event_id):
 
         return render_template('event_details.html', event=event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY, tags=tags)
     else:
-        flash('Event not found', 'danger')
-        return redirect(url_for('home'))
+        flash("Sorry, that event doesn't exist!", 'danger')
+        return redirect(url_for('index'))
 
 
 
@@ -284,12 +365,16 @@ def create_comment(event_id):
         comment = Comment(text=comment_text, author=current_user.id, event_id=event_id)
         db.session.add(comment)
         db.session.commit()
+        profile_pic = b64encode(current_user.profile_pic).decode() if current_user.profile_pic else None
         
-        return jsonify({"comment": {
-            "text": comment.text,
-            "author": comment.user.username,
-            "datetime_created": comment.datetime_created
-        }})
+        return jsonify({
+            "comment": {
+                "text": comment.text,
+                "author": comment.user.username,
+                "datetime_created": comment.datetime_created
+            },
+            "profile_pic": profile_pic
+        })
     else:
         flash("Event does not exist!", "error")
         return redirect(url_for("home"))
@@ -341,8 +426,9 @@ def event_success():
 @app.route('/create_event', methods=['GET', 'POST'])
 @login_required 
 def create_event():
+    tomorrow = (datetime.utcnow() + timedelta(days=1)).date()
     if request.method == 'GET':
-        return render_template('create_event.html', key=GOOGLE_PLACES_API_KEY)
+        return render_template('create_event.html', tomorrow=tomorrow, key=GOOGLE_PLACES_API_KEY)
     
     if request.method == 'POST':
         # Extract event name
@@ -351,7 +437,7 @@ def create_event():
         # Check if event name already exists
         if Event.query.filter_by(event_name=event_name).first():
             flash('An event with the name already exists, please choose another name', 'danger')
-            return render_template('create_event.html', key=GOOGLE_PLACES_API_KEY)
+            return render_template('create_event.html', tomorrow=tomorrow, key=GOOGLE_PLACES_API_KEY)
         
         # Extract event organization name
         event_organization = request.form['organization']
@@ -369,7 +455,7 @@ def create_event():
         # If end time is before start time, return error as it is an invalid input
         if end_time_obj <= start_time_obj:
             flash('Invalid Time inputs, please check and resubmit', 'danger')
-            return render_template('create_event.html', key=GOOGLE_PLACES_API_KEY)
+            return render_template('create_event.html', tomorrow=tomorrow, key=GOOGLE_PLACES_API_KEY)
 
         tag_info = request.form['tags']
         tags = [tag['value'] for tag in json.loads(tag_info)]
@@ -405,7 +491,7 @@ def create_event():
         db.session.commit()
         return redirect(url_for('event_success'))
 
-    return render_template(url_for('create_event'), key=GOOGLE_PLACES_API_KEY) 
+    return render_template(url_for('create_event'), tomorrow=tomorrow, key=GOOGLE_PLACES_API_KEY) 
 
 
 ## ---------------------------------------------------------------------------- ##
@@ -556,6 +642,14 @@ def delete_event(event_id):
 
 ## -------------------------------------------------------------------------------- ##
 
+@app.errorhandler(404)
+def page_not_found(e):
+    if not current_user.is_authenticated:
+        # If the user is not logged in, redirect them to login page.
+        return redirect(url_for('login'))
+    else:
+        # For an authenticated user, display custom 404 page.
+        return render_template('404.html'), 404
 
 if __name__ == '__main__':
     with app.app_context():

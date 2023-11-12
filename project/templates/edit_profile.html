@@ -26,67 +26,67 @@
                 <form id="profileForm" action="{{ url_for('edit_profile') }}" method="post" class="space-y-4" enctype="multipart/form-data">
                     {{ form.hidden_tag() }}
 
-                    <!-- Checklist -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600">Select fields to update:</label>
-                        <div class="flex flex-col space-y-2">
-                            <label><input type="checkbox" id="usernameCheckbox" onchange="toggleField('usernameField')"> Username</label>
-                            <label><input type="checkbox" id="profilepicCheckbox" onchange="toggleField('profilepicField')"> Profile Picture</label>
-                            <label><input type="checkbox" id="passwordCheckbox" onchange="toggleField('passwordField')"> Password</label>
-                            <label><input type="checkbox" id="bioCheckbox" onchange="toggleField('bioField')"> Bio</label>
-                        </div>
-                    </div>
+        <!-- Checklist -->
+        <div>
+            <!--label class="block text-sm font-medium text-gray-600">Select fields to update:</label>
+            <div class="flex flex-col space-y-2">
+                <label><input type="checkbox" id="usernameCheckbox" onchange="toggleField('usernameField')"> Username</label>
+                <label><input type="checkbox" id="profilepicCheckbox" onchange="toggleField('profilepicField')"> Profile Picture</label>
+                <label><input type="checkbox" id="passwordCheckbox" onchange="toggleField('passwordField')"> Password</label>
+                <label><input type="checkbox" id="bioCheckbox" onchange="toggleField('bioField')"> Bio</label>
+            </div-->
+        </div>
 
-                    <!-- User fields, initially hidden -->
-                    <div id="usernameField" style="display: none;">
-                        <label for="username" class="block text-sm font-medium text-gray-600">Username:</label>
-                        {{ form.username(id="username", class="mt-1 p-2 w-full border rounded-md") }}
-                        {% if form.username.errors %}
-                            <ul class="text-red-500 text-sm mt-1">
-                                {% for error in form.username.errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                    </div>
+        <!-- User fields, initially hidden -->
+        <div id="usernameField">
+            <label for="username" class="block text-sm font-medium text-gray-600">Username:</label>
+            {{ form.username(id="username", class="mt-1 p-2 w-full border rounded-md") }}
+            {% if form.username.errors %}
+                <ul class="text-red-500 text-sm mt-1">
+                    {% for error in form.username.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
 
-                    <!-- Profile Picture Update Field -->
-                    <div id="profilepicField" style="display: none;">
-                        <label for="profile_pic" class="block text-sm font-medium text-gray-600">Profile Picture:</label>
-                        <!-- File input for the profile picture -->
-                        <input type="file" id="profile_pic" name="profile_pic" class="mt-1 p-2 w-full border rounded-md">
-                        {% if form.profile_pic.errors %}
-                            <ul class="text-red-500 text-sm mt-1">
-                                {% for error in form.profile_pic.errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                    </div>
+        <!-- Profile Picture Update Field -->
+        <div id="profilepicField">
+            <label for="profile_pic" class="block text-sm font-medium text-gray-600">Profile Picture:</label>
+            <!-- File input for the profile picture -->
+            <input type="file" id="profile_pic" name="profile_pic" class="mt-1 p-2 w-full border rounded-md">
+            {% if form.profile_pic.errors %}
+                <ul class="text-red-500 text-sm mt-1">
+                    {% for error in form.profile_pic.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
 
-                    <div id="passwordField" style="display: none;">
-                        <label for="password" class="block text-sm font-medium text-gray-600">New Password:</label>
-                        {{ form.password(id="password", class="mt-1 p-2 w-full border rounded-md") }}
-                        {% if form.password.errors %}
-                            <ul class="text-red-500 text-sm mt-1">
-                                {% for error in form.password.errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                    </div>
+        <div id="passwordField">
+            <label for="password" class="block text-sm font-medium text-gray-600">New Password:</label>
+            {{ form.password(id="password", class="mt-1 p-2 w-full border rounded-md") }}
+            {% if form.password.errors %}
+                <ul class="text-red-500 text-sm mt-1">
+                    {% for error in form.password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
 
-                    <div id="bioField" style="display: none;">
-                        <label for="bio" class="block text-sm font-medium text-gray-600">Bio:</label>
-                        {{ form.bio(id="bio", class="mt-1 p-2 w-full border rounded-md") }}
-                        {% if form.bio.errors %}
-                            <ul class="text-red-500 text-sm mt-1">
-                                {% for error in form.bio.errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                    </div>
+        <div id="bioField">
+            <label for="bio" class="block text-sm font-medium text-gray-600">Bio:</label>
+            {{ form.bio(id="bio", class="mt-1 p-2 w-full border rounded-md") }}
+            {% if form.bio.errors %}
+                <ul class="text-red-500 text-sm mt-1">
+                    {% for error in form.bio.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
 
                     <div>
                         <input type="submit" value="Update Profile" class="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">

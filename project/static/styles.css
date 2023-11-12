@@ -87,6 +87,23 @@
   object-position: center;
 }
 
+.event-tile {
+  width: 400px;
+  flex-shrink: 0;
+}
+
+.event-info {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Max number of lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-tile-inner-section {
+  min-height: 250px;
+}
+
 .responsive-tile-img {
   width: 100%;
   height: 250px;
