@@ -5,7 +5,7 @@
 {% block content %}
   <form id="create_event" action="/create_event" method="post" enctype="multipart/form-data" class="max-w-screen-xl flex flex-wrap justify-center mx-auto pt-8 pb-8">
     
-    <div class="flex flex-col max-w-3xl flex-1 shadow-xl pb-8">
+    <div class="flex flex-col max-w-3xl flex-1 border border-gray-200 shadow-xl rounded-xl p-8">
       <div class="flex flex-row space-x-4 pl-8 pr-8 justify-between items-left">
         <h2 class="font-lexend font-semibold text-4xl text-black mb-8"> Post an Event!</h2>
       </div>
@@ -30,7 +30,7 @@
           <label for="date" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Date:</label>
           <input type="date"
             class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5" id="date"
-            name="date" value="{{ tomorrow }}" min="{{ tomorrow }}" />
+            name="date" value="{{ tomorrow }}" min="{{ tomorrow }}" required/>
         </div>
         <!-- Start Time -->
         <div class="flex flex-col relative">
