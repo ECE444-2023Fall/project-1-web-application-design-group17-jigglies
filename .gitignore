@@ -5,3 +5,5 @@ venv/
 .env
 instance/database.db
 node*
+package-lock.json
+package.json

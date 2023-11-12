@@ -30,3 +30,5 @@ Werkzeug==2.3.0
 WTForms==3.1.0
 zipp==3.17.0
 Flask-Mail==0.9.1
+psycopg2-binary==2.9.9
+gunicorn==21.2.0
