@@ -77,7 +77,7 @@ def test_create_event(browser, client):
     # Find form elements
     username_input = browser.find_element(By.NAME, 'user_identifier')
     password_input = browser.find_element(By.NAME, 'password')
-    submit_button = browser.find_element(By.XPATH, "//button[contains(text(), 'Login')]")
+    submit_button = browser.find_element(By.XPATH, "//button[contains(text(), 'Sign in')]")
 
     # Login with credentials
     username_input.send_keys('harrypotter')
