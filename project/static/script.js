@@ -329,3 +329,9 @@ function performSearch(event) {
     }
 }
 }
+
+function confirmDelete(deleteUrl) {
+    if (confirm("Are you sure you want to delete this event?")) {
+        window.location.href = deleteUrl;
+    }
+}

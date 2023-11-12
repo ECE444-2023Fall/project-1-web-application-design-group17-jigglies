@@ -3,18 +3,28 @@
 {% block title %}Update Profile{% endblock %}
 
 {% block content %}
-{% include "base-profile.html" %}
-<div style="margin-top: 150px; position: relative;"></div>
-<div class="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto" style="position: relative; left: auto; transform: translateX(0%);">
-    <!-- Flash Messages -->
-    {% for category, message in get_flashed_messages(with_categories=true) %}
-    <div class="flash-{{ category }}">{{ message }}</div>
-    {% endfor %}
-    <h2 class="text-center mb-4 text-xl font-medium">Update Your Profile</h2>
-    
-    <!-- enctype attribute is important for file upload to work -->
-    <form id="profileForm" action="{{ url_for('edit_profile') }}" method="post" class="space-y-4" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
+<div class="max-w-screen-xl flex flex-wrap justify-between mx-auto mt-8 mb-8 border border-gray-200 shadow-xl rounded-xl">
+    <main class="max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-6">
+        
+            <section aria-labelledby="products-heading" class="pb-24 pt-6">
+                <div class="grid grid-cols-1 gap-x-1 gap-y-10 lg:grid-cols-1">
+                    {% include "base-profile.html" %}
+
+                </div>
+            </section>
+            
+            <div class="bg-white p-6 rounded-lg shadow-lg max-w-xl mx-auto" style="position: relative; left: 175px; width: 500px; transform: translateX(0%);">
+
+                <!-- Flash Messages -->
+                {% for category, message in get_flashed_messages(with_categories=true) %}
+                <div class="flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                <h2 class="text-center mb-4 text-xl font-medium">Update Your Profile</h2>
+                
+                <!-- enctype attribute is important for file upload to work -->
+                <form id="profileForm" action="{{ url_for('edit_profile') }}" method="post" class="space-y-4" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
 
         <!-- Checklist -->
         <div>
@@ -78,11 +88,15 @@
             {% endif %}
         </div>
 
-        <div>
-            <input type="submit" value="Update Profile" class="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
-        </div>
-    </form>
+                    <div>
+                        <input type="submit" value="Update Profile" class="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+                    </div>
+                </form>
+            </div>
+      </div>
+    </main>
 </div>
+
 
 <script>
     window.addEventListener('load', (event) => {
