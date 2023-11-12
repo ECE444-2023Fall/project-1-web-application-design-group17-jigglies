@@ -42,7 +42,7 @@ def test_login_user(browser, client):
     # Find form elements
     username_input = browser.find_element(By.NAME, 'user_identifier')
     password_input = browser.find_element(By.NAME, 'password')
-    submit_button = browser.find_element(By.XPATH, "//button[contains(text(), 'Login')]")
+    submit_button = browser.find_element(By.XPATH, "//button[contains(text(), 'Sign in')]")
 
     # Input test credentials (replace with actual test account credentials)
     username_input.send_keys('harrypotter')
