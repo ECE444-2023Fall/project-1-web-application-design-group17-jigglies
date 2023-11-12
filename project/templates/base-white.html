@@ -21,7 +21,7 @@
   
   {% endblock head %}
 </head>
-<body>
+<body class="flex flex-col min-h-screen">
   {% block body %}
   {# Navbar #}
   <nav class="bg-white border-gray-200 dark:bg-gray-900">
@@ -125,7 +125,9 @@
   {% endwith %}
 
   {# Inherit from base class and place content in this block. #}
-  {% block content %}{% endblock content %}
+  <div class="flex-grow">
+    {% block content %}{% endblock content %}
+  </div>
 
   <footer class="p-4 bg-white md:p-8 lg:p-10 dark:bg-gray-800">
     <div class="mx-auto max-w-screen-xl text-center">

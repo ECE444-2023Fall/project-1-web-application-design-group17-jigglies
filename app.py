@@ -350,8 +350,8 @@ def event_details(event_id):
 
         return render_template('event_details.html', event=event, urllib=urllib, google_maps_url=google_maps_url, parsedDateTime=parsedDateTime, comments=comments, GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY, tags=tags)
     else:
-        flash('Event not found', 'danger')
-        return redirect(url_for('home'))
+        flash("Sorry, that event doesn't exist!", 'danger')
+        return redirect(url_for('index'))
 
 
 
@@ -625,6 +625,15 @@ def liked_events():
     return render_template('liked_events.html', liked_events=liked_events)
 
 ## -------------------------------------------------------------------------------- ##
+
+@app.errorhandler(404)
+def page_not_found(e):
+    if not current_user.is_authenticated:
+        # If the user is not logged in, redirect them to login page.
+        return redirect(url_for('login'))
+    else:
+        # For an authenticated user, display custom 404 page.
+        return render_template('404.html'), 404
 
 if __name__ == '__main__':
     with app.app_context():
