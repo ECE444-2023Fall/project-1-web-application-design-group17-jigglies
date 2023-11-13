@@ -94,6 +94,12 @@ function displayEvents(filteredEvents) {
     const eventCardsContainer = document.getElementById('event-cards');
     eventCardsContainer.innerHTML = ''; 
 
+    // Check if there are no filtered or searched events.
+    if (filteredEvents.length === 0) {
+        eventCardsContainer.innerHTML = '<h1 class="mt-8 text-2xl font-bold tracking-tight text-gray-900" style="grid-column: 2;">No Search Results!</h1>';
+        return;
+    }
+
     filteredEvents.forEach(event => {
         // Create a new div element for each event
         const eventCard = document.createElement('div');
@@ -122,7 +128,7 @@ function displayEvents(filteredEvents) {
             <img class="rounded-t-lg" src="${imageSrc}" alt="Event Image ${event.id}" style="width: 300px; height: 300px; object-fit: cover;" />
             <div class="p-5 flex-grow flex flex-col relative">
                 <div class="flex-grow">
-                    <a href="#"><h1 id="event_name" class="mb-2 text-3xl font-extrabold text-gray-900 mb-2 lg:text-4xl dark:text-white">${event.event_name}</h1></a>
+                    <a href="/event/${event.id}"><h1 id="event_name" class="mb-2 text-3xl font-extrabold text-gray-900 mb-2 lg:text-4xl dark:text-white">${event.event_name}</h1></a>
                     <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Hosted by: ${event.organizer}</p>
                     <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">${formattedDate} @ ${formattedTime}</p>
                     <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Address: ${event.location}</p>
