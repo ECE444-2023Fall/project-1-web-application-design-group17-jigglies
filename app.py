@@ -166,8 +166,9 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    pre_filled_username = session.pop('pre_filled_username', "")
     if request.method == 'POST':
-        user_identifier = request.form.get('user_identifier')
+        user_identifier = request.form.get('user_identifier').lower()
         password = request.form.get('password')
         
         # First, try to get the user by username
@@ -182,21 +183,22 @@ def login():
             return redirect(url_for('index'))
         else:
             flash('Login Unsuccessful. Check your details and try again.', 'alert')
-
-    return render_template('login.html')
+            return render_template('login.html', user_identifier=user_identifier)
+    
+    return render_template('login.html', user_identifier=pre_filled_username)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
+        username = request.form.get('username').lower()
+        email = request.form.get('email').lower()
         password = request.form.get('password')
         user_verification_code = request.form.get('verificationCode')
 
         # Add this block to validate the email domain
         if not email.endswith('utoronto.ca'):
             flash('Please sign up with a uoft email.', 'alert')
-            return render_template('signup.html')
+            return render_template('signup.html', username=username, email=email)
 
         user_by_username = User.query.filter_by(username=username).first()
         user_by_email = User.query.filter_by(email=email).first()
@@ -214,7 +216,6 @@ def signup():
             return render_template('signup.html', username=username, email=email)
 
 
-        
         # Check if the verification code matches
         stored_codes = session.get('verification_codes', {})
         if email in stored_codes and str(stored_codes[email]) == user_verification_code:
@@ -223,18 +224,19 @@ def signup():
             new_user = User(username=username, email=email, password=hashed_password)
             db.session.add(new_user)
             db.session.commit()
+            session['pre_filled_username'] = username
             flash('Registration successful. Please login.', 'success')
             return redirect(url_for('login'))
         else:
             flash('Invalid verification code.', 'alert')
-            #return render_template('signup.html')
+            return render_template('signup.html', username=username, email=email)
         
     return render_template('signup.html')
 
 
 @app.route('/send_verification_code', methods=['POST'])
 def send_verification_code():
-    email = request.json.get('email')
+    email = request.json.get('email').lower()
 
     # Validate email or other logic here
     if not email:
