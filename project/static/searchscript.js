@@ -75,7 +75,7 @@ function matchesFilters(event, filters) {
     let matchesEventTags = filters.eventTags.length === 0 || filters.eventTags.some(tag => event.tags.includes(tag));
 
     // Organizers Filter
-    let matchesOrganizers = filters.organizers.length === 0 || filters.organizers.includes(event.event_organization);
+    let matchesOrganizers = filters.organizers.length === 0 || filters.organizers.includes(event.organizer);
 
     // Allow Comments Filter
     let matchesComments = true;
@@ -86,7 +86,6 @@ function matchesFilters(event, filters) {
     } else if (filters.allowComments.no) {
         matchesComments = !event.allow_comments;
     }
-
     return matchesDateRange && matchesEventTags && matchesOrganizers && matchesComments;
 }
 
@@ -94,6 +93,12 @@ function matchesFilters(event, filters) {
 function displayEvents(filteredEvents) {
     const eventCardsContainer = document.getElementById('event-cards');
     eventCardsContainer.innerHTML = ''; 
+
+    // Check if there are no filtered or searched events.
+    if (filteredEvents.length === 0) {
+        eventCardsContainer.innerHTML = '<h1 class="mt-8 text-2xl font-bold tracking-tight text-gray-900" style="grid-column: 2;">No Search Results!</h1>';
+        return;
+    }
 
     filteredEvents.forEach(event => {
         // Create a new div element for each event
@@ -105,14 +110,27 @@ function displayEvents(filteredEvents) {
         const imageSrc = event.cover_photo ? `data:image/jpeg;base64,${event.cover_photo}` : defaultEventImageUrl;
         const eventDetailsUrl = `/event/${event.id}`;
 
+        // Format the date and time
+        const eventDateTime = new Date(event.date + 'T' + event.start_time);
+        const formattedDate = eventDateTime.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        const formattedTime = eventDateTime.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+
         // Add event details to the div
         eventCard.innerHTML = `
             <img class="rounded-t-lg" src="${imageSrc}" alt="Event Image ${event.id}" style="width: 300px; height: 300px; object-fit: cover;" />
             <div class="p-5 flex-grow flex flex-col relative">
                 <div class="flex-grow">
-                    <a href="#"><h1 id="event_name" class="mb-2 text-3xl font-extrabold text-gray-900 mb-2 lg:text-4xl dark:text-white">${event.event_name}</h1></a>
-                    <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Hosted by: ${event.event_organization}</p>
-                    <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">${event.date} @ ${event.start_time}</p>
+                    <a href="/event/${event.id}"><h1 id="event_name" class="mb-2 text-3xl font-extrabold text-gray-900 mb-2 lg:text-4xl dark:text-white">${event.event_name}</h1></a>
+                    <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Hosted by: ${event.organizer}</p>
+                    <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">${formattedDate} @ ${formattedTime}</p>
                     <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Address: ${event.location}</p>
                     <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">${event.event_information}</p>
                 </div>

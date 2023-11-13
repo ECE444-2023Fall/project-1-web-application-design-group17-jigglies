@@ -48,10 +48,6 @@ def test_2_test_create_event(browser, client):
     event_name_input = browser.find_element(By.ID, "event_name")
     event_name_input.send_keys("Sample Event Name")
 
-    # Fill out the Organization
-    organization_input = browser.find_element(By.ID, "organization")
-    organization_input.send_keys("Sample Organization")
-
     # Fill out the Date
     date_input = browser.find_element(By.ID, "date")
     date_to_set = '2024-11-11'

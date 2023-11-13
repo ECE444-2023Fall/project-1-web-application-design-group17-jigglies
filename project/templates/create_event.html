@@ -10,15 +10,10 @@
         <h2 class="font-lexend font-semibold text-4xl text-black mb-8"> Post an Event!</h2>
       </div>
       <!-- Event Name -->
-      <div class="grid grid-col grid-cols-2 pl-8 pr-8">
+      <div class="grid grid-col grid-cols-1 pl-8 pr-8">
         <div class="flex flex-col span-1 pr-2">
           <label for="event_name" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Event Name:</label>
           <input id="event_name" name="event_name" type="text" placeholder="Event Name"
-            class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 focus:border-indigo-500" required>
-        </div>
-        <div class="flex flex-col span-1 pl-2">
-          <label for="organization" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Event Host:</label>
-          <input id="organization" name="organization" type="text" placeholder="Host/Organization "
             class="w-full h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 focus:border-indigo-500" required>
         </div>
       </div>
@@ -92,7 +87,7 @@
           <label for="allow_comments" class="text-gray-900 dark:text-white font-lexend font-semibold text-gray-700 text-xl pb-4 flex-shrink-0 mr-1">Comments:</label>
               <select name="allow_comments" id="allow_comments" class="flex space-x-2 w-36 h-10 mb-4 rounded-md text-gray-400 px-4 py-1.5 bg-white rounded-lg block p-2.5 pr-4 dark:bg-gray-700">
                   <option value="Yes">Allow</option>
-                  <option value="No">Dont Allow</option>
+                  <option value="No">Don't Allow</option>
               </select>
         </div>
         <div class="flex flex-col">

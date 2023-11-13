@@ -116,6 +116,7 @@
   --tag-hover: #1E3A8A !important;
   --tag-text-color: #fff !important;
   --tag-remove-btn-color: #fff !important;
+}
 
 .tagify--focus {
   border: 1.5px solid rgb(56, 103, 234) !important;
