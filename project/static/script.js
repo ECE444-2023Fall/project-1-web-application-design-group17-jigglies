@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const dropZone = document.querySelector(".flex.flex-col.w-full.p-8");
+    const dropZone = document.querySelector("#ImageDrop");
     const fileInput = document.getElementById("file-upload");
     const uploadText = document.getElementById("upload-text");
     const imagePreview = document.getElementById("image-preview");
