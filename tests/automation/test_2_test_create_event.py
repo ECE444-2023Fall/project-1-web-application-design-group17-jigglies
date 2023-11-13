@@ -1,11 +1,9 @@
-
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-def test_create_event(browser, client):
+def test_2_test_create_event(browser, client):
     # Start the browser and open the login page
     browser.get('http://web-app:5000/login')
 
@@ -27,8 +25,6 @@ def test_create_event(browser, client):
     # Go to Search Page
     search_link = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.LINK_TEXT, 'Explore')))
     search_link.click()
-
-    browser.save_screenshot('screenshot_after_submission.png')
 
     # Verify the one already created event is seen
     event_titles = WebDriverWait(browser, 10).until(EC.presence_of_all_elements_located((By.ID, "event_name")))
