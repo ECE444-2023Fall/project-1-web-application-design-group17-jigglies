@@ -241,6 +241,43 @@ def test_search_no_query(client):
         assert response.status_code == 200
         assert b"Explore all events:" in response.data
 
+
+def test_autocomplete(client):
+    with client as c: 
+        login_response = c.post('/login', data=dict(
+            user_identifier="harrypotter",  
+            password="testpass1"
+        ), follow_redirects=True)
+
+        # Ensure that the login was successful
+        assert login_response.status_code == 200
+
+        # Perform an autocomplete query
+        response = c.get('/autocomplete?search_query=Duplicate')
+        data = response.get_json()
+
+        assert response.status_code == 200
+        assert len(data) == 1  # Assuming 'Duplicate Event Name' is the only match
+        assert data[0]['name'] == 'Duplicate Event Name'
+
+def test_autocomplete_no_results(client):
+    # Login
+    with client as c: 
+        login_response = c.post('/login', data=dict(
+            user_identifier="harrypotter",  
+            password="testpass1"
+        ), follow_redirects=True)
+        
+        # Ensure that the login was successful
+        assert login_response.status_code == 200
+
+        # Perform an autocomplete query with a string that yields no results
+        response = c.get('/autocomplete?search_query=NoMatchQuery')
+
+        assert response.status_code == 200
+        assert len(response.get_json()) == 0  # Expecting empty list as there's no match
+
+
 ## ----------------------------- Yousef Al Rawwash - Tests ----------------------------- ##
 
 def test_signup_with_existing_username(client):
