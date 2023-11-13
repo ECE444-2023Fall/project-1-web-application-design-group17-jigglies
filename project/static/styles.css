@@ -112,12 +112,10 @@
 }
 
 .tagify {
-  --tag-bg: rgb(99 102 241) !important;
-  --tag-hover: rgb(26, 35, 126) !important;
+  --tag-bg: #1D4ED8 !important;
+  --tag-hover: #1E3A8A !important;
   --tag-text-color: #fff !important;
   --tag-remove-btn-color: #fff !important;
-  border: 1px solid #6b7280 !important;
-}
 
 .tagify--focus {
   border: 1.5px solid rgb(56, 103, 234) !important;

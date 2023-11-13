@@ -1,5 +1,8 @@
 import pytest
 
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
 from pathlib import Path
 from app import app, db, User, Event
 from werkzeug.security import generate_password_hash
@@ -54,3 +57,29 @@ def client():
         yield app.test_client() # tests run here
         db.drop_all()
         db.create_all()  # teardown
+    
+
+# Setup a fixture for the browser
+@pytest.fixture(scope="module")
+def browser():
+
+
+    # Define Selenium remote URL
+    selenium_remote_url = "http://selenium-chrome:4444/wd/hub"
+
+    # Set Chrome options
+    chrome_options = Options()
+    chrome_options.headless = True  # Run in headless mode
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--window-size=1280x1696')
+
+    # Initialize the Remote WebDriver with the options we've set
+    driver = webdriver.Remote(
+        command_executor=selenium_remote_url,
+        options=chrome_options  # Use 'options' instead of 'desired_capabilities'
+    )
+    yield driver
+    driver.save_screenshot('error.png')
+    driver.quit()
+
