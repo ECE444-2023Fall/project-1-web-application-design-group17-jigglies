@@ -123,6 +123,15 @@ function displayEvents(filteredEvents) {
             hour12: true
         });
 
+        function truncateEventInformation(info) {
+            const words = info.split(' ');
+            if (words.length > 30) {
+                return words.slice(0, 30).join(' ') + '...';
+            } else {
+                return info;
+            }
+        }
+
         // Add event details to the div
         eventCard.innerHTML = `
             <img class="rounded-t-lg" src="${imageSrc}" alt="Event Image ${event.id}" style="width: 300px; height: 300px; object-fit: cover;" />
@@ -132,7 +141,7 @@ function displayEvents(filteredEvents) {
                     <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Hosted by: ${event.organizer}</p>
                     <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">${formattedDate} @ ${formattedTime}</p>
                     <p class="mb-1 font-normal text-sm text-gray-500 dark:text-gray-300">Address: ${event.location}</p>
-                    <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">${event.event_information}</p>
+                    <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">${truncateEventInformation(event.event_information)}</p>
                 </div>
                 <a href="${eventDetailsUrl}" class="self-start inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Learn more</a>
             </div>
