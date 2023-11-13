@@ -15,12 +15,6 @@
             </section>
             
             <div class="bg-white p-6 rounded-lg shadow-lg max-w-xl mx-auto" style="position: relative; left: 175px; width: 500px; transform: translateX(0%);">
-
-                <!-- Flash Messages -->
-                {% for category, message in get_flashed_messages(with_categories=true) %}
-                <div class="flash-{{ category }}">{{ message }}</div>
-                {% endfor %}
-                <h2 class="text-center mb-4 text-xl font-medium">Update Your Profile</h2>
                 
                 <!-- enctype attribute is important for file upload to work -->
                 <form id="profileForm" action="{{ url_for('edit_profile') }}" method="post" class="space-y-4" enctype="multipart/form-data">
@@ -54,13 +48,6 @@
         <div id="passwordField">
             <label for="password" class="block text-sm font-medium text-gray-600">New Password:</label>
             {{ form.password(id="password", class="mt-1 p-2 w-full border rounded-md") }}
-            {% if form.password.errors %}
-                <ul class="text-red-500 text-sm mt-1">
-                    {% for error in form.password.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
         </div>
 
         <div id="bioField">
