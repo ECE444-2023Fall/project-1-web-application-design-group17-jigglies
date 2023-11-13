@@ -3,9 +3,6 @@ from app import app, db, User, Event, Rsvp, Comment, Like
 from io import BytesIO
 from flask import url_for
 
-
-
-
 ## ----------------------------- Jason Wang - Tests ----------------------------- ##
 def test_unsuccessful_signup_with_non_uoft_email(client):
     """Test unsuccessful signup with a non-UofT email."""
@@ -207,6 +204,42 @@ def test_duplicate_event_name_submission(client):
 
         assert response.status_code == 200
         assert b'An event with the name already exists, please choose another name' in response.data
+
+
+# Test the search function
+def test_search_with_query(client):
+    with client as c: 
+        login_response = c.post('/login', data=dict(
+            user_identifier="harrypotter",  
+            password="testpass1"
+        ), follow_redirects=True)
+
+        # Ensure that the login was successful
+        assert login_response.status_code == 200
+
+        # Perform a search query
+        response = c.get('/search?search_query=Duplicate')
+        data = response.get_json()
+
+        assert response.status_code == 200
+        assert b"Search Results: Duplicate" in response.data
+        assert b"Duplicate Event Name" in response.data
+
+def test_search_no_query(client):
+    with client as c: 
+        login_response = c.post('/login', data=dict(
+            user_identifier="harrypotter",  
+            password="testpass1"
+        ), follow_redirects=True)
+
+        # Ensure that the login was successful
+        assert login_response.status_code == 200
+
+        # Perform a search without a query
+        response = c.get('/search')
+
+        assert response.status_code == 200
+        assert b"Explore all events:" in response.data
 
 ## ----------------------------- Yousef Al Rawwash - Tests ----------------------------- ##
 
