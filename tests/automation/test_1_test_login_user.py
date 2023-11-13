@@ -1,3 +1,5 @@
+from selenium.webdriver.common.by import By
+
 def test_1_test_login_user(browser, client):
     # Start the browser and open the login page
     browser.get('http://web-app:5000/login')
