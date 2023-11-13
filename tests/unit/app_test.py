@@ -162,7 +162,6 @@ def test_correct_event_submission(client):
 
         response = c.post('/create_event', data={
             'event_name': 'Unique Test Event',  # Make sure this is unique
-            'organization': 'Test Org',
             'date': '2023-11-01',
             'start-time': '12',  # Ensure this is just an hour
             'end-time': '13',    # Ensure this is just an hour
