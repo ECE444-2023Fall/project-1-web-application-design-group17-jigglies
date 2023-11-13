@@ -90,15 +90,15 @@
       <div class="grid grid-cols-4 gap-4 pl-8 pr-8">
         <div class="flex flex-col">
           <label for="allow_comments" class="text-gray-900 dark:text-white font-lexend font-semibold text-gray-700 text-xl pb-4 flex-shrink-0 mr-1">Comments:</label>
-              <select name="allow_comments" id="allow_comments" class="flex space-x-2 w-24 h-10 mb-4 rounded-md text-gray-400 px-4 py-1.5 bg-white rounded-lg block p-2.5 pr-4 dark:bg-gray-700">
+              <select name="allow_comments" id="allow_comments" class="flex space-x-2 w-36 h-10 mb-4 rounded-md text-gray-400 px-4 py-1.5 bg-white rounded-lg block p-2.5 pr-4 dark:bg-gray-700">
                   <option value="Yes">Allow</option>
                   <option value="No">Dont Allow</option>
               </select>
         </div>
         <div class="flex flex-col">
-          <label for="capacity" class="font-lexend font-semibold text-gray-700 text-xl pb-4">Capacity:</label>
+          <label for="capacity" class="font-lexend font-semibold text-gray-700 text-xl pb-4 pl-4">Capacity:</label>
           <input type="number"
-            class="w-20 h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5" id="capacity"
+            class="w-20 h-10 mb-4 bg-white border border-gray-400 rounded-md text-gray-400 px-4 py-1.5 ml-4" id="capacity"
             name="capacity" min="5" max="1000" required />
         </div>
         <div class="flex flex-col col-span-2">
@@ -129,7 +129,7 @@
             <img id="image-preview" class="mt-4 mx-auto h-24 w-auto object-cover hidden" src="#" alt="Uploaded Image Preview">
 
               <div class="mt-4 flex text-sm leading-6 text-gray-600 items-center justify-center">
-                <label for="file-upload" class="relative cursor-pointer rounded-md bg-indigo-500 font-semibold text-white focus-within:outline-none hover:bg-indigo-900 transition duration-300 p-2">
+                <label for="file-upload" class="relative bg-blue-700 hover:bg-blue-800 px-4 py-2 text-center self-start rounded-lg flex items-center justify-center text-white text-sm font-lexend font-medium text-base leading-6 transition duration-300">
                   <span id="upload-text" class="font-lexend">Upload a file</span>
                   <input id="file-upload" name="file-upload" type="file" accept="image/png, image/jpeg" class="sr-only">
                 </label>
@@ -140,7 +140,7 @@
         </div>
       </div>
       <div class="flex flex-col justify-end items-left pl-8"  >
-        <button class="self-start text-3xl bg-indigo-500 border border-gray-400 rounded-lg flex items-center justify-center text-white font-lexend font-xl font-medium text-base leading-6 hover:bg-indigo-900 transition duration-300 px-4 py-3">Pop Event!</button>
+        <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 text-center self-start text-3xl rounded-lg flex items-center justify-center text-white font-lexend font-medium text-base leading-6 transition duration-300">Pop Event!</button>
     </div>
       
       
