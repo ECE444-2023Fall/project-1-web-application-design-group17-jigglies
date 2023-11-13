@@ -15,12 +15,6 @@
             </section>
             
             <div class="bg-white p-6 rounded-lg shadow-lg max-w-xl mx-auto" style="position: relative; left: 175px; width: 500px; transform: translateX(0%);">
-
-                <!-- Flash Messages -->
-                {% for category, message in get_flashed_messages(with_categories=true) %}
-                <div class="flash-{{ category }}">{{ message }}</div>
-                {% endfor %}
-                <h2 class="text-center mb-4 text-xl font-medium">Update Your Profile</h2>
                 
                 <!-- enctype attribute is important for file upload to work -->
                 <form id="profileForm" action="{{ url_for('edit_profile') }}" method="post" class="space-y-4" enctype="multipart/form-data">
@@ -39,30 +33,10 @@
             {% endif %}
         </div>
 
-        <!-- Profile Picture Update Field -->
-        <div id="profilepicField">
-            <label for="profile_pic" class="block text-sm font-medium text-gray-600">Profile Picture:</label>
-            <!-- File input for the profile picture -->
-            <input type="file" id="profile_pic" name="profile_pic" class="mt-1 p-2 w-full border rounded-md">
-            {% if form.profile_pic.errors %}
-                <ul class="text-red-500 text-sm mt-1">
-                    {% for error in form.profile_pic.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
 
         <div id="passwordField">
             <label for="password" class="block text-sm font-medium text-gray-600">New Password:</label>
             {{ form.password(id="password", class="mt-1 p-2 w-full border rounded-md") }}
-            {% if form.password.errors %}
-                <ul class="text-red-500 text-sm mt-1">
-                    {% for error in form.password.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
         </div>
 
         <div id="bioField">
@@ -76,9 +50,32 @@
                 </ul>
             {% endif %}
         </div>
+        <!-- Profile Picture Update Field -->
+        <div id="ImageDrop" class="flex flex-col w-full pb-4">
+            <div class="flex flex-col">
+              <label for="cover-photo" class="block text-sm font-medium text-gray-600">Profile Picture:</label>
+                <div class="mt-2 flex justify-center rounded-lg border border-dashed border-black px-3 py-5 h-auto flex-col justify-center">
+                    <div class="text-center">
+                    <!-- Image Preview -->
+                    <svg id="upload-icon" class="mx-auto h-12 w-12 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    <img id="image-preview" class="mt-4 mx-auto h-24 w-auto object-cover hidden" src="#" alt="Uploaded Image Preview">
+        
+                    <div class="mt-4 flex text-sm leading-6 text-gray-600 items-center justify-center">
+                        <label for="file-upload" class="relative bg-blue-700 hover:bg-blue-800 px-2 py-1 text-center self-start rounded-lg flex items-center justify-center text-white text-sm font-lexend font-medium text-base leading-6">
+                        <span id="upload-text" class="font-lexend">Upload a file</span>
+                        <input id="file-upload" name="file-upload" type="file" accept="image/png, image/jpeg" class="sr-only">
+                        </label>
+                        <p class="pl-2 font-lexend">or drag and drop</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
                     <div>
-                        <input type="submit" value="Update Profile" class="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+                        <input type="submit" value="Update Profile" class="w-full relative bg-blue-700 hover:bg-blue-800 px-4 py-2 text-center self-start rounded-lg flex items-center justify-center text-white text-sm font-lexend font-medium text-base leading-">
                     </div>
                 </form>
             </div>

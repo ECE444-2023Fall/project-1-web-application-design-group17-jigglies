@@ -590,7 +590,10 @@ def edit_profile():
         # Check if password needs to be updated
         if 'password' in request.form:
             new_password = form.password.data
-            if new_password:
+            if len(new_password) < 6 or not re.search("[a-z]", new_password) or not re.search("[A-Z]", new_password) or not re.search("[0-9]", new_password) or not re.search("[!@#$%^&*(),.?\":{}|<>]", new_password):
+                flash('Password too weak. It must be at least 6 characters long and include uppercase and lowercase letters, and special characters.', 'alert')
+                return render_template('edit_profile.html', title='Update Profile', form=form, status=status)
+            else:
                 current_user.update_password(new_password)
                 has_changes = True
         # Check if bio needs to be updated
@@ -599,12 +602,10 @@ def edit_profile():
             if new_bio and new_bio != current_user.bio:
                 current_user.update_bio(new_bio)
                 has_changes = True
-        if form.profile_pic.data:
-            image_file = request.files['profile_pic']
-            image_data = None
-            if image_file:
-                image_data = image_file.read()
-            profile_pic = image_data
+        image_file = request.files['file-upload']
+        image_data = None
+        if image_file:
+            profile_pic = image_file.read()
             current_user.update_profile_pic(profile_pic)
             has_changes = True
         # Set status based on whether changes were made
