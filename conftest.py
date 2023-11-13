@@ -35,7 +35,6 @@ def client():
         # Add Event Entry
         event_entry = Event(
             event_name='Duplicate Event Name',
-            event_organization='UofT',
             created_by=user1.id,
             date= datetime.strptime('2024-11-11', '%Y-%m-%d').date(),
             start_time=datetime.strptime('9', '%H').time(),

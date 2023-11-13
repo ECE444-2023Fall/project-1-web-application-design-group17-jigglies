@@ -68,6 +68,7 @@ class User(UserMixin, db.Model):
     comments = db.relationship("Comment", backref="user", passive_deletes=True)
     likes = db.relationship("Like", backref="user", passive_deletes=True)
     rsvps = db.relationship("Rsvp", backref="user", passive_deletes=True)
+    created_events = db.relationship('Event', backref='organizer', lazy=True)
     bio = db.Column(db.String(150), nullable=True)
     profile_pic = db.Column(db.LargeBinary, nullable=True)
 
@@ -92,7 +93,6 @@ class User(UserMixin, db.Model):
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_name = db.Column(db.String(80), unique=True, nullable=False)
-    event_organization = db.Column(db.String(80), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
@@ -277,10 +277,10 @@ def search():
    
     # Query the database
     if(query):
-        results = Event.query.filter(
-            (Event.event_name.ilike(f'%{query}%')) |
-            (Event.event_organization.ilike(f'%{query}%'))
-        ).all()
+        results = Event.query.join(User, Event.created_by == User.id).filter(
+        (Event.event_name.ilike(f'%{query}%')) |
+        (User.username.ilike(f'%{query}%'))
+    ).all()
         description = "Search Results: " + query
     else:
         description = "Explore all events:"
@@ -292,12 +292,13 @@ def search():
         event_dict = {
             'id': event.id,
             'event_name': event.event_name,
-            'event_organization': event.event_organization,
+            'organizer': event.organizer.username,
             'date': event.date,  
             'date': event.date.strftime('%Y-%m-%d'),
             'start_time': event.start_time.strftime('%H:%M:%S'),
             'end_time': event.end_time.strftime('%H:%M:%S'),
             'room': event.room,
+            'location': event.location,
             'allow_comments': event.allow_comments,
             'capacity': event.capacity,
             'event_information': event.event_information,
@@ -307,7 +308,7 @@ def search():
         }
         events_data.append(event_dict)
 
-    organizers = {event.event_organization for event in results}
+    organizers = {event.organizer.username for event in results}
     tags = set()
     for event in results:
         if event.tags:
@@ -445,9 +446,6 @@ def create_event():
         if Event.query.filter_by(event_name=event_name).first():
             flash('An event with the name already exists, please choose another name', 'danger')
             return render_template('create_event.html', tomorrow=tomorrow, key=GOOGLE_PLACES_API_KEY)
-        
-        # Extract event organization name
-        event_organization = request.form['organization']
 
         date_str = request.form['date']
         event_date = datetime.strptime(date_str, '%Y-%m-%d').date()
@@ -481,7 +479,6 @@ def create_event():
         
         new_event = Event(
             event_name=event_name,
-            event_organization=event_organization,
             created_by=current_user.id,
             date=event_date,
             start_time=start_time_obj,
@@ -518,8 +515,8 @@ def populate_database():
     events = [
         {
             "event_name": "Math 101 Class",
-            "event_organization": "UofT",
             "date": datetime.today().date(),
+            "created_by": User.query.filter_by(username="john").first().id,
             "start_time": (datetime.now() + timedelta(hours=1)).time(),
             "end_time": (datetime.now() + timedelta(hours=2)).time(),
             "location": "UofT Campus",
@@ -530,8 +527,8 @@ def populate_database():
         },
         {
             "event_name": "Physics Lecture",
-            "event_organization": "UofT",
             "date": datetime.today().date(),
+            "created_by": User.query.filter_by(username="john").first().id,
             "start_time": (datetime.now() + timedelta(hours=3)).time(),
             "end_time": (datetime.now() + timedelta(hours=4)).time(),
             "location": "UofT Science Building",
@@ -542,8 +539,8 @@ def populate_database():
         },
         {
             "event_name": "Computer Science Workshop",
-            "event_organization": "UofT TechHub",
             "date": datetime.today().date(),
+            "created_by": User.query.filter_by(username="jane").first().id,
             "start_time": (datetime.now() + timedelta(hours=5)).time(),
             "end_time": (datetime.now() + timedelta(hours=6)).time(),
             "location": "UofT Tech Center",
