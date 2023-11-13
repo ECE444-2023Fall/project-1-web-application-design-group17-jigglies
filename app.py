@@ -599,12 +599,10 @@ def edit_profile():
             if new_bio and new_bio != current_user.bio:
                 current_user.update_bio(new_bio)
                 has_changes = True
-        if form.profile_pic.data:
-            image_file = request.files['profile_pic']
-            image_data = None
-            if image_file:
-                image_data = image_file.read()
-            profile_pic = image_data
+        image_file = request.files['file-upload']
+        image_data = None
+        if image_file:
+            profile_pic = image_file.read()
             current_user.update_profile_pic(profile_pic)
             has_changes = True
         # Set status based on whether changes were made
