@@ -1,4 +1,5 @@
 import json
+import boto3
 from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -11,8 +12,6 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_mail import Mail, Message
 import random
-import base64
-from base64 import b64encode
 import urllib
 import re
 from project import helpers
@@ -55,6 +54,14 @@ migrate = Migrate(app, db)
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 GOOGLE_PLACES_API_KEY = os.getenv('GOOGLE_PLACES_API_KEY')
 
+# Initialize S3 client
+s3_client = boto3.client(
+   's3',
+   aws_access_key_id='AKIAUIEFLTMWB5WHVO55',
+   aws_secret_access_key='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',
+   region_name='ca-central-1'
+)
+
 
 
 ## ----------------------------- Database Schemas ----------------------------- ##
@@ -70,7 +77,7 @@ class User(UserMixin, db.Model):
     rsvps = db.relationship("Rsvp", backref="user", passive_deletes=True)
     created_events = db.relationship('Event', backref='organizer', lazy=True)
     bio = db.Column(db.String(150), nullable=True)
-    profile_pic = db.Column(db.LargeBinary, nullable=True)
+    profile_pic = db.Column(db.String(255), nullable=True)
 
     def update_username(self, new_username):
         self.username = new_username
@@ -103,7 +110,7 @@ class Event(db.Model):
     capacity = db.Column(db.Integer, nullable=False)
     event_information = db.Column(db.Text, nullable=False)
     tags = db.Column(db.String, nullable=True) # Retrive by using json.loads(tags) to put it back into list form
-    cover_photo = db.Column(db.LargeBinary, nullable=True)
+    cover_photo = db.Column(db.String(255), nullable=True)
     comments = db.relationship("Comment", backref="event", passive_deletes=True)
     likes = db.relationship("Like", backref="event", passive_deletes=True)
     rsvps = db.relationship("Rsvp", backref="event", passive_deletes=True)
@@ -305,8 +312,7 @@ def search():
             'capacity': event.capacity,
             'event_information': event.event_information,
             'tags': json.loads(event.tags) if event.tags else [],
-            # Convert binary data to base64 string for image
-            'cover_photo': b64encode(event.cover_photo).decode() if event.cover_photo else None
+            'cover_photo': event.cover_photo if event.cover_photo else None
         }
         events_data.append(event_dict)
 
@@ -375,7 +381,7 @@ def create_comment(event_id):
         comment = Comment(text=comment_text, author=current_user.id, event_id=event_id)
         db.session.add(comment)
         db.session.commit()
-        profile_pic = b64encode(current_user.profile_pic).decode() if current_user.profile_pic else None
+        profile_pic = current_user.profile_pic if current_user.profile_pic else None
         
         return jsonify({
             "comment": {
@@ -475,9 +481,27 @@ def create_event():
         
 
         image_file = request.files['file-upload']
-        image_data = None
-        if image_file:
-            image_data = image_file.read()
+        if image_file and allowed_file(image_file.filename):
+            filename = secure_filename(image_file.filename)
+            
+            # Create a unique file name or a path if you want to organize images in folders
+            s3_file_key = f"uploads/{filename}"
+
+            # Upload the file
+            s3_client.upload_fileobj(
+                image_file,
+                'poppinbucket',
+                s3_file_key,
+                ExtraArgs={
+                    "ACL": "public-read",
+                    "ContentType": image_file.content_type
+                }
+            )
+
+            # The URL to access the file on S3
+            image_url = f"https://poppinbucket.s3.amazonaws.com/{s3_file_key}"
+        else:
+            image_url = None  # Or set a default image URL
         
         new_event = Event(
             event_name=event_name,
@@ -491,7 +515,7 @@ def create_event():
             capacity=capacity,
             event_information=event_information,
             tags=tag_db,
-            cover_photo=image_data 
+            cover_photo=image_url 
         )
         db.session.add(new_event)
         db.session.commit()
@@ -603,17 +627,34 @@ def edit_profile():
                 current_user.update_bio(new_bio)
                 has_changes = True
         image_file = request.files['file-upload']
-        image_data = None
         if image_file:
-            profile_pic = image_file.read()
-            current_user.update_profile_pic(profile_pic)
-            has_changes = True
-        # Set status based on whether changes were made
-        if has_changes:
-            db.session.commit()
-            status = 'success'
-        else:
-            status = 'no_changes'
+            if image_file and allowed_file(image_file.filename):
+                filename = secure_filename(image_file.filename)
+                
+                # Create a unique file name or a path if you want to organize images in folders
+                s3_file_key = f"uploads/{filename}"
+
+                # Upload the file
+                s3_client.upload_fileobj(
+                    image_file,
+                    'poppinbucket',
+                    s3_file_key,
+                    ExtraArgs={
+                        "ACL": "public-read",
+                        "ContentType": image_file.content_type
+                    }
+                )
+
+                # The URL to access the file on S3
+                image_url = f"https://poppinbucket.s3.amazonaws.com/{s3_file_key}"
+                current_user.update_profile_pic(image_url)
+                has_changes = True
+            # Set status based on whether changes were made
+            if has_changes:
+                db.session.commit()
+                status = 'success'
+            else:
+                status = 'no_changes'
     elif request.method == 'GET':
         # Pre-fill the form with the current user's data
         form.username.data = current_user.username
