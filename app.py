@@ -78,8 +78,8 @@ class User(UserMixin, db.Model):
     likes = db.relationship("Like", backref="user", passive_deletes=True)
     rsvps = db.relationship("Rsvp", backref="user", passive_deletes=True)
     created_events = db.relationship('Event', backref='organizer', lazy=True)
-    bio = db.Column(db.String(150), nullable=True)
-    profile_pic = db.Column(db.String(255), nullable=True)
+    bio = db.Column(db.Text, nullable=True)
+    profile_pic = db.Column(db.Text, nullable=True)
 
     def update_username(self, new_username):
         self.username = new_username
