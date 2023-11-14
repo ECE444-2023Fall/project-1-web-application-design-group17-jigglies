@@ -7,7 +7,7 @@
 {% block content %}
   {########################### Event Image Section ################################}
   {% if event.cover_photo %}
-    <img class="responsive-img" src="data:image/jpeg;base64,{{ event.cover_photo | b64encode | safe }}" alt="event photo">
+    <img class="responsive-img" src="{{ event.cover_photo}}" alt="event photo">
   {% else %}
     <img class="responsive-img" src="{{ url_for('static', filename='images/pop.png') }}" alt="event photo">
   {% endif%}
@@ -113,7 +113,7 @@
               <div class="flex items-center">
                 {% if comment.user.profile_pic %}
                 <p class="inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white"><img class="mr-2 w-6 h-6 rounded-full"
-                    src="data:image/jpeg;base64,{{ comment.user.profile_pic | b64encode | safe }}" alt="Comment author">{{
+                    src="{{comment.user.profile_pic}}" alt="Comment author">{{
                   comment.user.username }}</p>
                 {% else %}
                 <p class="inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white"><img class="mr-2 w-6 h-6 rounded-full" src="../static/images/profile.png" alt="Comment author">{{
