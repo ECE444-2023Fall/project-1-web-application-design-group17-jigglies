@@ -53,12 +53,14 @@ migrate = Migrate(app, db)
 
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 GOOGLE_PLACES_API_KEY = os.getenv('GOOGLE_PLACES_API_KEY')
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_KEY_ACCESS = os.getenv('AWS_SECRET_KEY_ACCESS')
 
 # Initialize S3 client
 s3_client = boto3.client(
    's3',
-   aws_access_key_id='AKIAUIEFLTMWB5WHVO55',
-   aws_secret_access_key='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',
+   aws_access_key_id=AWS_ACCESS_KEY_ID,
+   aws_secret_access_key=AWS_SECRET_KEY_ACCESS,
    region_name='ca-central-1'
 )
 
