@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-def test_change_user_profile(browser, client):
+def test_5_test_profile(browser, client):
     # Start the browser and open the login page
     browser.get('http://web-app:5000/login')
     assert "login" in browser.current_url
