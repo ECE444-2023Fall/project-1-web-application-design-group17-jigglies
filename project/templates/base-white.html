@@ -53,13 +53,13 @@
           </div>
         </div>
         <a href="{{ url_for('create_event') }}" class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2 text-center md:mr-0 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create Event</a>
-        <button type="button" class="flex ml-4 mr-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false"
+        <button type="button" class="flex w-10 h-10 ml-4 mr-3 text-sm bg-gray-300 rounded-full md:mr-0 focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false"
           data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
           <span class="sr-only">Open user menu</span>
           {% if current_user.profile_pic %}
           <img class="w-8 h-8 rounded-full" src="{{current_user.profile_pic}}" alt="Profile Picture">
           {% else %}
-            <img class="w-8 h-8 rounded-full" src="../static/images/profile.png" alt="user photo">
+            <img class="w-10 h-10 rounded-full" src="../static/images/profile.png" alt="user photo">
           {% endif %}
           </button>
         <!-- Dropdown menu -->
