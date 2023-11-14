@@ -704,11 +704,12 @@ def page_not_found(e):
 
 if __name__ == '__main__':
     with app.app_context():
-        db.drop_all()
-        db.create_all()
-        if not User.query.first() and not Event.query.first():
-            populate_database()
-        # if not Event.query.first():
-        #    add_dummy_events()
+        pass
+        # db.drop_all()
+        # db.create_all()
+        # # if not User.query.first() and not Event.query.first():
+        # #     populate_database()
+        # # if not Event.query.first():
+        # #    add_dummy_events()
     app.run(debug=True)
 

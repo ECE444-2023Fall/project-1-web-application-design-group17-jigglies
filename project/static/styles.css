@@ -139,3 +139,10 @@
       grid-template-columns: 1fr; /* Single column layout for small screens */
   }
 }
+
+.event-title {
+  max-width: 100%; 
+  word-wrap: break-word; 
+  overflow-wrap: break-word; 
+  overflow: hidden; 
+}
