@@ -26,19 +26,22 @@ def test_5_test_profile(browser, client):
 
     # Update the username
     new_username = 'newusername'
-    username_input = browser.find_element(By.ID, 'username')
+    username_input = browser.find_element(By.ID, 'usernameField')
+    username_input.click()
     username_input.clear()
     username_input.send_keys(new_username)
 
     # Update the password
     new_password = 'newpassword123'
-    password_input = browser.find_element(By.ID, 'password')
+    password_input = browser.find_element(By.ID, 'passwordField')
+    password_input.click()
     password_input.clear()
     password_input.send_keys(new_password)
 
     # Update the bio
     new_bio = 'Updated bio text'
-    bio_input = browser.find_element(By.ID, 'bio')
+    bio_input = browser.find_element(By.ID, 'bioField')
+    bio_input.click()
     bio_input.clear()
     bio_input.send_keys(new_bio)
 
