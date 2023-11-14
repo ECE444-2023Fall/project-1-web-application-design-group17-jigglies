@@ -279,7 +279,7 @@ function comment(event_id) {
         commentAuthor = data["comment"]["author"];
         commentDateTimeCreated = data["comment"]["datetime_created"];
         profilePic = data["profile_pic"];
-        profilePicSrc = profilePic ? `data:image/jpeg;base64,${profilePic}` : "../static/images/profile.png";
+        profilePicSrc = profilePic ? profilePic : "../static/images/profile.png";
 
         newCommentHTML = `
         <article class="p-6 mb-6 text-base bg-white border-t border-gray-200 rounded-lg dark:bg-gray-900">
