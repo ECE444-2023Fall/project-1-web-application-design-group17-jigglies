@@ -22,7 +22,7 @@
                     <!--Dynamically set the image URL to the user's profile picture -->
                     {% if current_user.profile_pic %}
                         <!-- If a custom profile picture exists, use it -->
-                        <img class="rounded-full h-32 w-32 object-cover mx-auto" src="data:image/jpeg;base64,{{ current_user.profile_pic | b64encode | safe }}" alt="Profile Picture">
+                        <img class="rounded-full h-32 w-32 object-cover mx-auto" src="{{current_user.profile_pic}}" alt="Profile Picture">
                     {% else %} 
                         <!-- Otherwise, use a default placeholder image -->
                         <img src="../static/images/profile.png" alt="Profile Picture" class="rounded-full h-32 w-32 object-cover mx-auto">

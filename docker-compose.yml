@@ -13,6 +13,8 @@ services:
       - FLASK_APP=app.py
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_TOKEN}
       - GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_TOKEN}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_KEY_ACCESS=${AWS_SECRET_KEY_ACCESS}
       - PYTHONPATH=/project-1-web-application-design-group17-jigglies
     networks:
       - app-network

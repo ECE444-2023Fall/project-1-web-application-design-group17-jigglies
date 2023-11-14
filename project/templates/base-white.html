@@ -57,7 +57,7 @@
           data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
           <span class="sr-only">Open user menu</span>
           {% if current_user.profile_pic %}
-            <img class="w-10 h-10 rounded-full" src="data:image/jpeg;base64,{{ current_user.profile_pic | b64encode | safe }}" alt="Profile Picture">
+          <img class="w-8 h-8 rounded-full" src="{{current_user.profile_pic}}" alt="Profile Picture">
           {% else %}
             <img class="w-10 h-10 rounded-full" src="../static/images/profile.png" alt="user photo">
           {% endif %}

@@ -107,7 +107,7 @@ function displayEvents(filteredEvents) {
         eventCard.style = 'display: flex; flex-direction: column; height: 100%;';
 
         // Determine the source for the image
-        const imageSrc = event.cover_photo ? `data:image/jpeg;base64,${event.cover_photo}` : defaultEventImageUrl;
+        const imageSrc = event.cover_photo ? event.cover_photo : defaultEventImageUrl;
         const eventDetailsUrl = `/event/${event.id}`;
 
         // Format the date and time
