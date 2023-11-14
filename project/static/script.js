@@ -155,7 +155,11 @@ const suggestions_2 = document.getElementById('suggestions_2');
 function setupSearchInput(searchInput, suggestionsBox) {
     searchInput.addEventListener("input", function(event) {
         const value = event.target.value;
-        suggestionsBox.innerHTML = "";
+
+        // Clear the existing suggestions before fetching new ones
+        while (suggestionsBox.firstChild) {
+            suggestionsBox.removeChild(suggestionsBox.firstChild);
+        }
 
         if (value === "") {
             suggestionsBox.classList.add('hidden');
@@ -166,15 +170,22 @@ function setupSearchInput(searchInput, suggestionsBox) {
         fetch(`/autocomplete?search_query=${value}`)
         .then(response => response.json())
         .then(data => {
-            if(data.length) {
+            if (data.length) {
                 suggestionsBox.classList.remove('hidden');
             } else {
                 suggestionsBox.classList.add('hidden');
+                return; // Exit the function if there's no data
             }
 
-            const ulElement = document.createElement("ul");
-            ulElement.classList.add("text-sm", "text-gray-700", "dark:text-gray-200", "border-2", "border-blue-500", "rounded-lg", "shadow-2xl");
+            // Check if UL already exists, if not, create it
+            let ulElement = suggestionsBox.querySelector('ul');
+            if (!ulElement) {
+                ulElement = document.createElement("ul");
+                ulElement.classList.add("text-sm", "text-gray-700", "dark:text-gray-200", "border-2", "border-blue-500", "rounded-lg", "shadow-2xl");
+                suggestionsBox.appendChild(ulElement);
+            }
 
+            // Populate the UL with LI elements
             data.forEach(item => {
                 const liElement = document.createElement("li");
                 liElement.textContent = item.name;
@@ -189,8 +200,6 @@ function setupSearchInput(searchInput, suggestionsBox) {
 
                 ulElement.appendChild(liElement);
             });
-
-            suggestionsBox.appendChild(ulElement);
         })
         .catch(error => {
             console.error("Error fetching search results:", error);
@@ -205,6 +214,7 @@ if (search) {
 if (search_2) {
     setupSearchInput(search_2, suggestions_2);
 }
+
 
 function initialize() {
     var input = document.getElementById('location');
