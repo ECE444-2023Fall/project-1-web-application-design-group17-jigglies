@@ -24,7 +24,7 @@
                             {% for event in liked_events %}
                             <div class="bg-white border border-gray-200 rounded-lg shadow bg-gray-800 dark:border-gray-700 shadow-xl" style="display: flex; flex-direction: column; height: 100%;">
                                 {% if event.cover_photo %}
-                                    <img class="responsive-tile-img rounded-t-lg" src="data:image/jpeg;base64,{{ event.cover_photo | b64encode | safe }}" alt="Event Image {{ event.id }}" />
+                                    <img class="responsive-tile-img rounded-t-lg" src="{{event.cover_photo}}" alt="Event Image {{ event.id }}" />
                                 {% else %}
                                     <img class="responsive-tile-img rounded-t-lg" src="{{ url_for('static', filename='images/pop.png') }}" alt="Default Event Image" />
                                 {% endif %}
