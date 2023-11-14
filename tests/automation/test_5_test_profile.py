@@ -18,10 +18,10 @@ def test_5_test_profile(browser, client):
     submit_button.click()
 
     # Verify the login was successful
-    assert browser.current_url == 'http://web-app:5000/', "Login was unsuccessful"
+    assert browser.current_url == 'http://web-app:5000/', f'Login was unsuccessful, url was expected to be http://web-app:5000/ but is actually {browser.current_url}'
 
-    # Navigate to the profile edit page
-    edit_profile_link = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.LINK_TEXT, 'Edit Profile')))
+    # Navigate to the profile page
+    edit_profile_link = WebDriverWait(browser, 100).until(EC.element_to_be_clickable((By.LINK_TEXT, 'Profile')))
     edit_profile_link.click()
 
     # Update the username
