@@ -17,7 +17,7 @@
     {# Left Column Section #}
     <div class="col-span-2 p-8 border border-gray-200 shadow-xl rounded-xl">
       <div class="flex justify-between items-top mb-6">
-        <h1 class="inline-block text-5xl font-extrabold text-gray-900 lg:text-4xl dark:text-white">{{ event.event_name }}</h1>
+        <h1 class="inline-block text-5xl font-extrabold text-gray-900 lg:text-4xl dark:text-white event-title">{{ event.event_name }}</h1>
         <div class="flex items-top">
           <button type="button" data-tooltip-target="tooltip-like"
             id="like-button" onclick="like({{event.id}})" class="interact-button text-red-500 border border-red-500 font-medium rounded-lg text-sm text-center flex items-center mr-2 p-2.5 {% if current_user.id == event.created_by %} cursor-not-allowed{% endif %}" {% if current_user.id == event.created_by %}disabled{% endif %}>
@@ -86,7 +86,7 @@
       
       {# About this event #}
       <h2 class="mb-4 text-2xl font-bold text-gray-900 lg:mb-6 lg:text-4xl dark:text-white">About this event</h2>
-      <p class="text-gray-600 mb-8">{{ event.event_information }}</p>
+      <p class="text-gray-600 mb-8 event-title">{{ event.event_information }}</p>
 
       {# Comment Section #}
       {# Create comment form #}
