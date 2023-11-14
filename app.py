@@ -78,8 +78,8 @@ class User(UserMixin, db.Model):
     likes = db.relationship("Like", backref="user", passive_deletes=True)
     rsvps = db.relationship("Rsvp", backref="user", passive_deletes=True)
     created_events = db.relationship('Event', backref='organizer', lazy=True)
-    bio = db.Column(db.String(150), nullable=True)
-    profile_pic = db.Column(db.String(255), nullable=True)
+    bio = db.Column(db.Text, nullable=True)
+    profile_pic = db.Column(db.Text, nullable=True)
 
     def update_username(self, new_username):
         self.username = new_username
@@ -112,7 +112,7 @@ class Event(db.Model):
     capacity = db.Column(db.Integer, nullable=False)
     event_information = db.Column(db.Text, nullable=False)
     tags = db.Column(db.String, nullable=True) # Retrive by using json.loads(tags) to put it back into list form
-    cover_photo = db.Column(db.String(255), nullable=True)
+    cover_photo = db.Column(db.Text, nullable=True)
     comments = db.relationship("Comment", backref="event", passive_deletes=True)
     likes = db.relationship("Like", backref="event", passive_deletes=True)
     rsvps = db.relationship("Rsvp", backref="event", passive_deletes=True)
@@ -141,11 +141,6 @@ class Rsvp(db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
-
-
-@app.template_filter('b64encode')
-def b64encode_filter(data):
-    return b64encode(data).decode() if data else None
 
 
 @app.route('/')
@@ -444,7 +439,7 @@ def event_success():
 @app.route('/create_event', methods=['GET', 'POST'])
 @login_required 
 def create_event():
-    tomorrow = (datetime.utcnow() + timedelta(days=1)).date()
+    tomorrow = (datetime.utcnow()).date()
     if request.method == 'GET':
         return render_template('create_event.html', tomorrow=tomorrow, key=GOOGLE_PLACES_API_KEY)
     
