@@ -288,10 +288,10 @@ def search():
         (User.username.ilike(f'%{query}%'))
     ).all()
         description = "Search Results: " + query
+        session['search'] = query #Makes the latest search query associate with the users cookies
     else:
         description = "Explore all events:"
         results = Event.query.all()
-
     # Prepare data for JSON serialization
     events_data = []
     for event in results:
