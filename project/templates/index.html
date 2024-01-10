@@ -31,6 +31,27 @@
       <div class="autocomplete-results" id="autocomplete-results"></div>
     
       <!-- Grid layout for event cards -->
+      {% if recommended_events %}
+        <div class="flex overflow-x-auto py-2" id="event-cards">
+          {% for event in recommended_events %}
+          <div class="event-tile mr-2">
+            {{ components.event_tile(event) }}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <!-- Display a message if there aren't any events. -->
+        <div class="flex items-center justify-center text-center p-8">
+          <span class="text-gray-500">Keep using Poppin to get more recommendations!</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="top-liked-events-section p-10 border-b border-gray-200">
+      <h1 class="inline-block text-4xl font-black text-gray-900 lg:text-4xl dark:text-white mb-6">Top Liked</h1>
+      <div class="autocomplete-results" id="autocomplete-results"></div>
+    
+      <!-- Grid layout for event cards -->
       {% if top_liked_events %}
         <div class="flex overflow-x-auto py-2" id="event-cards">
           {% for event in top_liked_events %}
