@@ -171,6 +171,8 @@ def index():
     #     recommended_events = Event.query.join(User, Event.created_by == User.id).filter( \
     #      (Event.event_name.ilike(f'%{session["search"]}%')) | \
     #      (User.username.ilike(f'%{session["search"]}%')))
+    #     if recommended_events is None:
+    #         recommended_events = 0
     # else:
     #     session['search'] = None
     #     recommended_events = None
