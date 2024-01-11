@@ -64,7 +64,7 @@ s3_client = boto3.client(
    region_name='ca-central-1'
 )
 
-
+search_flag = 0
 
 ## ----------------------------- Database Schemas ----------------------------- ##
 
@@ -167,6 +167,20 @@ def index():
     
     events = Event.query.all()
 
+    if search_flag == 0:
+        session['search'] = None
+        recommended_events = None
+    elif search_flag == 1:
+        recommended_events = Event.query.join(User, Event.created_by == User.id).filter( \
+         (Event.event_name.ilike(f'%{session["search"]}%')) | \
+         (User.username.ilike(f'%{session["search"]}%')))
+        if recommended_events is None:
+            recommended_events = 0
+    
+    print(session['search'], file=sys.stderr)
+    print(recommended_events, file=sys.stderr)
+    print(search_flag, file=sys.stderr)
+
     # if session['search'] is not None:
     #     recommended_events = Event.query.join(User, Event.created_by == User.id).filter( \
     #      (Event.event_name.ilike(f'%{session["search"]}%')) | \
@@ -176,7 +190,8 @@ def index():
     # else:
     #     session['search'] = None
     #     recommended_events = None
-    recommended_events = None
+
+    # recommended_events = None
     return render_template('index.html', events = events, events_today=events_today, user_events=user_events, top_upcoming_rsvps=top_upcoming_rsvps, top_liked_events=top_liked_events, recommended_events=recommended_events)
 
 
@@ -283,6 +298,8 @@ def send_verification_code():
 @app.route('/logout')
 @login_required
 def logout():
+    session.pop('search', None)
+    search_flag = 0
     logout_user()
     return redirect(url_for('login'))
 
@@ -306,6 +323,7 @@ def search():
     else:
         description = "Explore all events:"
         results = Event.query.all()
+    search_flag = 1
     # Prepare data for JSON serialization
     events_data = []
     for event in results:
