@@ -167,20 +167,14 @@ def index():
     
     events = Event.query.all()
 
-    if session['search'] is not None:
-        recommended_events = Event.query.join(User, Event.created_by == User.id).filter( \
-         (Event.event_name.ilike(f'%{session["search"]}%')) | \
-         (User.username.ilike(f'%{session["search"]}%')))
-    else:
-        recommended_events = None
-        # if(query):
-    #     results = Event.query.join(User, Event.created_by == User.id).filter(
-    #     (Event.event_name.ilike(f'%{query}%')) |
-    #     (User.username.ilike(f'%{query}%'))
-    # ).all()
-    #     description = "Search Results: " + query
-    #     session['search'] = query #Makes the latest search query associate with the users cookies
-
+    # if session['search'] is not None:
+    #     recommended_events = Event.query.join(User, Event.created_by == User.id).filter( \
+    #      (Event.event_name.ilike(f'%{session["search"]}%')) | \
+    #      (User.username.ilike(f'%{session["search"]}%')))
+    # else:
+    #     session['search'] = None
+    #     recommended_events = None
+    recommended_events = None
     return render_template('index.html', events = events, events_today=events_today, user_events=user_events, top_upcoming_rsvps=top_upcoming_rsvps, top_liked_events=top_liked_events, recommended_events=recommended_events)
 
 
@@ -304,7 +298,8 @@ def search():
         (User.username.ilike(f'%{query}%'))
     ).all()
         description = "Search Results: " + query
-        session['search'] = query #Makes the latest search query associate with the users cookies
+        # session['search'] = query #Makes the latest search query associate with the users cookies
+        # session.modified = True  # Ensure the session is marked as modified
     else:
         description = "Explore all events:"
         results = Event.query.all()
