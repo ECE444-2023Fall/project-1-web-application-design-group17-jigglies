@@ -16,7 +16,7 @@ import urllib
 import re
 from project import helpers
 from werkzeug.datastructures import FileStorage
-
+import sys
 from datetime import datetime, timedelta
 from project.forms.forms import CreateEventForm, ProfileForm
 from datetime import datetime, timedelta
@@ -298,7 +298,8 @@ def search():
         (User.username.ilike(f'%{query}%'))
     ).all()
         description = "Search Results: " + query
-        # session['search'] = query #Makes the latest search query associate with the users cookies
+        session['search'] = query #Makes the latest search query associate with the users cookies
+        print(session['search'], file=sys.stderr)
         # session.modified = True  # Ensure the session is marked as modified
     else:
         description = "Explore all events:"
