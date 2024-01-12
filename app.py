@@ -176,7 +176,8 @@ def index():
     elif 'search' in session:
         recommended_events = Event.query.join(User, Event.created_by == User.id).filter( \
          (Event.event_name.ilike(f'%{session["search"]}%')) | \
-         (User.username.ilike(f'%{session["search"]}%')))
+         (User.username.ilike(f'%{session["search"]}%'))).limit(5) \
+        .all()
         if int(recommended_events.count()) < 1:
             recommended_events_exists = 0
         else:
