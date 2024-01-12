@@ -26,6 +26,37 @@
       {% endif %}
     </div>
 
+    <div class="your-recommended-events-section p-10 border-b border-gray-200">
+      <h1 class="inline-block text-4xl font-black text-gray-900 lg:text-4xl dark:text-white mb-6">Your Recommended Events</h1>
+      <div class="autocomplete-results" id="autocomplete-results"></div>
+    
+      <!-- Grid layout for event cards -->
+      {% if recommended_events and recommended_events_exists == 1 %}
+        <div class="flex overflow-x-auto py-2" id="event-cards">
+          {% for event in recommended_events %}
+          <div class="event-tile mr-2">
+            {{ components.event_tile(event) }}
+          </div>
+          {% endfor %}
+        </div>
+      {% elif recommended_events_exists == 0 %}
+        <!-- Display a message if there aren't any recommended events for the user -->
+        <div class="flex items-center justify-center text-center p-8">
+          <span class="text-gray-500">Sorry we don't have any events in categories you're looking for! Consider making an event to get the ball rolling... </span>
+        </div>
+      {% elif recommended_events_exists == -1 %}
+        <!-- Display a message if there aren't any events. -->
+        <div class="flex items-center justify-center text-center p-8">
+          <span class="text-gray-500">Keep using Poppin to get more recommendations!</span>
+        </div>        
+      {% else %}
+        <!-- Display a message if there aren't any events. -->
+        <div class="flex items-center justify-center text-center p-8">
+          <span class="text-gray-500">Keep using Poppin to get more recommendations!</span>
+        </div>
+      {% endif %}
+    </div>
+
     <div class="top-liked-events-section p-10 border-b border-gray-200">
       <h1 class="inline-block text-4xl font-black text-gray-900 lg:text-4xl dark:text-white mb-6">Top Liked</h1>
       <div class="autocomplete-results" id="autocomplete-results"></div>
