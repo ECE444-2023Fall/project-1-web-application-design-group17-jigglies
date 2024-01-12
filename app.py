@@ -307,8 +307,6 @@ def search():
     ).all()
         description = "Search Results: " + query
         session['search'] = query #Makes the latest search query associate with the users cookies
-        print(session['search'], file=sys.stderr)
-        # session.modified = True  # Ensure the session is marked as modified
     else:
         description = "Explore all events:"
         results = Event.query.all()
